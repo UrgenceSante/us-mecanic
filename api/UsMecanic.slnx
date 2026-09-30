@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/UsMecanic.Api/UsMecanic.Api.csproj" />
+    <Project Path="src/UsMecanic.Application/UsMecanic.Application.csproj" />
+    <Project Path="src/UsMecanic.Domain/UsMecanic.Domain.csproj" />
+    <Project Path="src/UsMecanic.Infrastructure/UsMecanic.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UsMecanic.Api.IntegrationTests/UsMecanic.Api.IntegrationTests.csproj" />
+    <Project Path="tests/UsMecanic.UnitTests/UsMecanic.UnitTests.csproj" />
+  </Folder>
+</Solution>
