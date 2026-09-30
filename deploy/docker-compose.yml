@@ -1,0 +1,29 @@
+# Déploiement d'un environnement (dev ou prod) sur le serveur.
+# Usage : ./redeploy.sh dev|prod [tag]   (lit .env.<env> pour les ports, tags et config runtime)
+name: us-mecanic-${APP_ENV_NAME:?APP_ENV_NAME manquant}
+
+services:
+  web:
+    image: alexandredelesse/us-mecanic:${IMAGE_TAG:?IMAGE_TAG manquant}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:?WEB_PORT manquant}:80"
+    environment:
+      APP_ENV_NAME: ${APP_ENV_NAME}
+      APP_API_URL: ${APP_API_URL:-}
+      APP_GEOLOC_API_URL: ${APP_GEOLOC_API_URL:-}
+      APP_MAP_STYLE_URL: ${APP_MAP_STYLE_URL:-}
+      APP_KEYCLOAK_URL: ${APP_KEYCLOAK_URL:-}
+      APP_KEYCLOAK_REALM: ${APP_KEYCLOAK_REALM:-}
+      APP_KEYCLOAK_CLIENT_ID: ${APP_KEYCLOAK_CLIENT_ID:-}
+
+  api:
+    image: alexandredelesse/us-mecanic-api:${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:?API_PORT manquant}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      Auth__Authority: ${API_AUTH_AUTHORITY:-}
+      Auth__Audience: ${API_AUTH_AUDIENCE:-}
+      Cors__AllowedOrigins__0: ${API_CORS_ORIGIN:-}

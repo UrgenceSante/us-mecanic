@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# .NET
+bin/
+obj/
+TestResults/
+*.user
+
+# Tests / couverture
+coverage/
+
+# Fichiers d'environnement réels du serveur
+deploy/.env.dev
+deploy/.env.prod

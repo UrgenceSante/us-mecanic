@@ -1,0 +1,64 @@
+name: CI
+
+# Qualité : lint, typage, tests et build du front et de l'API.
+# Déclenché sur chaque PR et réutilisé par les workflows de publication (dev / release).
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Web (React)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:coverage
+      - run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-coverage
+          path: web/coverage/lcov.info
+          if-no-files-found: ignore
+
+  api:
+    name: API (.NET)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - run: dotnet restore UsMecanic.slnx
+      - run: dotnet format UsMecanic.slnx --verify-no-changes --no-restore
+      - run: dotnet build UsMecanic.slnx --no-restore -c Release
+      - run: >
+          dotnet test UsMecanic.slnx --no-build -c Release
+          --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: api-coverage
+          path: api/TestResults/**/coverage.cobertura.xml
+          if-no-files-found: ignore
