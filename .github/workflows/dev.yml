@@ -1,0 +1,22 @@
+name: Dev
+
+# Branche dev : pas de PR obligatoire, chaque push valide le code puis publie les images "dev".
+on:
+  push:
+    branches: [dev]
+
+concurrency:
+  group: dev
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: ci
+    uses: ./.github/workflows/docker-publish.yml
+    secrets: inherit
