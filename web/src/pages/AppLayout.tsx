@@ -9,6 +9,9 @@ export default function AppLayout() {
       <AppBar position="relative">
         <Toolbar>
           <Avatar src={logo} />
+          <Button color="inherit" component={Link} to="/vehicles">
+            Parc
+          </Button>
           <Button color="inherit" component={Link} to="/">
             Logs
           </Button>

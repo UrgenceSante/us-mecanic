@@ -21,6 +21,7 @@ entry() {
   echo "window.__APP_CONFIG__ = {"
   entry envName "${APP_ENV_NAME:-}"
   entry apiUrl "${APP_API_URL:-}"
+  entry legacyApiUrl "${APP_LEGACY_API_URL:-}"
   entry geolocApiUrl "${APP_GEOLOC_API_URL:-}"
   entry mapStyleUrl "${APP_MAP_STYLE_URL:-}"
   entry keycloakUrl "${APP_KEYCLOAK_URL:-}"
