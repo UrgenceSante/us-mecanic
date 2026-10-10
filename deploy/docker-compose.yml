@@ -20,6 +20,9 @@ services:
   api:
     image: alexandredelesse/us-mecanic-api:${IMAGE_TAG}
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "${API_PORT:?API_PORT manquant}:8080"
     environment:
@@ -27,3 +30,23 @@ services:
       Auth__Authority: ${API_AUTH_AUTHORITY:-}
       Auth__Audience: ${API_AUTH_AUDIENCE:-}
       Cors__AllowedOrigins__0: ${API_CORS_ORIGIN:-}
+      # Les migrations sont appliquées au démarrage de l'API (Database__MigrateOnStartup)
+      ConnectionStrings__Default: Host=db;Port=5432;Database=us_mecanic;Username=us_mecanic;Password=${DB_PASSWORD:?DB_PASSWORD manquant}
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: us_mecanic
+      POSTGRES_USER: us_mecanic
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U us_mecanic -d us_mecanic"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:

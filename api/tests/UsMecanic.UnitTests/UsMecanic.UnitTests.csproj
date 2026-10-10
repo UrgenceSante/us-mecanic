@@ -10,6 +10,7 @@
     <PackageReference Include="coverlet.collector" />
     <ProjectReference Include="..\..\src\UsMecanic.Domain\UsMecanic.Domain.csproj" />
     <ProjectReference Include="..\..\src\UsMecanic.Application\UsMecanic.Application.csproj" />
+    <ProjectReference Include="..\..\src\UsMecanic.Infrastructure\UsMecanic.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

@@ -1,8 +1,10 @@
+using System.Text.Json.Serialization;
 using Scalar.AspNetCore;
 using UsMecanic.Api.Configuration;
 using UsMecanic.Api.Endpoints;
 using UsMecanic.Application;
 using UsMecanic.Infrastructure;
+using UsMecanic.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,9 +16,16 @@ builder.Services
     .AddProblemDetails()
     .AddHealthChecks();
 
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+if (app.Configuration.GetValue("Database:MigrateOnStartup", defaultValue: true))
+{
+    await app.Services.MigrateDatabaseAsync();
+}
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
@@ -31,6 +40,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapSystemEndpoints();
+app.MapVehicleEndpoints();
 
 await app.RunAsync();
 
