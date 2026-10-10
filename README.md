@@ -26,7 +26,11 @@ npm ci
 npm run dev
 npm run lint && npm run typecheck && npm test
 
+# Base PostgreSQL locale (identifiants de appsettings.Development.json)
+docker run -d --name us-mecanic-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16
+
 # API — http://localhost:5255/scalar (doc OpenAPI en Development)
+# Les migrations EF Core sont appliquées au démarrage (Database:MigrateOnStartup, true par défaut).
 cd api
 dotnet run --project src/UsMecanic.Api
 dotnet test UsMecanic.slnx
@@ -35,6 +39,25 @@ dotnet format UsMecanic.slnx
 
 Configuration locale du front : copier `web/.env.example` en `web/.env.local`.
 
+Les tests d'intégration de l'API créent une base jetable sur le PostgreSQL local
+(ou celui de `TEST_POSTGRES_CONNECTION`). Nouvelle migration :
+
+```bash
+dotnet tool install --global dotnet-ef
+dotnet ef migrations add <Nom> --project src/UsMecanic.Infrastructure --output-dir Persistence/Migrations
+```
+
+Feuille de route : [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## Import du parc existant
+
+Écran **Parc → Importer** (ou `POST /api/vehicles/import?dryRun=true|false`, fichier en multipart).
+Fichier CSV avec en-tête, séparateur `;` ou `,`, UTF-8 ou Windows-1252 (export Excel) :
+seule la colonne `Immatriculation` est obligatoire ; `Marque`, `Modèle`, `Mise en circulation`
+(JJ/MM/AAAA), `VIN` et `Indicatif` sont facultatives. Les véhicules sont rapprochés par immatriculation :
+un véhicule connu est mis à jour, une cellule vide n'efface pas la valeur existante.
+Modèle : [docs/modele-import-vehicules.csv](docs/modele-import-vehicules.csv).
+
 ## Configuration du front au runtime
 
 Une même image est déployée en dev et en prod. Le conteneur génère `/config.js` au démarrage à partir de ces variables (vide = valeur par défaut, cf. `web/src/config/appConfig.ts`) :
@@ -42,7 +65,8 @@ Une même image est déployée en dev et en prod. Le conteneur génère `/config
 | Variable conteneur | Variable locale (`.env.local`) | Rôle |
 |---|---|---|
 | `APP_ENV_NAME` | `VITE_ENV_NAME` | Nom affiché (dev, prod…) |
-| `APP_API_URL` | `VITE_API_URL` | URL de l'API |
+| `APP_API_URL` | `VITE_API_URL` | URL de l'API us-mecanic |
+| `APP_LEGACY_API_URL` | `VITE_LEGACY_API_URL` | Ancienne API (logs, analyses, notifications) en attendant leur reprise |
 | `APP_GEOLOC_API_URL` | `VITE_GEOLOC_API_URL` | API géoloc (certification de trajet) |
 | `APP_MAP_STYLE_URL` | `VITE_MAP_STYLE_URL` | Style de carte MapLibre |
 | `APP_KEYCLOAK_URL` / `_REALM` / `_CLIENT_ID` | `VITE_KEYCLOAK_*` | Keycloak |
@@ -89,3 +113,8 @@ cp .env.dev.example .env.dev      # une seule fois, puis adapter
 | prod | 3022 | 3032 |
 
 Les URL du front, y compris la géoloc intégrée `#/embed/geoloc/:immat/:tripId`, restent sur les mêmes ports qu'avant.
+
+Chaque environnement a sa propre base PostgreSQL (conteneur `db`, non exposé, données dans le volume
+`us-mecanic-<env>_db-data`). Renseigner `DB_PASSWORD` dans `.env.<env>` avant le premier démarrage,
+ainsi que `APP_API_URL` (URL publique de l'API) et `API_CORS_ORIGIN` (URL du front) pour que le front
+puisse joindre l'API.
