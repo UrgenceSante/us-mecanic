@@ -1,10 +1,17 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UsMecanic.Application.Vehicles;
+using UsMecanic.Application.Vehicles.Import;
+using UsMecanic.Infrastructure.Persistence;
+using UsMecanic.Infrastructure.Vehicles;
 
 namespace UsMecanic.Infrastructure;
 
 public static class DependencyInjection
 {
+    public const string ConnectionStringName = "Default";
+
     /// <summary>
     /// Enregistre les adaptateurs sortants (persistance, sources externes : télématique, saisie km…).
     /// Chaque source implémente un port défini dans la couche Application.
@@ -12,6 +19,22 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+
+        var connectionString = configuration.GetConnectionString(ConnectionStringName);
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException($"Chaîne de connexion 'ConnectionStrings:{ConnectionStringName}' manquante.");
+        }
+
+        services.AddDbContext<UsMecanicDbContext>(options => ConfigureDbContext(options, connectionString));
+        services.AddHealthChecks().AddDbContextCheck<UsMecanicDbContext>("database");
+
+        services.AddScoped<IVehicleRepository, VehicleRepository>();
+        services.AddSingleton<IVehicleImportReader, CsvVehicleImportReader>();
+
         return services;
     }
+
+    internal static void ConfigureDbContext(DbContextOptionsBuilder options, string connectionString) =>
+        options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
 }

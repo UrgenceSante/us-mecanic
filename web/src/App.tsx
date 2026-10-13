@@ -10,6 +10,9 @@ import EmbedPage from "./pages/EmbedPage";
 import { Box } from "@mui/material";
 import VersionDisplay from "./components/Utils/VersionDisplay";
 import Page404 from "./pages/Page404";
+import VehicleListPage from "./features/vehicles/pages/VehicleListPage";
+import VehicleDetailPage from "./features/vehicles/pages/VehicleDetailPage";
+import VehicleImportPage from "./features/vehicles/pages/VehicleImportPage";
 
 function App() {
   return (
@@ -27,6 +30,9 @@ function App() {
               }
             >
               <Route index element={<Home />} />
+              <Route path="/vehicles" element={<VehicleListPage />} />
+              <Route path="/vehicles/import" element={<VehicleImportPage />} />
+              <Route path="/vehicles/:vehicleId" element={<VehicleDetailPage />} />
               <Route path="/analyse/:logId" element={<AnalyseDetail />} />
               <Route
                 path="/notification-subscriptions"

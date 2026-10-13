@@ -1,11 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace UsMecanic.Api.IntegrationTests;
 
-public class SystemEndpointsTests : IClassFixture<SystemEndpointsTests.ApiFactory>
+public class SystemEndpointsTests : IClassFixture<ApiFactory>
 {
     private readonly HttpClient _client;
 
@@ -15,7 +13,7 @@ public class SystemEndpointsTests : IClassFixture<SystemEndpointsTests.ApiFactor
     }
 
     [Fact]
-    public async Task Health_est_accessible_sans_authentification()
+    public async Task Health_est_accessible_sans_authentification_et_verifie_la_base()
     {
         var response = await _client.GetAsync(new Uri("/health", UriKind.Relative));
 
@@ -42,9 +40,4 @@ public class SystemEndpointsTests : IClassFixture<SystemEndpointsTests.ApiFactor
     }
 
     private sealed record AppInfoDto(string Name, string Version, string Environment);
-
-    public sealed class ApiFactory : WebApplicationFactory<Program>
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder) => builder.UseEnvironment("Testing");
-    }
 }

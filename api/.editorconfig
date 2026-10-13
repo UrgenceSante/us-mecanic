@@ -23,3 +23,7 @@ dotnet_diagnostic.IDE0161.severity = warning   # namespace file-scoped
 # Les noms de méthodes de test contiennent des underscores
 [tests/**.cs]
 dotnet_diagnostic.CA1707.severity = none
+
+# Migrations EF Core : code généré, exclu des analyseurs et du formatage
+[src/**/Migrations/*.cs]
+generated_code = true

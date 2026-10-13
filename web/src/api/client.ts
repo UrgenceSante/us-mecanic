@@ -19,9 +19,13 @@ function createAuthenticatedClient(baseURL: string): AxiosInstance {
   return instance;
 }
 
-const client = createAuthenticatedClient(appConfig.apiUrl);
+/** Client de l'API us-mecanic. */
+export const apiClient = createAuthenticatedClient(appConfig.apiUrl);
+
+/** Client de l'ancienne API, utilisé par le code historique (services/) jusqu'à sa reprise. */
+const legacyClient = createAuthenticatedClient(appConfig.legacyApiUrl);
 
 /** Client de l'API géoloc existante (certification de trajet). */
 export const geoClient = createAuthenticatedClient(appConfig.geolocApiUrl);
 
-export default client;
+export default legacyClient;

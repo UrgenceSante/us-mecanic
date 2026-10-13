@@ -7,7 +7,10 @@
  */
 export interface AppConfig {
   envName: string;
+  /** API us-mecanic (gestion du parc). */
   apiUrl: string;
+  /** Ancienne API (logs mécaniques, analyses, notifications), en attendant leur reprise par us-mecanic. */
+  legacyApiUrl: string;
   geolocApiUrl: string;
   mapStyleUrl: string;
   keycloakUrl: string;
@@ -23,7 +26,8 @@ declare global {
 
 export const defaultConfig: AppConfig = {
   envName: "local",
-  apiUrl: "https://notification-api.delesse.net",
+  apiUrl: "http://localhost:5255",
+  legacyApiUrl: "https://notification-api.delesse.net",
   geolocApiUrl: "https://intranet.urgencesante.fr:8091/",
   mapStyleUrl: "http://85.214.12.96:8082/styles/basic-preview/style.json",
   keycloakUrl: "https://auth.ade-dev.fr/",
@@ -34,6 +38,7 @@ export const defaultConfig: AppConfig = {
 const buildTimeConfig: Partial<AppConfig> = {
   envName: import.meta.env.VITE_ENV_NAME,
   apiUrl: import.meta.env.VITE_API_URL,
+  legacyApiUrl: import.meta.env.VITE_LEGACY_API_URL,
   geolocApiUrl: import.meta.env.VITE_GEOLOC_API_URL,
   mapStyleUrl: import.meta.env.VITE_MAP_STYLE_URL,
   keycloakUrl: import.meta.env.VITE_KEYCLOAK_URL,
