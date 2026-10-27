@@ -12,4 +12,14 @@ public sealed class AuthOptions
     public string Audience { get; init; } = string.Empty;
 
     public bool RequireHttpsMetadata { get; init; } = true;
+
+    /// <summary>Nom de la clé de configuration (Auth:Disabled, variable Auth__Disabled) qui désactive l'authentification.</summary>
+    public const string DisabledKey = "Auth:Disabled";
+
+    /// <summary>
+    /// Vrai uniquement si Auth:Disabled vaut explicitement "true" (ADR-0001, dev seulement).
+    /// Absent, vide ou non booléen : l'authentification reste active (pas d'exception, pas de repli permissif).
+    /// </summary>
+    public static bool IsDisabled(IConfiguration configuration) =>
+        bool.TryParse(configuration[DisabledKey], out var disabled) && disabled;
 }

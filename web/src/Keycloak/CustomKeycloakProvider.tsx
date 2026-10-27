@@ -3,6 +3,7 @@ import keycloak from "./Keycloak";
 import LogoLoader from "../components/Utils/LogoLoader";
 import packageJson from "../../package.json";
 import type { ReactNode } from "react";
+import { appConfig } from "../config/appConfig";
 
 interface CustomKeycloakProviderProps {
   children: ReactNode;
@@ -10,6 +11,11 @@ interface CustomKeycloakProviderProps {
 export default function CustomKeycloakProvider(
   props: CustomKeycloakProviderProps
 ) {
+  // Mode dev sans authentification (ADR-0001) : Keycloak n'est pas initialisé.
+  if (appConfig.authDisabled) {
+    return props.children;
+  }
+
   return (
     <ReactKeycloakProvider
       authClient={keycloak}

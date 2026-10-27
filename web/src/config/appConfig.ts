@@ -16,11 +16,16 @@ export interface AppConfig {
   keycloakUrl: string;
   keycloakRealm: string;
   keycloakClientId: string;
+  /**
+   * Mode développement sans authentification (ADR-0001) : saute la connexion Keycloak.
+   * Actif uniquement si la valeur vaut exactement "true" ; tout autre cas laisse l'authentification active.
+   */
+  authDisabled: boolean;
 }
 
 declare global {
   interface Window {
-    __APP_CONFIG__?: Partial<AppConfig>;
+    __APP_CONFIG__?: Partial<Record<keyof AppConfig, unknown>>;
   }
 }
 
@@ -33,9 +38,10 @@ export const defaultConfig: AppConfig = {
   keycloakUrl: "https://auth.ade-dev.fr/",
   keycloakRealm: "ustest",
   keycloakClientId: "us-mecanic",
+  authDisabled: false,
 };
 
-const buildTimeConfig: Partial<AppConfig> = {
+const buildTimeConfig: Partial<Record<keyof AppConfig, unknown>> = {
   envName: import.meta.env.VITE_ENV_NAME,
   apiUrl: import.meta.env.VITE_API_URL,
   legacyApiUrl: import.meta.env.VITE_LEGACY_API_URL,
@@ -44,17 +50,23 @@ const buildTimeConfig: Partial<AppConfig> = {
   keycloakUrl: import.meta.env.VITE_KEYCLOAK_URL,
   keycloakRealm: import.meta.env.VITE_KEYCLOAK_REALM,
   keycloakClientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
+  authDisabled: import.meta.env.VITE_AUTH_DISABLED,
 };
 
 /** Fusionne les sources en ignorant les valeurs vides. */
 export function resolveConfig(
-  ...sources: (Partial<AppConfig> | undefined)[]
+  ...sources: (Partial<Record<keyof AppConfig, unknown>> | undefined)[]
 ): AppConfig {
   const resolved: AppConfig = { ...defaultConfig };
   for (const source of sources) {
     for (const [key, value] of Object.entries(source ?? {})) {
-      if (typeof value === "string" && value.trim() !== "") {
-        resolved[key as keyof AppConfig] = value;
+      if (key === "authDisabled") {
+        // Strict : seule la valeur "true" (ou le booléen true) désactive l'authentification.
+        if (value !== undefined && value !== "") {
+          resolved.authDisabled = value === true || value === "true";
+        }
+      } else if (typeof value === "string" && value.trim() !== "") {
+        (resolved as unknown as Record<string, unknown>)[key] = value;
       }
     }
   }
