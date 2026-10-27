@@ -44,21 +44,21 @@ public sealed class Vehicle
 
     public VehicleDetails Details => new(Brand, Model, FirstRegistrationDate, Vin, InternalNumber, TypeId);
 
-    public static Result<Vehicle> Register(LicensePlate licensePlate, VehicleDetails details, DateTimeOffset now)
+    public static Result<Vehicle> Register(LicensePlate licensePlate, VehicleDetails details, DateOnly today, DateTimeOffset now)
     {
         var vehicle = new Vehicle(Guid.CreateVersion7(now), licensePlate, now);
-        var applied = vehicle.ApplyDetails(details, now);
+        var applied = vehicle.ApplyDetails(details, today, now);
         return applied.IsSuccess ? Result<Vehicle>.Success(vehicle) : Result<Vehicle>.Failure(applied.Error!);
     }
 
-    public Result<Vehicle> UpdateDetails(VehicleDetails details, DateTimeOffset now)
+    public Result<Vehicle> UpdateDetails(VehicleDetails details, DateOnly today, DateTimeOffset now)
     {
         if (Status == VehicleStatus.Retired)
         {
             return Result<Vehicle>.Failure(VehicleErrors.Retired);
         }
 
-        return ApplyDetails(details, now);
+        return ApplyDetails(details, today, now);
     }
 
     public Result<Vehicle> ChangeStatus(VehicleStatus status, DateTimeOffset now)
@@ -77,9 +77,9 @@ public sealed class Vehicle
         return Result<Vehicle>.Success(this);
     }
 
-    private Result<Vehicle> ApplyDetails(VehicleDetails details, DateTimeOffset now)
+    private Result<Vehicle> ApplyDetails(VehicleDetails details, DateOnly today, DateTimeOffset now)
     {
-        if (details.FirstRegistrationDate > DateOnly.FromDateTime(now.UtcDateTime))
+        if (details.FirstRegistrationDate > today)
         {
             return Result<Vehicle>.Failure(VehicleErrors.FirstRegistrationInFuture);
         }

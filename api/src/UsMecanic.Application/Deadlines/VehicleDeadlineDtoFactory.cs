@@ -5,13 +5,13 @@ namespace UsMecanic.Application.Deadlines;
 
 /// <summary>
 /// Construit les DTO d'échéances avec leur statut : km actuel = relevé le plus récent par date,
-/// date du jour fournie par l'horloge, seuils du type sinon globaux.
+/// date du jour du calendrier métier, seuils du type sinon globaux.
 /// </summary>
 public sealed class VehicleDeadlineDtoFactory(
     IDeadlineTypeRepository types,
     IDeadlineThresholdsRepository thresholds,
     IMileageReadingRepository readings,
-    TimeProvider clock)
+    BusinessCalendar calendar)
 {
     public async Task<IReadOnlyList<VehicleDeadlineDto>> BuildAsync(
         Guid vehicleId, IReadOnlyList<VehicleDeadline> deadlines, CancellationToken cancellationToken)
@@ -22,7 +22,7 @@ public sealed class VehicleDeadlineDtoFactory(
         var global = await thresholds.GetAsync(cancellationToken);
         var vehicleReadings = await readings.ListByVehicleAsync(vehicleId, cancellationToken);
         int? currentKm = vehicleReadings.Count > 0 ? vehicleReadings[0].Kilometers : null;
-        var today = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
+        var today = calendar.Today;
 
         return [.. deadlines.Select(deadline =>
         {

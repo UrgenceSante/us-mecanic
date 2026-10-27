@@ -36,7 +36,7 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
 
     public Vehicle Seed(string plate, VehicleDetails? details = null)
     {
-        var vehicle = Vehicle.Register(LicensePlate.Create(plate).Value, details ?? EmptyDetails, FixedClock.Default.AddDays(-30)).Value;
+        var vehicle = Vehicle.Register(LicensePlate.Create(plate).Value, details ?? EmptyDetails, FixedClock.DefaultToday, FixedClock.Default.AddDays(-30)).Value;
         Saved.Add(vehicle);
         return vehicle;
     }
