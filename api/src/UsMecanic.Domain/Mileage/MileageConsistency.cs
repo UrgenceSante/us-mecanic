@@ -42,9 +42,9 @@ public static class MileageConsistency
             .FirstOrDefault();
 
         var outOfOrder = entry.Kilometers < previous?.Kilometers || entry.Kilometers > next?.Kilometers;
-        if (outOfOrder)
+        if (outOfOrder && string.IsNullOrWhiteSpace(entry.Reason))
         {
-            return string.IsNullOrWhiteSpace(entry.Reason) ? MileageReadingErrors.ReasonRequired : null;
+            return MileageReadingErrors.ReasonRequired;
         }
 
         return previous is not null && !entry.ConfirmHighMileage && ExceedsDailyLimit(entry, previous)

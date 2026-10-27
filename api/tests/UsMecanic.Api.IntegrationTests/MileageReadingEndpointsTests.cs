@@ -83,7 +83,7 @@ public class MileageReadingEndpointsTests : IClassFixture<ApiFactory>
         await AddAsync(vehicleId, DaysAgo(5), 10_200);
 
         var list = await _client.GetFromJsonAsync<List<ReadingDto>>(ReadingsUri(vehicleId), Json);
-        Assert.Equal(new[] { 10_500, 10_200, 10_000 }, list!.Select(r => r.Kilometers));
+        Assert.Equal([10_500, 10_200, 10_000], list!.Select(r => r.Kilometers));
     }
 
     [Fact]

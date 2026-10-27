@@ -93,7 +93,7 @@ public class MileageReadingUseCasesTests
 
         var result = await List.ExecuteAsync(_vehicle.Id, CancellationToken.None);
 
-        Assert.Equal(new[] { 1_500, 1_200, 1_000 }, result.Value.Select(r => r.Kilometers));
+        Assert.Equal([1_500, 1_200, 1_000], result.Value.Select(r => r.Kilometers));
     }
 
     [Fact]

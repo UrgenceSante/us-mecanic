@@ -183,14 +183,16 @@ public class MileageReadingTests
     }
 
     [Fact]
-    public void Un_motif_accepte_un_releve_incoherent_sans_demander_de_confirmation()
+    public void Un_motif_ne_dispense_pas_de_confirmer_plus_de_1000_km_par_jour()
     {
         var others = new[] { Existing(Today.AddDays(-10), 10_000), Existing(Today.AddDays(-1), 10_500) };
 
-        // Au-dessus du suivant ET à plus de 1 000 km/jour du précédent : le motif suffit pour l'incohérence d'ordre.
-        var result = MileageReading.Create(VehicleId, Entry(Today.AddDays(-9), 13_000, "Relevé du tableau de bord"), others, Now);
+        // Au-dessus du suivant ET à plus de 1 000 km/jour du précédent : le motif ne suffit pas, il faut aussi confirmer.
+        var unconfirmed = MileageReading.Create(VehicleId, Entry(Today.AddDays(-9), 13_000, "Relevé du tableau de bord"), others, Now);
+        var confirmed = MileageReading.Create(VehicleId, Entry(Today.AddDays(-9), 13_000, "Relevé du tableau de bord", confirm: true), others, Now);
 
-        Assert.True(result.IsSuccess);
+        Assert.Equal(MileageReadingErrors.HighMileageConfirmationRequired, unconfirmed.Error);
+        Assert.True(confirmed.IsSuccess);
     }
 
     [Fact]
