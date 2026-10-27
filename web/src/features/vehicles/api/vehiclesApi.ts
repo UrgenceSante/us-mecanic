@@ -12,7 +12,7 @@ const BASE = "api/vehicles";
 
 export async function listVehicles(filter: VehicleFilter): Promise<Vehicle[]> {
   const { data } = await apiClient.get<Vehicle[]>(BASE, {
-    params: { search: filter.search || undefined, status: filter.status },
+    params: { search: filter.search || undefined, status: filter.status, type: filter.type },
   });
   return data;
 }

@@ -9,6 +9,8 @@ export interface Vehicle {
   firstRegistrationDate: string | null;
   vin: string | null;
   internalNumber: string | null;
+  typeId: string | null;
+  typeName: string | null;
   status: VehicleStatus;
   createdAt: string;
   updatedAt: string;
@@ -17,6 +19,8 @@ export interface Vehicle {
 export interface VehicleFilter {
   search?: string;
   status?: VehicleStatus;
+  /** Id du type de véhicule. */
+  type?: string;
 }
 
 export interface VehicleDetailsInput {
@@ -25,6 +29,8 @@ export interface VehicleDetailsInput {
   firstRegistrationDate: string | null;
   vin: string | null;
   internalNumber: string | null;
+  /** Toujours envoyé : le PUT remplace tout, un typeId absent efface le type. */
+  typeId: string | null;
 }
 
 export interface RegisterVehicleCommand {

@@ -9,6 +9,7 @@ import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { problemMessage } from "../../../shared/api/problemMessage";
 import { useRegisterVehicle, useVehicles } from "../api/vehicleQueries";
+import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import VehicleStatusChip from "../components/VehicleStatusChip";
 import { formatDateOnly, toRegisterCommand, type VehicleFormValues } from "../components/vehicleForm";
@@ -17,6 +18,7 @@ import { vehicleStatusLabels, type Vehicle, type VehicleStatus } from "../types/
 const columns: GridColDef<Vehicle>[] = [
   { field: "licensePlate", headerName: "Immatriculation", width: 140 },
   { field: "internalNumber", headerName: "N° interne", width: 120 },
+  { field: "typeName", headerName: "Type", width: 140 },
   { field: "brand", headerName: "Marque", flex: 1, minWidth: 120 },
   { field: "model", headerName: "Modèle", flex: 1, minWidth: 120 },
   {
@@ -38,9 +40,10 @@ export default function VehicleListPage() {
   const { notifySuccess } = useNotifSnack();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<VehicleStatus | "">("");
+  const [type, setType] = useState("");
   const [creating, setCreating] = useState(false);
 
-  const vehicles = useVehicles({ search, status: status || undefined });
+  const vehicles = useVehicles({ search, status: status || undefined, type: type || undefined });
   const register = useRegisterVehicle();
 
   const handleCreate = (values: VehicleFormValues) =>
@@ -94,6 +97,14 @@ export default function VehicleListPage() {
             </MenuItem>
           ))}
         </TextField>
+        <VehicleTypeSelect
+          value={type}
+          onChange={setType}
+          emptyLabel="Tous"
+          includeInactive
+          size="small"
+          minWidth={180}
+        />
       </Stack>
 
       {vehicles.isError ? (

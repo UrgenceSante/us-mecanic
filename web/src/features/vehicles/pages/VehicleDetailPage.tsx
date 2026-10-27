@@ -74,6 +74,7 @@ export default function VehicleDetailPage() {
           <PropertyDisplay title="Modèle" content={data.model ?? "-"} />
           <PropertyDisplay title="N° interne / indicatif" content={data.internalNumber ?? "-"} />
           <PropertyDisplay title="Mise en circulation" content={formatDateOnly(data.firstRegistrationDate)} />
+          <PropertyDisplay title="Type" content={data.typeName ?? "-"} />
           <PropertyDisplay title="VIN" content={data.vin ?? "-"} />
         </Stack>
       </Paper>
@@ -86,6 +87,7 @@ export default function VehicleDetailPage() {
         <VehicleFormDialog
           open
           initialValues={toFormValues(data)}
+          currentType={data.typeId && data.typeName ? { id: data.typeId, name: data.typeName } : null}
           submitting={update.isPending}
           error={update.isError ? problemMessage(update.error) : null}
           onSubmit={handleUpdate}

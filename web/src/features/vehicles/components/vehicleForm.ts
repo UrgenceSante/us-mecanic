@@ -8,6 +8,8 @@ export interface VehicleFormValues {
   firstRegistrationDate: string;
   vin: string;
   internalNumber: string;
+  /** Id du type, chaîne vide si aucun. */
+  typeId: string;
 }
 
 export const emptyVehicleForm: VehicleFormValues = {
@@ -17,6 +19,7 @@ export const emptyVehicleForm: VehicleFormValues = {
   firstRegistrationDate: "",
   vin: "",
   internalNumber: "",
+  typeId: "",
 };
 
 export function toFormValues(vehicle: Vehicle): VehicleFormValues {
@@ -27,6 +30,7 @@ export function toFormValues(vehicle: Vehicle): VehicleFormValues {
     firstRegistrationDate: vehicle.firstRegistrationDate ?? "",
     vin: vehicle.vin ?? "",
     internalNumber: vehicle.internalNumber ?? "",
+    typeId: vehicle.typeId ?? "",
   };
 }
 
@@ -39,6 +43,7 @@ export function toDetailsInput(values: VehicleFormValues): VehicleDetailsInput {
     firstRegistrationDate: orNull(values.firstRegistrationDate),
     vin: orNull(values.vin),
     internalNumber: orNull(values.internalNumber),
+    typeId: orNull(values.typeId),
   };
 }
 

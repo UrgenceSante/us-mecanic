@@ -11,6 +11,7 @@ describe("vehicleForm", () => {
       firstRegistrationDate: "2021-03-15",
       vin: "  ",
       internalNumber: "AMB-1",
+      typeId: "",
     });
 
     expect(command).toEqual({
@@ -21,6 +22,7 @@ describe("vehicleForm", () => {
         firstRegistrationDate: "2021-03-15",
         vin: null,
         internalNumber: "AMB-1",
+        typeId: null,
       },
     });
   });
@@ -34,12 +36,14 @@ describe("vehicleForm", () => {
       firstRegistrationDate: null,
       vin: null,
       internalNumber: null,
+      typeId: "t1",
+      typeName: "VSL",
       status: "Active",
       createdAt: "",
       updatedAt: "",
     };
 
-    expect(toFormValues(vehicle)).toMatchObject({ licensePlate: "AB-123-CD", brand: "", model: "Master" });
+    expect(toFormValues(vehicle)).toMatchObject({ licensePlate: "AB-123-CD", brand: "", model: "Master", typeId: "t1" });
   });
 
   it("formate une date sans décalage de fuseau", () => {

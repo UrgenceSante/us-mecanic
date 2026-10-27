@@ -11,7 +11,7 @@ import {
 
 export const vehicleKeys = {
   all: ["vehicles"] as const,
-  list: (filter: VehicleFilter) => ["vehicles", "list", filter.search ?? "", filter.status ?? ""] as const,
+  list: (filter: VehicleFilter) => ["vehicles", "list", filter.search ?? "", filter.status ?? "", filter.type ?? ""] as const,
   detail: (id: string) => ["vehicles", "detail", id] as const,
 };
 
