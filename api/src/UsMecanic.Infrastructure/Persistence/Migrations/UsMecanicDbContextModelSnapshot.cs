@@ -84,6 +84,62 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.ToTable("deadline_types", (string)null);
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Deadlines.VehicleDeadline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("DeadlineTypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deadline_type_id");
+
+                    b.Property<DateOnly?>("DueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("due_date");
+
+                    b.Property<int?>("DueKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("due_km");
+
+                    b.Property<int?>("IntervalKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval_km");
+
+                    b.Property<int?>("IntervalMonths")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval_months");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_closed");
+
+                    b.Property<DateOnly?>("LastDoneDate")
+                        .HasColumnType("date")
+                        .HasColumnName("last_done_date");
+
+                    b.Property<int?>("LastDoneKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_done_km");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_deadlines");
+
+                    b.HasIndex("DeadlineTypeId")
+                        .HasDatabaseName("ix_vehicle_deadlines_deadline_type_id");
+
+                    b.HasIndex("VehicleId", "DeadlineTypeId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_vehicle_deadlines_vehicle_id_deadline_type_id")
+                        .HasFilter("is_closed = false");
+
+                    b.ToTable("vehicle_deadlines", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Mileage.MileageReading", b =>
                 {
                     b.Property<Guid>("Id")
@@ -211,6 +267,23 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_vehicle_types_name");
 
                     b.ToTable("vehicle_types", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Deadlines.VehicleDeadline", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Deadlines.DeadlineType", null)
+                        .WithMany()
+                        .HasForeignKey("DeadlineTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_vehicle_deadlines_deadline_types_deadline_type_id");
+
+                    b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_vehicle_deadlines_vehicles_vehicle_id");
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Mileage.MileageReading", b =>
