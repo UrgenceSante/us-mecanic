@@ -1,89 +1,156 @@
 # Phase 2 — Kilométrage et échéances
 
-Statut : brouillon (cadrage en cours)
+Statut : brouillon, en attente de validation
 
 ## Contexte et objectif
 
 Le parc est enregistré (phase 1). La phase 2 permet de suivre le kilométrage de chaque véhicule
-et ses échéances réglementaires et d'entretien, pour ne laisser passer aucune échéance.
+et ses échéances réglementaires et d'entretien, pour qu'aucune échéance ne passe inaperçue.
 
-Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
+Décisions de cadrage (voir `docs/ROADMAP.md`) :
 
 - Fonctionnalités d'abord : l'import de l'historique et la source de kilométrage externe
   (géoloc, télématique) sont reportés en phase 8. En phase 2, le kilométrage est saisi à la main.
-- Pas d'authentification en développement (ADR 0001) ; les rôles Keycloak sont reportés en
-  phase 9. En phase 2, tout utilisateur a tous les droits.
-- Le carnet d'entretien (interventions réalisées) est en phase 3.
+- Pas d'authentification en développement (ADR 0001) ; rôles Keycloak reportés en phase 9.
+- Le carnet d'entretien (interventions réalisées, garage, travaux) est en phase 3.
 
 ## Utilisateurs et rôles
 
-- **Administrateur du parc** : saisit périodiquement les relevés kilométriques et gère les
-  échéances. En phase 2, sans authentification, c'est le seul profil.
+- **Administrateur du parc** : seul profil en phase 2. Saisit les relevés kilométriques, gère
+  les types de véhicule, les types d'échéance, les seuils et les échéances des véhicules.
 
 ## User stories
 
-À préciser. Périmètre retenu :
+### Must
 
-- Relevés kilométriques : saisie, historique, contrôle de cohérence.
-- Kilométrage actuel sur la fiche et la liste du parc.
-- Échéances : contrôle technique, assurance, entretien (au km et/ou à la date).
-- Échéances propres aux ambulances (agrément ARS, matériel médical, oxygène, extincteur…).
-- Échéance réalisée : calcul de la suivante.
-- Tableau de bord des échéances proches ou dépassées.
-- Prérequis technique : désactivation de l'authentification en développement (ADR 0001).
+**US0 — Développer sans connexion (prérequis technique)**
+En tant que développeur, je veux utiliser l'application sans me connecter en local et sur
+l'environnement de dev, afin d'accélérer le développement.
+- [ ] Un réglage de configuration désactive l'authentification de l'API et la connexion du front.
+- [ ] Sans ce réglage (valeur absente ou inconnue), l'authentification reste active.
+- [ ] La configuration de prod n'active pas ce réglage.
+
+**US1 — Saisir un relevé kilométrique**
+En tant qu'administrateur, je veux saisir le kilométrage d'un véhicule à une date, afin de
+suivre son usage et ses échéances au km.
+- [ ] Depuis la fiche véhicule : km (entier positif), date préremplie à aujourd'hui et modifiable.
+- [ ] Date dans le futur : refusée.
+- [ ] Valeur inférieure au relevé précédent (ou supérieure au suivant, par date) : motif
+      obligatoire, sinon refus.
+- [ ] Plus de 1 000 km/jour en moyenne depuis le relevé précédent : avertissement, enregistré
+      seulement après confirmation.
+- [ ] Impossible sur un véhicule sorti du parc.
+
+**US2 — Consulter l'historique et le km actuel**
+En tant qu'administrateur, je veux voir les relevés d'un véhicule et son km actuel, afin de
+connaître son état.
+- [ ] La fiche affiche le km actuel (relevé le plus récent par date) et sa date.
+- [ ] La liste du parc affiche une colonne « km actuel ».
+- [ ] L'historique liste les relevés du plus récent au plus ancien, avec le motif éventuel.
+
+**US3 — Corriger ou supprimer un relevé**
+En tant qu'administrateur, je veux corriger ou supprimer un relevé erroné, afin que le km
+actuel et les échéances restent justes.
+- [ ] Modification soumise aux mêmes contrôles que la saisie.
+- [ ] Suppression après confirmation ; le km actuel et les échéances sont recalculés.
+
+**US4 — Gérer les types de véhicule**
+En tant qu'administrateur, je veux gérer les types d'utilisation des véhicules (ambulance, VSL,
+sang…), afin de regrouper le parc et d'appliquer des échéances par type.
+- [ ] Créer, renommer, désactiver un type ; un type utilisé ne peut pas être supprimé.
+- [ ] Le formulaire véhicule propose le type (facultatif) ; la liste du parc filtre par type.
+
+**US5 — Gérer les types d'échéance**
+En tant qu'administrateur, je veux gérer les types d'échéance, afin de couvrir toutes les
+obligations du parc.
+- [ ] Types fournis au départ : contrôle technique, assurance, entretien constructeur,
+      agrément ARS, matériel médical, oxygène, extincteur.
+- [ ] Un type a : nom, périodicité par défaut (mois et/ou km, ou aucune = ponctuel), seuils
+      « proche » optionnels (sinon seuils globaux).
+- [ ] À la création d'un type, l'application propose de l'ajouter à tous les véhicules d'un ou
+      plusieurs types de véhicule, avec la périodicité par défaut.
+- [ ] Un type utilisé ne peut pas être supprimé, seulement désactivé.
+
+**US6 — Ajouter une échéance à un véhicule**
+En tant qu'administrateur, je veux ajouter une échéance à un véhicule, afin de suivre sa
+prochaine date ou son prochain km.
+- [ ] Choix du type ; périodicité préremplie depuis le type, modifiable pour ce véhicule.
+- [ ] Échéance périodique : saisie de la dernière réalisation (date et/ou km) ; l'application
+      calcule la prochaine.
+- [ ] Échéance ponctuelle : saisie directe de la date et/ou du km d'échéance.
+- [ ] Un même type ne peut être actif qu'une fois par véhicule.
+
+**US7 — Marquer une échéance réalisée**
+En tant qu'administrateur, je veux indiquer qu'une échéance a été réalisée, afin que la
+suivante soit planifiée.
+- [ ] Saisie : date, km (prérempli avec le km actuel), commentaire libre.
+- [ ] Le km saisi crée un relevé kilométrique (mêmes contrôles qu'US1).
+- [ ] Échéance périodique : la suivante est calculée depuis la date et le km réels de réalisation.
+- [ ] Échéance ponctuelle : elle est close, aucune nouvelle n'est créée.
+
+**US8 — Tableau de bord des échéances**
+En tant qu'administrateur, je veux voir les échéances proches et dépassées, afin d'agir à temps.
+- [ ] Page d'accueil de l'application.
+- [ ] Liste triée par urgence (dépassées d'abord, puis les plus proches).
+- [ ] Filtres : véhicule, type de véhicule, type d'échéance, statut (proche, dépassée).
+- [ ] Chaque ligne mène à la fiche véhicule et permet de marquer l'échéance réalisée.
+
+### Should
+
+**US9 — Régler les seuils « proche »**
+En tant qu'administrateur, je veux régler les seuils globaux (défaut 30 jours / 1 000 km),
+afin d'adapter l'alerte à l'organisation.
+- [ ] Seuils globaux modifiables ; un seuil défini sur un type d'échéance l'emporte.
+
+**US10 — Voir les échéances sur la fiche véhicule**
+- [ ] La fiche liste les échéances du véhicule avec statut, prochaine date / prochain km et
+      dernière réalisation.
 
 ## Règles métier
 
 ### Relevés kilométriques
 
-- Saisie manuelle et périodique par l'administrateur.
-- Un relevé inférieur au relevé précédent est accepté **avec un motif obligatoire**
-  (ex. compteur remplacé, erreur de saisie précédente).
-- L'auteur du relevé n'est pas enregistré en phase 2 : il viendra de l'authentification
-  (phase 9) ou de la source externe (phase 8).
-- Date du relevé : préremplie avec la date du jour, modifiable pour saisir un relevé passé
-  (rattrapage). Une date dans le futur est refusée.
-- Cohérence, évaluée par rapport aux relevés voisins **dans l'ordre des dates** (y compris
-  pour un relevé passé inséré entre deux autres) :
-  - valeur inférieure au relevé précédent ou supérieure au suivant : acceptée avec motif ;
-  - plus de **1 000 km par jour** en moyenne depuis le relevé précédent : avertissement,
-    enregistrement après confirmation.
-- Le kilométrage actuel d'un véhicule est celui du relevé le plus récent par date.
-- Par défaut (pas d'avis du propriétaire) : l'administrateur peut modifier ou supprimer un
-  relevé, sans trace de l'ancienne valeur. Les mêmes contrôles s'appliquent à la modification.
+- Saisie manuelle et périodique par l'administrateur ; l'auteur n'est pas enregistré en
+  phase 2 (il viendra de l'authentification ou de la source externe).
+- Cohérence évaluée par rapport aux relevés voisins **dans l'ordre des dates** :
+  - inférieur au précédent ou supérieur au suivant : accepté avec motif obligatoire ;
+  - plus de 1 000 km/jour depuis le précédent : avertissement et confirmation.
+- Km actuel = relevé le plus récent par date.
+- Modification et suppression libres, sans trace de l'ancienne valeur (à revoir en phase 9).
 
 ### Échéances
 
-- **Types d'échéance** : référentiel administrable (l'administrateur ajoute ses types). Types
-  fournis au départ : contrôle technique, assurance, entretien constructeur, agrément ARS,
-  matériel médical, oxygène, extincteur.
-- **Périodicité** : en mois et/ou en km, **modifiable pour chaque véhicule**.
-- Échéance à double critère (km et date) : elle tombe au **premier des deux atteint**.
-- **Échéance ponctuelle** : simple date (et/ou km) sans périodicité, ex. fin d'un contrat
-  d'assurance.
-- **Échéance proche** : seuils globaux par défaut (30 jours ou 1 000 km avant), modifiables par
-  l'administrateur, et **surchargeables par type** (ex. 60 jours pour l'agrément ARS).
-- **Création d'un type** : l'application propose de l'ajouter aux véhicules d'un type de
-  véhicule donné (voir questions ouvertes).
-- **Échéance réalisée** : la suivante est calculée à partir de la date et du km **réels** de
-  réalisation (CT prévu le 1er mars, fait le 15 mars : suivant le 15 mars de l'année suivante).
-  Une échéance ponctuelle réalisée n'en génère pas de nouvelle.
-- Statut du véhicule : les échéances d'un véhicule sorti du parc sont masquées, celles d'un
-  véhicule immobilisé restent affichées (règle susceptible d'être revue).
-- Statuts affichés : à jour, proche, dépassée.
+- Périodicité en mois et/ou en km, modifiable par véhicule. Sans périodicité : échéance
+  ponctuelle.
+- Double critère : l'échéance tombe au **premier des deux atteint**.
+- Prochaine échéance = dernière réalisation + périodicité (date réelle et km réel).
+- Statut : **dépassée** (date passée ou km actuel ≥ km d'échéance), **proche** (dans le seuil),
+  sinon **à jour**.
+- Seuils « proche » : globaux par défaut (30 jours ou 1 000 km), surchargeables par type.
+- Véhicule sorti du parc : ses échéances sont masquées du tableau de bord ; véhicule immobilisé :
+  elles restent affichées (règle susceptible d'être revue).
 
 ## Hors périmètre
 
 - Import de l'historique (km, échéances) et source de kilométrage externe : phase 8.
-- Carnet d'entretien (interventions, garage, travaux) : phase 3.
-- Notifications : phase 7.
-- Rôles et droits : phase 9.
+- Carnet d'entretien (interventions, garage, travaux, coûts) : phases 3 et 5.
+- Notifications et alertes envoyées : phase 7.
+- Rôles, droits, auteur des saisies : phase 9.
+- Saisie directe de la prochaine date d'une échéance périodique (sans dernière réalisation).
 
 ## Impact sur le modèle de données
 
-À préciser.
+- **Type de véhicule** (nouveau, référentiel) : nom, actif. Véhicule : type facultatif.
+- **Relevé kilométrique** (nouveau) : véhicule, date, km, motif facultatif, date de saisie.
+- **Type d'échéance** (nouveau, référentiel) : nom, périodicité par défaut (mois, km), seuils
+  facultatifs (jours, km), actif.
+- **Échéance d'un véhicule** (nouveau) : véhicule, type, périodicité (mois, km), date et km de
+  dernière réalisation, date et km d'échéance, close ou non.
+- **Réalisation** (nouveau) : échéance, date, km, commentaire. Base du futur carnet d'entretien.
+- **Paramètres** (nouveau) : seuils globaux « proche ».
 
 ## Questions ouvertes
 
-- « Type de véhicule » : notion absente du modèle actuel (marque, modèle seulement), à définir.
-- Traçabilité des corrections de relevés : à revoir avec l'authentification (phase 9).
+- Page d'accueil actuelle (liste des logs mécaniques de l'ancienne API) : à déplacer vers une
+  autre entrée de menu quand le tableau de bord la remplace.
+- Import CSV des véhicules : ajouter une colonne « type de véhicule » ? (sinon en phase 8)
