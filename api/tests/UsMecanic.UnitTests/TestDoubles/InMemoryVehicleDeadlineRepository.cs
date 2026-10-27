@@ -23,11 +23,17 @@ internal sealed class InMemoryVehicleDeadlineRepository : IVehicleDeadlineReposi
 
     public void Add(VehicleDeadline deadline) => _pending.Add(deadline);
 
-    public Task SaveChangesAsync(CancellationToken cancellationToken)
+    /// <summary>Autres dépôts enregistrés dans la même unité de travail (un seul SaveChanges en production).</summary>
+    public List<Func<Task>> SharedSaves { get; } = [];
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         Saved.AddRange(_pending);
         _pending.Clear();
         SaveCount++;
-        return Task.CompletedTask;
+        foreach (var save in SharedSaves)
+        {
+            await save();
+        }
     }
 }
