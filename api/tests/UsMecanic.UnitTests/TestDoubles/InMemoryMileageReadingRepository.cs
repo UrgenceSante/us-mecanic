@@ -19,6 +19,26 @@ internal sealed class InMemoryMileageReadingRepository : IMileageReadingReposito
         Task.FromResult<IReadOnlyList<MileageReading>>(
             [.. Saved.Where(r => r.VehicleId == vehicleId).OrderByDescending(r => r.Date).ThenByDescending(r => r.RecordedAt)]);
 
+    public int CurrentByVehicleCalls { get; private set; }
+
+    public Task<CurrentMileage?> GetCurrentAsync(Guid vehicleId, CancellationToken cancellationToken)
+    {
+        var current = CurrentMileageRule.Select(Saved.Where(r => r.VehicleId == vehicleId));
+        return Task.FromResult(current is null ? null : new CurrentMileage(current.Kilometers, current.Date));
+    }
+
+    public Task<IReadOnlyDictionary<Guid, CurrentMileage>> GetCurrentByVehicleAsync(
+        IReadOnlyCollection<Guid> vehicleIds, CancellationToken cancellationToken)
+    {
+        CurrentByVehicleCalls++;
+        var result = Saved
+            .Where(r => vehicleIds.Contains(r.VehicleId))
+            .GroupBy(r => r.VehicleId)
+            .Select(g => (g.Key, Current: CurrentMileageRule.Select(g)!))
+            .ToDictionary(x => x.Key, x => new CurrentMileage(x.Current.Kilometers, x.Current.Date));
+        return Task.FromResult<IReadOnlyDictionary<Guid, CurrentMileage>>(result);
+    }
+
     public void Add(MileageReading reading) => _pending.Add(reading);
 
     public void Remove(MileageReading reading) => Saved.Remove(reading);
