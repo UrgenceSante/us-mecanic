@@ -14,6 +14,7 @@ import VehicleListPage from "./features/vehicles/pages/VehicleListPage";
 import VehicleDetailPage from "./features/vehicles/pages/VehicleDetailPage";
 import VehicleImportPage from "./features/vehicles/pages/VehicleImportPage";
 import VehicleTypesPage from "./features/vehicle-types/pages/VehicleTypesPage";
+import DeadlineTypesPage from "./features/deadline-types/pages/DeadlineTypesPage";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/vehicles" element={<VehicleListPage />} />
               <Route path="/vehicles/import" element={<VehicleImportPage />} />
               <Route path="/vehicle-types" element={<VehicleTypesPage />} />
+              <Route path="/deadline-types" element={<DeadlineTypesPage />} />
               <Route path="/vehicles/:vehicleId" element={<VehicleDetailPage />} />
               <Route path="/analyse/:logId" element={<AnalyseDetail />} />
               <Route
