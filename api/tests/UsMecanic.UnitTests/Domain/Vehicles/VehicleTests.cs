@@ -64,6 +64,22 @@ public class VehicleTests
     }
 
     [Fact]
+    public void Le_type_est_facultatif_et_modifiable()
+    {
+        var typeId = Guid.NewGuid();
+        var vehicle = Register();
+        Assert.Null(vehicle.TypeId);
+
+        var assigned = vehicle.UpdateDetails(vehicle.Details with { TypeId = typeId }, Now.AddDays(1));
+        Assert.True(assigned.IsSuccess);
+        Assert.Equal(typeId, vehicle.TypeId);
+        Assert.Equal(Now.AddDays(1), vehicle.UpdatedAt);
+
+        vehicle.UpdateDetails(vehicle.Details with { TypeId = null }, Now.AddDays(2));
+        Assert.Null(vehicle.TypeId);
+    }
+
+    [Fact]
     public void Un_vehicule_sorti_du_parc_ne_peut_plus_etre_modifie_ni_remis_en_service()
     {
         var vehicle = Register();
