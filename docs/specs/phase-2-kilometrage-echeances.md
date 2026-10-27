@@ -1,6 +1,6 @@
 # Phase 2 — Kilométrage et échéances
 
-Statut : brouillon, en attente de validation
+Statut : validée le 2026-10-27
 
 ## Contexte et objectif
 
