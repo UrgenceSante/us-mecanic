@@ -20,3 +20,13 @@ Application de suivi du parc de véhicules (maintenance, problèmes, coûts, cer
 - Erreurs métier attendues : `Result<T>` + `DomainError`, pas d'exception. Réponses d'erreur HTTP en ProblemDetails.
 - Tous les endpoints sont authentifiés par défaut (fallback policy Keycloak). Un endpoint public doit le déclarer avec `AllowAnonymous()`.
 - Warnings = erreurs (`TreatWarningsAsErrors`). Versions NuGet centralisées dans `Directory.Packages.props`.
+
+## Équipe d'agents
+Le projet est piloté avec des agents spécialisés (`.claude/agents/`) et des commandes (`.claude/commands/`). Mode d'emploi : `docs/GUIDE-agents.md`.
+- `product` spécifie (`docs/specs/`, `docs/ROADMAP.md`, `docs/decisions/`), `pm` gère milestones, issues et avancement, `dev` implémente, `tester` teste, `reviewer` relit en lecture seule, `docs` documente.
+- Commandes : `/spec`, `/planifier`, `/tache <n>`, `/statut`.
+- Un milestone GitHub = une phase de `docs/ROADMAP.md`. Une issue = une demi-journée de travail = une branche `feat/<n>-slug` = une PR avec `Closes #<n>`.
+- Jamais de push direct sur `main`, jamais de merge par un agent. `dev` coche la ligne de roadmap qu'il livre, dans sa PR.
+- Un agent ne sort pas du périmètre de l'issue : toute découverte hors sujet est signalée, `pm` crée l'issue.
+- Positions GPS et identités des conducteurs : données personnelles, jamais dans les logs.
+- GitHub Project : `PROJECT_NUMBER=?`
