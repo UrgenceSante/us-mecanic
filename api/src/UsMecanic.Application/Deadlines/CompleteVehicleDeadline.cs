@@ -15,7 +15,8 @@ public sealed class CompleteVehicleDeadline(
     IDeadlineCompletionRepository completions,
     IMileageReadingRepository readings,
     VehicleDeadlineDtoFactory factory,
-    TimeProvider clock)
+    TimeProvider clock,
+    BusinessCalendar calendar)
 {
     public async Task<Result<VehicleDeadlineDto>> ExecuteAsync(
         Guid vehicleId, Guid deadlineId, DeadlineCompletionInput input, CancellationToken cancellationToken)
@@ -40,19 +41,20 @@ public sealed class CompleteVehicleDeadline(
         }
 
         var now = clock.GetUtcNow();
+        var today = calendar.Today;
         var completion = DeadlineCompletion.Create(deadline.Id, input.Date, input.Kilometers, input.Comment, now);
         if (completion.IsFailure)
         {
             return Result<VehicleDeadlineDto>.Failure(completion.Error!);
         }
 
-        var reading = await CreateReadingAsync(vehicleId, input, now, cancellationToken);
+        var reading = await CreateReadingAsync(vehicleId, input, today, now, cancellationToken);
         if (reading.IsFailure)
         {
             return Result<VehicleDeadlineDto>.Failure(reading.Error!);
         }
 
-        var done = deadline.Complete(input.Date, input.Kilometers, DateOnly.FromDateTime(now.UtcDateTime));
+        var done = deadline.Complete(input.Date, input.Kilometers, today);
         if (done.IsFailure)
         {
             return Result<VehicleDeadlineDto>.Failure(done.Error!);
@@ -70,7 +72,7 @@ public sealed class CompleteVehicleDeadline(
 
     /// <summary>Relevé à créer (mêmes contrôles qu'un ajout de relevé), ou <c>null</c> sans km.</summary>
     private async Task<Result<MileageReading?>> CreateReadingAsync(
-        Guid vehicleId, DeadlineCompletionInput input, DateTimeOffset now, CancellationToken cancellationToken)
+        Guid vehicleId, DeadlineCompletionInput input, DateOnly today, DateTimeOffset now, CancellationToken cancellationToken)
     {
         if (input.Kilometers is not { } kilometers)
         {
@@ -79,7 +81,7 @@ public sealed class CompleteVehicleDeadline(
 
         var existing = await readings.ListByVehicleAsync(vehicleId, cancellationToken);
         var entry = new MileageReadingEntry(input.Date, kilometers, input.Reason, input.ConfirmHighMileage);
-        var created = MileageReading.Create(vehicleId, entry, existing, now);
+        var created = MileageReading.Create(vehicleId, entry, existing, today, now);
         return created.IsSuccess
             ? Result<MileageReading?>.Success(created.Value)
             : Result<MileageReading?>.Failure(created.Error!);

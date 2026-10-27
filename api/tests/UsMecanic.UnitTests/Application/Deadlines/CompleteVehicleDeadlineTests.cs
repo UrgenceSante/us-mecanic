@@ -29,14 +29,14 @@ public class CompleteVehicleDeadlineTests
         _deadlines.SharedSaves.Add(_completions.Flush);
     }
 
-    private VehicleDeadlineDtoFactory Factory => new(_types, _thresholds, _readings, _clock);
+    private VehicleDeadlineDtoFactory Factory => new(_types, _thresholds, _readings, _clock.Calendar);
 
     private CompleteVehicleDeadline Complete =>
-        new(new MileageVehicleGuard(_vehicles), _deadlines, _completions, _readings, Factory, _clock);
+        new(new MileageVehicleGuard(_vehicles), _deadlines, _completions, _readings, Factory, _clock, _clock.Calendar);
 
     private async Task<VehicleDeadlineDto> AddAsync(VehicleDeadlineInput input)
     {
-        var add = new AddVehicleDeadline(new MileageVehicleGuard(_vehicles), _types, _deadlines, Factory, _clock);
+        var add = new AddVehicleDeadline(new MileageVehicleGuard(_vehicles), _types, _deadlines, Factory, _clock.Calendar);
         return (await add.ExecuteAsync(_vehicle.Id, input, CancellationToken.None)).Value;
     }
 
