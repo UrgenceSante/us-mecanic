@@ -9,12 +9,15 @@ import {
   TextField,
 } from "@mui/material";
 import { useState, type FormEvent } from "react";
+import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
 import { emptyVehicleForm, type VehicleFormValues } from "./vehicleForm";
 
 interface VehicleFormDialogProps {
   open: boolean;
   /** Valeurs initiales : absent en création. En modification, l'immatriculation n'est pas modifiable. */
   initialValues?: VehicleFormValues;
+  /** Type actuel du véhicule en modification : reste affiché même s'il est désactivé. */
+  currentType?: { id: string; name: string } | null;
   submitting: boolean;
   error: string | null;
   onSubmit: (values: VehicleFormValues) => void;
@@ -22,7 +25,7 @@ interface VehicleFormDialogProps {
 }
 
 export default function VehicleFormDialog(props: VehicleFormDialogProps) {
-  const { open, initialValues, submitting, error, onSubmit, onClose } = props;
+  const { open, initialValues, currentType, submitting, error, onSubmit, onClose } = props;
   const isEdit = initialValues !== undefined;
   const [values, setValues] = useState<VehicleFormValues>(initialValues ?? emptyVehicleForm);
 
@@ -68,6 +71,12 @@ export default function VehicleFormDialog(props: VehicleFormDialogProps) {
               <TextField label="N° interne / indicatif" fullWidth {...field("internalNumber")} />
             </Stack>
             <TextField label="VIN (n° de série)" {...field("vin")} />
+            <VehicleTypeSelect
+              value={values.typeId}
+              onChange={(typeId) => setValues((current) => ({ ...current, typeId }))}
+              emptyLabel="Aucun"
+              current={currentType}
+            />
           </Stack>
         </DialogContent>
         <DialogActions>

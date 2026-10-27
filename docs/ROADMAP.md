@@ -41,7 +41,7 @@ Spec : `docs/specs/phase-2-kilometrage-echeances.md`.
 - [x] Désactivation de l'authentification en développement (ADR 0001)
 - [ ] Relevés kilométriques : saisie manuelle, historique, contrôle de cohérence
 - [ ] Kilométrage actuel affiché sur la fiche et la liste du parc
-- [ ] Types de véhicule (ambulance, VSL, sang…) administrables
+- [x] Types de véhicule (ambulance, VSL, sang…) administrables
 - [ ] Échéances : contrôle technique, assurance, entretien (au km et/ou à la date)
 - [ ] Types d'échéance administrables (dont agrément ARS, matériel médical, oxygène, extincteur…)
 - [ ] Échéance réalisée : calcul de la suivante
