@@ -37,7 +37,7 @@ export default function DeadlineRow({ deadline: d, canComplete, onComplete }: De
         primary={
           <Stack direction="row" alignItems="center" gap={1}>
             <span>{d.typeName ?? "Type inconnu"}</span>
-            <DeadlineStatusChip status={d.status} />
+            <DeadlineStatusChip status={d.status} isClosed={d.isClosed} />
           </Stack>
         }
         secondary={`${next} | ${last}`}
