@@ -1,6 +1,6 @@
 import "./App.css";
 import { HashRouter, Route, Routes } from "react-router";
-import Home from "./pages/Home";
+import DashboardPage from "./features/dashboard/pages/DashboardPage";
 import AnalyseDetail from "./pages/AnalyseDetail";
 import SubscriptionContainer from "./components/Subscription/SubscriptionContainer";
 import GeolocPage from "./pages/GeolocPage";
@@ -31,7 +31,7 @@ function App() {
                 </RequireAuth>
               }
             >
-              <Route index element={<Home />} />
+              <Route index element={<DashboardPage />} />
               <Route path="/vehicles" element={<VehicleListPage />} />
               <Route path="/vehicles/import" element={<VehicleImportPage />} />
               <Route path="/vehicle-types" element={<VehicleTypesPage />} />
