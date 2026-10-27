@@ -39,6 +39,8 @@ describe("vehicleForm", () => {
       typeId: "t1",
       typeName: "VSL",
       status: "Active",
+      currentMileage: null,
+      currentMileageDate: null,
       createdAt: "",
       updatedAt: "",
     };

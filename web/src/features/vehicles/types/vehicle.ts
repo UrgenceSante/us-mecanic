@@ -12,6 +12,10 @@ export interface Vehicle {
   typeId: string | null;
   typeName: string | null;
   status: VehicleStatus;
+  /** Km actuel (relevé le plus récent par date), null sans relevé. */
+  currentMileage: number | null;
+  /** Date ISO AAAA-MM-JJ du km actuel. */
+  currentMileageDate: string | null;
   createdAt: string;
   updatedAt: string;
 }

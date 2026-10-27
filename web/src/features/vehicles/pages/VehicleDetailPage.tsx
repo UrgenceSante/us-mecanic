@@ -9,6 +9,7 @@ import PropertyDisplay from "../../../components/Utils/PropertyDisplay";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { problemMessage } from "../../../shared/api/problemMessage";
 import { useChangeVehicleStatus, useUpdateVehicle, useVehicle } from "../api/vehicleQueries";
+import VehicleMileage from "../../mileage/components/VehicleMileage";
 import VehicleProblems from "../components/VehicleProblems";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import VehicleStatusActions from "../components/VehicleStatusActions";
@@ -78,6 +79,13 @@ export default function VehicleDetailPage() {
           <PropertyDisplay title="VIN" content={data.vin ?? "-"} />
         </Stack>
       </Paper>
+
+      <VehicleMileage
+        vehicleId={data.id}
+        status={data.status}
+        currentMileage={data.currentMileage}
+        currentMileageDate={data.currentMileageDate}
+      />
 
       <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
 
