@@ -21,6 +21,10 @@ public class DeadlineTypeEndpointsTests : IClassFixture<ApiFactory>
         "Extincteur",
     ];
 
+    private static readonly string[] YearlyNames = ["Contrôle technique", "Assurance", "Extincteur"];
+
+    private static readonly string[] OneOffNames = ["Agrément ARS", "Matériel médical", "Oxygène"];
+
     private readonly HttpClient _client;
     private readonly HttpClient _anonymous;
 
@@ -77,6 +81,33 @@ public class DeadlineTypeEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(12, insurance.DefaultIntervalMonths);
         Assert.False(insurance.IsOneOff);
         Assert.True(list!.Single(t => t.Name == "Agrément ARS").IsOneOff);
+    }
+
+    [Fact]
+    public async Task Entretien_constructeur_est_periodique_et_les_autres_types_initiaux_sont_inchanges()
+    {
+        var response = await _client.GetAsync(new Uri("/api/deadline-types?includeInactive=true", UriKind.Relative));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var list = (await response.Content.ReadFromJsonAsync<List<TypeDto>>(Json))!;
+
+        var maintenance = list.Single(t => t.Name == "Entretien constructeur");
+        Assert.Equal(12, maintenance.DefaultIntervalMonths);
+        Assert.Equal(30000, maintenance.DefaultIntervalKm);
+        Assert.False(maintenance.IsOneOff);
+
+        foreach (var name in YearlyNames)
+        {
+            var type = list.Single(t => t.Name == name);
+            Assert.Equal(12, type.DefaultIntervalMonths);
+            Assert.Null(type.DefaultIntervalKm);
+        }
+
+        foreach (var name in OneOffNames)
+        {
+            var type = list.Single(t => t.Name == name);
+            Assert.Null(type.DefaultIntervalMonths);
+            Assert.Null(type.DefaultIntervalKm);
+        }
     }
 
     [Fact]
