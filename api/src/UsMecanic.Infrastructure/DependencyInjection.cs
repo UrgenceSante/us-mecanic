@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
+using UsMecanic.Infrastructure.Deadlines;
 using UsMecanic.Infrastructure.Persistence;
 using UsMecanic.Infrastructure.Vehicles;
 
@@ -32,6 +34,8 @@ public static class DependencyInjection
 
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<IVehicleTypeRepository, VehicleTypeRepository>();
+        services.AddScoped<IDeadlineTypeRepository, DeadlineTypeRepository>();
+        services.AddScoped<IDeadlineThresholdsRepository, DeadlineThresholdsRepository>();
         services.AddSingleton<IVehicleImportReader, CsvVehicleImportReader>();
 
         return services;

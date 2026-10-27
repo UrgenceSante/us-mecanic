@@ -22,6 +22,68 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("UsMecanic.Domain.Deadlines.DeadlineThresholds", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("DueSoonDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("due_soon_days");
+
+                    b.Property<int>("DueSoonKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("due_soon_km");
+
+                    b.HasKey("Id")
+                        .HasName("pk_deadline_thresholds");
+
+                    b.ToTable("deadline_thresholds", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Deadlines.DeadlineType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int?>("DefaultIntervalKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("default_interval_km");
+
+                    b.Property<int?>("DefaultIntervalMonths")
+                        .HasColumnType("integer")
+                        .HasColumnName("default_interval_months");
+
+                    b.Property<int?>("DueSoonDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("due_soon_days");
+
+                    b.Property<int?>("DueSoonKm")
+                        .HasColumnType("integer")
+                        .HasColumnName("due_soon_km");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_deadline_types");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_deadline_types_name");
+
+                    b.ToTable("deadline_types", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Vehicles.Vehicle", b =>
                 {
                     b.Property<Guid>("Id")
