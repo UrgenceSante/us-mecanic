@@ -15,6 +15,8 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
 
     public DbSet<DeadlineThresholds> GlobalDeadlineThresholds => Set<DeadlineThresholds>();
 
+    public DbSet<VehicleDeadline> VehicleDeadlines => Set<VehicleDeadline>();
+
     public DbSet<MileageReading> MileageReadings => Set<MileageReading>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>

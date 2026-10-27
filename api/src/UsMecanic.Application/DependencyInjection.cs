@@ -38,6 +38,10 @@ public static class DependencyInjection
         services.AddScoped<AddMileageReading>();
         services.AddScoped<UpdateMileageReading>();
         services.AddScoped<DeleteMileageReading>();
+        services.AddScoped<VehicleDeadlineDtoFactory>();
+        services.AddScoped<ListVehicleDeadlines>();
+        services.AddScoped<AddVehicleDeadline>();
+        services.AddScoped<UpdateVehicleDeadlineInterval>();
 
         return services;
     }
