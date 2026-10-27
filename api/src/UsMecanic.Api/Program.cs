@@ -47,6 +47,7 @@ if (app.Environment.IsDevelopment())
 app.MapSystemEndpoints();
 app.MapVehicleEndpoints();
 app.MapVehicleTypeEndpoints();
+app.MapMileageReadingEndpoints();
 
 await app.RunAsync();
 
