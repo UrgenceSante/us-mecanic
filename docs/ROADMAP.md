@@ -12,6 +12,10 @@ Principes retenus :
 - **Intégration de l'existant** par import (fichier aujourd'hui, autres sources demain),
   derrière un port de la couche Application.
 - La géoloc / certification de trajet reste aux mêmes URL et garde son API dédiée.
+- **Ordre** : les fonctionnalités d'abord, l'alimentation de la base (imports, sources externes)
+  ensuite, l'authentification (rôles Keycloak) en dernier.
+- **Pas de connexion en développement** (local et environnement de dev déployé), voir
+  `docs/decisions/0001-pas-d-authentification-en-dev.md`. La prod reste authentifiée.
 
 ## Phase 0 — Socle ✅
 
@@ -29,17 +33,25 @@ Principes retenus :
 - [x] Import CSV de l'existant : simulation puis confirmation, rapprochement par immatriculation,
       bilan ligne par ligne (`docs/modele-import-vehicules.csv`)
 - [x] Front `features/vehicles` : liste du parc, fiche, formulaire, import
-- [ ] Rôles Keycloak (lecture seule / gestionnaire) — à définir
 
 ## Phase 2 — Kilométrage et échéances
 
-- [ ] Relevés kilométriques (saisie manuelle, historique, contrôle de cohérence)
-- [ ] Port « source de kilométrage » pour une source externe (télématique…)
-- [ ] Échéances : assurance, contrôle technique, entretien (au km et/ou à la date)
-- [ ] Tableau de bord des échéances proches ou dépassées
-- [ ] Import de l'historique (km, échéances) sur le modèle de l'import véhicules
+Spec : `docs/specs/phase-2-kilometrage-echeances.md`.
 
-## Phase 3 — Problèmes et résolution
+- [ ] Désactivation de l'authentification en développement (ADR 0001)
+- [ ] Relevés kilométriques : saisie manuelle, historique, contrôle de cohérence
+- [ ] Kilométrage actuel affiché sur la fiche et la liste du parc
+- [ ] Échéances : contrôle technique, assurance, entretien (au km et/ou à la date)
+- [ ] Échéances propres aux ambulances (agrément ARS, matériel médical, oxygène, extincteur…)
+- [ ] Échéance réalisée : calcul de la suivante
+- [ ] Tableau de bord des échéances proches ou dépassées
+
+## Phase 3 — Carnet d'entretien
+
+- [ ] Interventions réalisées : date, km, garage, travaux
+- [ ] Lien entre une échéance réalisée et l'intervention correspondante
+
+## Phase 4 — Problèmes et résolution
 
 Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, référentiels).
 
@@ -49,13 +61,28 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 - [ ] Référentiels (natures, acteurs, actions, contraintes) administrables
 - [ ] Migration des écrans `MecanicLog` / `Analyse` vers `features/issues`
 
-## Phase 4 — Coûts
+## Phase 5 — Coûts
 
-- [ ] Dépenses rattachées au véhicule (entretien, réparation, assurance…), liées aux actions
+- [ ] Dépenses rattachées au véhicule (entretien, réparation, assurance…), liées aux interventions et actions
 - [ ] Synthèse par véhicule et par période, coût au kilomètre
 
-## Phase 5 — Notifications et nettoyage
+## Phase 6 — Documents
 
+- [ ] Pièces jointes du véhicule (carte grise, attestation d'assurance…)
+
+## Phase 7 — Notifications
+
+- [ ] Alertes d'échéances et de problèmes
 - [ ] Notifications (abonnements push) reprises dans la nouvelle API
+
+## Phase 8 — Alimentation de la base
+
+- [ ] Import de l'historique (km, échéances) sur le modèle de l'import véhicules
+- [ ] Port « source de kilométrage » pour une source externe (géoloc, télématique…)
+
+## Phase 9 — Authentification et nettoyage
+
+- [ ] Rôles Keycloak (lecture seule / gestionnaire)
+- [ ] Réactivation et vérification de l'authentification sur tous les environnements
 - [ ] Suppression du code front historique (`components/`, `services/`, `hooks/`)
 - [ ] Retrait de `APP_LEGACY_API_URL` et arrêt de l'ancienne API
