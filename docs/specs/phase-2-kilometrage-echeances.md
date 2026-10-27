@@ -17,7 +17,8 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
 
 ## Utilisateurs et rôles
 
-À préciser.
+- **Administrateur du parc** : saisit périodiquement les relevés kilométriques et gère les
+  échéances. En phase 2, sans authentification, c'est le seul profil.
 
 ## User stories
 
@@ -33,7 +34,13 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
 
 ## Règles métier
 
-À préciser.
+### Relevés kilométriques
+
+- Saisie manuelle et périodique par l'administrateur.
+- Un relevé inférieur au relevé précédent est accepté **avec un motif obligatoire**
+  (ex. compteur remplacé, erreur de saisie précédente).
+- L'auteur du relevé n'est pas enregistré en phase 2 : il viendra de l'authentification
+  (phase 9) ou de la source externe (phase 8).
 
 ## Hors périmètre
 
@@ -48,7 +55,5 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
 
 ## Questions ouvertes
 
-- Qui saisit les relevés, à quelle fréquence ?
-- Relevé inférieur au précédent : bloqué ou accepté avec motif ?
 - Correction et suppression d'un relevé.
 - Liste des types d'échéances et leur périodicité.
