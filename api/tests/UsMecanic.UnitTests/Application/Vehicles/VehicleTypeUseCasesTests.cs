@@ -104,7 +104,7 @@ public class VehicleTypeUseCasesTests
     {
         var oldType = _types.Seed("Ancien", active: false);
         var vehicle = _vehicles.Seed("AB-123-CD", new VehicleDetails(null, null, null, null, null, oldType.Id));
-        var useCase = new UpdateVehicleDetails(_vehicles, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository()), new FixedClock());
+        var useCase = new UpdateVehicleDetails(_vehicles, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository()), new FixedClock(), new FixedClock().Calendar);
 
         var kept = await useCase.ExecuteAsync(vehicle.Id, new VehicleDetailsInput("Renault", null, null, null, null, oldType.Id), CancellationToken.None);
         var other = _types.Seed("Autre", active: false);

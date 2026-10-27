@@ -35,11 +35,11 @@ public sealed class MileageReading
     /// <summary>Date de saisie du relevé (inchangée par une modification).</summary>
     public DateTimeOffset RecordedAt { get; }
 
-    public static Result<MileageReading> Create(Guid vehicleId, MileageReadingEntry entry, IEnumerable<MileageReading> others, DateTimeOffset now)
+    public static Result<MileageReading> Create(Guid vehicleId, MileageReadingEntry entry, IEnumerable<MileageReading> others, DateOnly today, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(others);
 
-        var validated = Validate(entry, others, now);
+        var validated = Validate(entry, others, today);
         return validated.IsSuccess
             ? Result<MileageReading>.Success(new MileageReading(
                 Guid.CreateVersion7(now), vehicleId, validated.Value.Date, validated.Value.Kilometers, validated.Value.Reason, now))
@@ -47,11 +47,11 @@ public sealed class MileageReading
     }
 
     /// <summary>Applique les mêmes contrôles que la création, en excluant ce relevé des voisins.</summary>
-    public Result<MileageReading> Update(MileageReadingEntry entry, IEnumerable<MileageReading> others, DateTimeOffset now)
+    public Result<MileageReading> Update(MileageReadingEntry entry, IEnumerable<MileageReading> others, DateOnly today, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(others);
 
-        var validated = Validate(entry, others.Where(r => r.Id != Id), now);
+        var validated = Validate(entry, others.Where(r => r.Id != Id), today);
         if (validated.IsFailure)
         {
             return Result<MileageReading>.Failure(validated.Error!);
@@ -63,7 +63,7 @@ public sealed class MileageReading
         return Result<MileageReading>.Success(this);
     }
 
-    private static Result<MileageReadingEntry> Validate(MileageReadingEntry entry, IEnumerable<MileageReading> others, DateTimeOffset now)
+    private static Result<MileageReadingEntry> Validate(MileageReadingEntry entry, IEnumerable<MileageReading> others, DateOnly today)
     {
         ArgumentNullException.ThrowIfNull(entry);
 
@@ -74,7 +74,7 @@ public sealed class MileageReading
         }
 
         var cleaned = entry with { Reason = reason };
-        var error = MileageConsistency.Check(cleaned, others, DateOnly.FromDateTime(now.UtcDateTime));
+        var error = MileageConsistency.Check(cleaned, others, today);
         return error is null
             ? Result<MileageReadingEntry>.Success(cleaned)
             : Result<MileageReadingEntry>.Failure(error);

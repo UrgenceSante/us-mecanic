@@ -8,7 +8,7 @@ public class CurrentMileageRuleTests
     private static readonly Guid VehicleId = Guid.NewGuid();
 
     private static MileageReading Reading(DateOnly date, int km) =>
-        MileageReading.Create(VehicleId, new MileageReadingEntry(date, km, "test", ConfirmHighMileage: true), [], FixedClock.Default).Value;
+        MileageReading.Create(VehicleId, new MileageReadingEntry(date, km, "test", ConfirmHighMileage: true), [], FixedClock.DefaultToday, FixedClock.Default).Value;
 
     [Fact]
     public void Sans_releve_il_n_y_a_pas_de_km_actuel()

@@ -20,6 +20,9 @@ RUN dotnet publish src/UsMecanic.Api/UsMecanic.Api.csproj -c Release -o /app/pub
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 WORKDIR /app
 
+# Fuseaux horaires (Europe/Paris pour la date du jour métier), absents des images Alpine.
+RUN apk add --no-cache tzdata
+
 ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
 

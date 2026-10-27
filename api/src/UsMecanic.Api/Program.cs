@@ -9,7 +9,7 @@ using UsMecanic.Infrastructure.Persistence;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddApplication()
+    .AddApplication(builder.Configuration["Business:TimeZone"])
     .AddInfrastructure(builder.Configuration)
     .AddKeycloakAuthentication(builder.Configuration)
     .AddFrontCors(builder.Configuration)

@@ -21,9 +21,9 @@ public class MileageReadingUseCasesTests
 
     private MileageVehicleGuard Guard => new(_vehicles);
 
-    private AddMileageReading Add => new(Guard, _readings, _clock);
+    private AddMileageReading Add => new(Guard, _readings, _clock, _clock.Calendar);
 
-    private UpdateMileageReading Update => new(Guard, _readings, _clock);
+    private UpdateMileageReading Update => new(Guard, _readings, _clock, _clock.Calendar);
 
     private DeleteMileageReading Delete => new(Guard, _readings);
 

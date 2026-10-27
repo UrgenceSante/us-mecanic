@@ -10,7 +10,7 @@ namespace UsMecanic.Application.Vehicles.Import;
 /// à partir de plusieurs sources. Les lignes valides sont enregistrées même si d'autres sont en erreur ;
 /// la simulation permet de vérifier le bilan avant.
 /// </summary>
-public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleRepository repository, TimeProvider clock)
+public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleRepository repository, TimeProvider clock, BusinessCalendar calendar)
 {
     private static readonly string[] DateFormats = ["dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd"];
 
@@ -41,7 +41,8 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         var existing = (await repository.GetByPlatesAsync([.. validRows.Select(row => row.Plate)], cancellationToken))
             .ToDictionary(vehicle => vehicle.LicensePlate);
         var now = clock.GetUtcNow();
-        results.AddRange(validRows.Select(row => Apply(row, existing.GetValueOrDefault(row.Plate), now)));
+        var today = calendar.Today;
+        results.AddRange(validRows.Select(row => Apply(row, existing.GetValueOrDefault(row.Plate), today, now)));
 
         if (!dryRun && results.Exists(r => r.Outcome is ImportOutcome.Created or ImportOutcome.Updated))
         {
@@ -102,11 +103,11 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
             : Result<ValidRow>.Failure(details.Error!);
     }
 
-    private VehicleImportLineResult Apply(ValidRow row, Vehicle? vehicle, DateTimeOffset now)
+    private VehicleImportLineResult Apply(ValidRow row, Vehicle? vehicle, DateOnly today, DateTimeOffset now)
     {
         if (vehicle is null)
         {
-            var registered = Vehicle.Register(row.Plate, row.Details, now);
+            var registered = Vehicle.Register(row.Plate, row.Details, today, now);
             if (registered.IsFailure)
             {
                 return Error(row.Line, row.Plate.Value, registered.Error!);
@@ -117,7 +118,7 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         }
 
         var previousUpdate = vehicle.UpdatedAt;
-        var updated = vehicle.UpdateDetails(MergeWithExisting(row.Details, vehicle.Details), now);
+        var updated = vehicle.UpdateDetails(MergeWithExisting(row.Details, vehicle.Details), today, now);
         if (updated.IsFailure)
         {
             return Error(row.Line, row.Plate.Value, updated.Error!);

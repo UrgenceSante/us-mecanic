@@ -10,7 +10,7 @@ public sealed class AddVehicleDeadline(
     IDeadlineTypeRepository types,
     IVehicleDeadlineRepository deadlines,
     VehicleDeadlineDtoFactory factory,
-    TimeProvider clock)
+    BusinessCalendar calendar)
 {
     public async Task<Result<VehicleDeadlineDto>> ExecuteAsync(Guid vehicleId, VehicleDeadlineInput input, CancellationToken cancellationToken)
     {
@@ -28,7 +28,7 @@ public sealed class AddVehicleDeadline(
             return Result<VehicleDeadlineDto>.Failure(VehicleDeadlineErrors.TypeUnknown);
         }
 
-        var today = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
+        var today = calendar.Today;
         var created = VehicleDeadline.Create(vehicleId, type, input.ToSchedule(), today);
         if (created.IsFailure)
         {
