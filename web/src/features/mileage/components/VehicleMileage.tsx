@@ -1,9 +1,6 @@
 import {
   Alert,
   Button,
-  List,
-  ListItem,
-  ListItemText,
   Paper,
   Stack,
   Typography,
@@ -21,9 +18,14 @@ import {
 } from "../api/mileageErrors";
 import {
   useAddMileageReading,
+  useDeleteMileageReading,
   useMileageReadings,
+  useUpdateMileageReading,
 } from "../api/mileageQueries";
-import type { MileageReadingInput } from "../types/mileageReading";
+import type { MileageReading, MileageReadingInput } from "../types/mileageReading";
+import DeleteReadingDialog from "./DeleteReadingDialog";
+import { formatKm } from "../types/format";
+import MileageHistory from "./MileageHistory";
 import MileageReadingDialog from "./MileageReadingDialog";
 
 interface VehicleMileageProps {
@@ -33,7 +35,9 @@ interface VehicleMileageProps {
   currentMileageDate: string | null;
 }
 
-const formatKm = (km: number) => `${km.toLocaleString("fr-FR")} km`;
+
+const currentLabel = (km: number | null, date: string | null) =>
+  km == null ? "Aucun relevé" : `${formatKm(km)} au ${formatDateOnly(date)}`;
 
 export default function VehicleMileage({
   vehicleId,
@@ -44,28 +48,52 @@ export default function VehicleMileage({
   const { notifySuccess } = useNotifSnack();
   const [open, setOpen] = useState(false);
   const readings = useMileageReadings(vehicleId);
+  const [editing, setEditing] = useState<MileageReading | null>(null);
+  const [deleting, setDeleting] = useState<MileageReading | null>(null);
   const add = useAddMileageReading(vehicleId);
+  const update = useUpdateMileageReading(vehicleId);
+  const remove = useDeleteMileageReading(vehicleId);
+  // Saisie et correction partagent le même formulaire et les mêmes flux d'erreur.
+  const save = editing ? update : add;
 
-  const errorCode = add.isError ? mileageErrorCode(add.error) : undefined;
+  const errorCode = save.isError ? mileageErrorCode(save.error) : undefined;
   const reasonRequired = errorCode === REASON_REQUIRED;
   const confirmationRequired = errorCode === HIGH_MILEAGE_CONFIRMATION_REQUIRED;
   const dialogError =
-    add.isError && !reasonRequired && !confirmationRequired
-      ? mileageErrorMessage(add.error)
+    save.isError && !reasonRequired && !confirmationRequired
+      ? mileageErrorMessage(save.error)
       : null;
 
   const close = () => {
     setOpen(false);
+    setEditing(null);
     add.reset();
+    update.reset();
   };
 
-  const submit = (input: MileageReadingInput) =>
-    add.mutate(input, {
+  const submit = (input: MileageReadingInput) => {
+    const onSuccess = () => {
+      notifySuccess(editing ? "Relevé modifié" : "Relevé enregistré");
+      close();
+    };
+    if (editing) update.mutate({ readingId: editing.id, input }, { onSuccess });
+    else add.mutate(input, { onSuccess });
+  };
+
+  const closeDelete = () => {
+    setDeleting(null);
+    remove.reset();
+  };
+
+  const confirmDelete = () => {
+    if (!deleting) return;
+    remove.mutate(deleting.id, {
       onSuccess: () => {
-        notifySuccess("Relevé enregistré");
-        close();
+        notifySuccess("Relevé supprimé");
+        closeDelete();
       },
     });
+  };
 
   return (
     <Paper sx={{ padding: 2 }}>
@@ -84,35 +112,39 @@ export default function VehicleMileage({
           )}
         </Stack>
         <Typography>
-          {currentMileage == null
-            ? "Aucun relevé"
-            : `${formatKm(currentMileage)} au ${formatDateOnly(currentMileageDate)}`}
+          {currentLabel(currentMileage, currentMileageDate)}
         </Typography>
         {readings.isError && (
           <Alert severity="error">{mileageErrorMessage(readings.error)}</Alert>
         )}
         {readings.data && readings.data.length > 0 && (
-          <List dense aria-label="Historique des relevés">
-            {readings.data.map((r) => (
-              <ListItem key={r.id} disableGutters>
-                <ListItemText
-                  primary={`${formatDateOnly(r.date)} : ${formatKm(r.kilometers)}`}
-                  secondary={r.reason ? `Motif : ${r.reason}` : undefined}
-                />
-              </ListItem>
-            ))}
-          </List>
+          <MileageHistory
+            readings={readings.data}
+            editable={status !== "Retired"}
+            onEdit={setEditing}
+            onDelete={setDeleting}
+          />
         )}
       </Stack>
-      {open && (
+      {(open || editing) && (
         <MileageReadingDialog
-          submitting={add.isPending}
+          reading={editing ?? undefined}
+          submitting={save.isPending}
           error={dialogError}
           reasonRequired={reasonRequired}
           confirmationRequired={confirmationRequired}
           onSubmit={submit}
-          onConfirmationInvalidated={() => add.reset()}
+          onConfirmationInvalidated={() => save.reset()}
           onClose={close}
+        />
+      )}
+      {deleting && (
+        <DeleteReadingDialog
+          reading={deleting}
+          submitting={remove.isPending}
+          error={remove.isError ? mileageErrorMessage(remove.error) : null}
+          onConfirm={confirmDelete}
+          onClose={closeDelete}
         />
       )}
     </Paper>

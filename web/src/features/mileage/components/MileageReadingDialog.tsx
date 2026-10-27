@@ -9,9 +9,11 @@ import {
 } from "@mui/material";
 import { useState, type FormEvent } from "react";
 import { todayLocalIso } from "../types/date";
-import type { MileageReadingInput } from "../types/mileageReading";
+import type { MileageReading, MileageReadingInput } from "../types/mileageReading";
 
 interface MileageReadingDialogProps {
+  /** Relevé à corriger : le formulaire est pré-rempli et passe en mode modification. */
+  reading?: MileageReading;
   submitting: boolean;
   /** Message d'erreur API à afficher (hors cas motif / confirmation, gérés par le formulaire). */
   error: string | null;
@@ -26,6 +28,7 @@ interface MileageReadingDialogProps {
 }
 
 export default function MileageReadingDialog({
+  reading,
   submitting,
   error,
   reasonRequired,
@@ -34,9 +37,9 @@ export default function MileageReadingDialog({
   onConfirmationInvalidated,
   onClose,
 }: MileageReadingDialogProps) {
-  const [kilometers, setKilometers] = useState("");
-  const [date, setDate] = useState(todayLocalIso());
-  const [reason, setReason] = useState("");
+  const [kilometers, setKilometers] = useState(reading ? String(reading.kilometers) : "");
+  const [date, setDate] = useState(reading?.date ?? todayLocalIso());
+  const [reason, setReason] = useState(reading?.reason ?? "");
   const [reasonTouched, setReasonTouched] = useState(false);
 
   const trimmedReason = reason.trim();
@@ -64,7 +67,9 @@ export default function MileageReadingDialog({
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="xs">
       <form onSubmit={handleSubmit}>
-        <DialogTitle>Saisir un relevé kilométrique</DialogTitle>
+        <DialogTitle>
+          {reading ? "Modifier le relevé kilométrique" : "Saisir un relevé kilométrique"}
+        </DialogTitle>
         <DialogContent>
           {error && (
             <Alert severity="error" sx={{ marginBottom: 2 }}>

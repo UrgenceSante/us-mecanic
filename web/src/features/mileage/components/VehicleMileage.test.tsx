@@ -12,6 +12,8 @@ import { todayLocalIso } from "../types/date";
 const api = vi.hoisted(() => ({
   listMileageReadings: vi.fn(),
   addMileageReading: vi.fn(),
+  updateMileageReading: vi.fn(),
+  deleteMileageReading: vi.fn(),
 }));
 vi.mock("../api/mileageApi", () => api);
 vi.mock("../../../hooks/useNotifSnack", () => ({

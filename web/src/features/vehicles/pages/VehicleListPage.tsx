@@ -28,6 +28,13 @@ const columns: GridColDef<Vehicle>[] = [
     valueFormatter: (value: string | null) => formatDateOnly(value),
   },
   {
+    field: "currentMileage",
+    headerName: "Km actuel",
+    type: "number",
+    width: 130,
+    valueFormatter: (value: number | null) => (value == null ? "" : `${value.toLocaleString("fr-FR")} km`),
+  },
+  {
     field: "status",
     headerName: "Statut",
     width: 140,
