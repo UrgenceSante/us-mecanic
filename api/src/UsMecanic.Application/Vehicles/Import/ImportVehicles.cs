@@ -41,7 +41,8 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         var existing = (await repository.GetByPlatesAsync([.. validRows.Select(row => row.Plate)], cancellationToken))
             .ToDictionary(vehicle => vehicle.LicensePlate);
         var now = clock.GetUtcNow();
-        results.AddRange(validRows.Select(row => Apply(row, existing.GetValueOrDefault(row.Plate), calendar.Today, now)));
+        var today = calendar.Today;
+        results.AddRange(validRows.Select(row => Apply(row, existing.GetValueOrDefault(row.Plate), today, now)));
 
         if (!dryRun && results.Exists(r => r.Outcome is ImportOutcome.Created or ImportOutcome.Updated))
         {
