@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UsMecanic.Application.Mileage;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
+using UsMecanic.Infrastructure.Mileage;
 using UsMecanic.Infrastructure.Persistence;
 using UsMecanic.Infrastructure.Vehicles;
 
@@ -32,6 +34,7 @@ public static class DependencyInjection
 
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<IVehicleTypeRepository, VehicleTypeRepository>();
+        services.AddScoped<IMileageReadingRepository, MileageReadingRepository>();
         services.AddSingleton<IVehicleImportReader, CsvVehicleImportReader>();
 
         return services;
