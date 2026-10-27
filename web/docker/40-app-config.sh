@@ -27,10 +27,7 @@ entry() {
   entry keycloakUrl "${APP_KEYCLOAK_URL:-}"
   entry keycloakRealm "${APP_KEYCLOAK_REALM:-}"
   entry keycloakClientId "${APP_KEYCLOAK_CLIENT_ID:-}"
-  # Booléen : écrit tel quel, seule la valeur "true" est prise en compte côté front
-  if [ -n "${APP_AUTH_DISABLED:-}" ]; then
-    printf '  "authDisabled": "%s",\n' "$(json_escape "$APP_AUTH_DISABLED")"
-  fi
+  entry authDisabled "${APP_AUTH_DISABLED:-}"
   echo "};"
 } > "$TARGET"
 

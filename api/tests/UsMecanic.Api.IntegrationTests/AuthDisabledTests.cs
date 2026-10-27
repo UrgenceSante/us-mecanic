@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Hosting;
 using System.Net;
+using Microsoft.AspNetCore.Hosting;
 
 namespace UsMecanic.Api.IntegrationTests;
 
@@ -16,6 +16,7 @@ public class AuthDisabledTests : IClassFixture<ApiFactory>
     [InlineData(null)]
     [InlineData("")]
     [InlineData("false")]
+    [InlineData("True")]
     [InlineData("n'importe quoi")]
     [InlineData("1")]
     public async Task Reglage_absent_ou_inconnu_laisse_l_authentification_active(string? value)

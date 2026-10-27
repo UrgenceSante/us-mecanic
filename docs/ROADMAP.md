@@ -38,7 +38,7 @@ Principes retenus :
 
 Spec : `docs/specs/phase-2-kilometrage-echeances.md`.
 
-- [ ] Désactivation de l'authentification en développement (ADR 0001)
+- [x] Désactivation de l'authentification en développement (ADR 0001)
 - [ ] Relevés kilométriques : saisie manuelle, historique, contrôle de cohérence
 - [ ] Kilométrage actuel affiché sur la fiche et la liste du parc
 - [ ] Types de véhicule (ambulance, VSL, sang…) administrables
