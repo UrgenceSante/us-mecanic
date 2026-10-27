@@ -9,6 +9,7 @@ import PropertyDisplay from "../../../components/Utils/PropertyDisplay";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { problemMessage } from "../../../shared/api/problemMessage";
 import { useChangeVehicleStatus, useUpdateVehicle, useVehicle } from "../api/vehicleQueries";
+import VehicleProblems from "../components/VehicleProblems";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import VehicleStatusActions from "../components/VehicleStatusActions";
 import VehicleStatusChip from "../components/VehicleStatusChip";
@@ -78,6 +79,8 @@ export default function VehicleDetailPage() {
       </Paper>
 
       <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
+
+      <VehicleProblems licensePlate={data.licensePlate} />
 
       {editing && (
         <VehicleFormDialog
