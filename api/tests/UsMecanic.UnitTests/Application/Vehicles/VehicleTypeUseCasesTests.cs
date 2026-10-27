@@ -71,7 +71,7 @@ public class VehicleTypeUseCasesTests
         var deactivated = await new DeactivateVehicleType(_types).ExecuteAsync(type.Id, CancellationToken.None);
         var proposed = await new ListVehicleTypes(_types).ExecuteAsync(false, CancellationToken.None);
         var all = await new ListVehicleTypes(_types).ExecuteAsync(true, CancellationToken.None);
-        var dto = await new GetVehicle(_vehicles, new VehicleTypeLookup(_types)).ExecuteAsync(vehicle.Id, CancellationToken.None);
+        var dto = await new GetVehicle(_vehicles, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository())).ExecuteAsync(vehicle.Id, CancellationToken.None);
 
         Assert.False(deactivated.Value.IsActive);
         Assert.Empty(proposed);
@@ -104,7 +104,7 @@ public class VehicleTypeUseCasesTests
     {
         var oldType = _types.Seed("Ancien", active: false);
         var vehicle = _vehicles.Seed("AB-123-CD", new VehicleDetails(null, null, null, null, null, oldType.Id));
-        var useCase = new UpdateVehicleDetails(_vehicles, new VehicleTypeLookup(_types), new FixedClock());
+        var useCase = new UpdateVehicleDetails(_vehicles, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository()), new FixedClock());
 
         var kept = await useCase.ExecuteAsync(vehicle.Id, new VehicleDetailsInput("Renault", null, null, null, null, oldType.Id), CancellationToken.None);
         var other = _types.Seed("Autre", active: false);
@@ -122,7 +122,7 @@ public class VehicleTypeUseCasesTests
         var typed = _vehicles.Seed("AB-123-CD", new VehicleDetails(null, null, null, null, null, type.Id));
         _vehicles.Seed("EF-456-GH");
 
-        var list = await new ListVehicles(_vehicles, new VehicleTypeLookup(_types))
+        var list = await new ListVehicles(_vehicles, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository()))
             .ExecuteAsync(new VehicleFilter(TypeId: type.Id), CancellationToken.None);
 
         var found = Assert.Single(list);

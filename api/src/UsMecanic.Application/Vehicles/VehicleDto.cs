@@ -1,8 +1,12 @@
+using UsMecanic.Application.Mileage;
 using UsMecanic.Domain.Vehicles;
 
 namespace UsMecanic.Application.Vehicles;
 
-/// <summary>Vue d'un véhicule. <c>TypeName</c> reste renseigné même si le type a été désactivé.</summary>
+/// <summary>
+/// Vue d'un véhicule. <c>TypeName</c> reste renseigné même si le type a été désactivé.
+/// <c>CurrentMileage</c> et <c>CurrentMileageDate</c> viennent du relevé le plus récent (null sans relevé).
+/// </summary>
 public sealed record VehicleDto(
     Guid Id,
     string LicensePlate,
@@ -15,9 +19,11 @@ public sealed record VehicleDto(
     string? TypeName,
     VehicleStatus Status,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt)
+    DateTimeOffset UpdatedAt,
+    int? CurrentMileage,
+    DateOnly? CurrentMileageDate)
 {
-    public static VehicleDto From(Vehicle vehicle, string? typeName) => new(
+    public static VehicleDto From(Vehicle vehicle, string? typeName, CurrentMileage? mileage) => new(
         vehicle.Id,
         vehicle.LicensePlate.Value,
         vehicle.Brand,
@@ -29,5 +35,7 @@ public sealed record VehicleDto(
         typeName,
         vehicle.Status,
         vehicle.CreatedAt,
-        vehicle.UpdatedAt);
+        vehicle.UpdatedAt,
+        mileage?.Kilometers,
+        mileage?.Date);
 }
