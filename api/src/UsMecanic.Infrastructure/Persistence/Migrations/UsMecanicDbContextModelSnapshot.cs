@@ -22,6 +22,42 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("UsMecanic.Domain.Deadlines.DeadlineCompletion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("comment");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int?>("Kilometers")
+                        .HasColumnType("integer")
+                        .HasColumnName("kilometers");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<Guid>("VehicleDeadlineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_deadline_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_deadline_completions");
+
+                    b.HasIndex("VehicleDeadlineId")
+                        .HasDatabaseName("ix_deadline_completions_vehicle_deadline_id");
+
+                    b.ToTable("deadline_completions", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Deadlines.DeadlineThresholds", b =>
                 {
                     b.Property<Guid>("Id")
@@ -267,6 +303,16 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_vehicle_types_name");
 
                     b.ToTable("vehicle_types", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Deadlines.DeadlineCompletion", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Deadlines.VehicleDeadline", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleDeadlineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_deadline_completions_vehicle_deadlines_vehicle_deadline_id");
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Deadlines.VehicleDeadline", b =>
