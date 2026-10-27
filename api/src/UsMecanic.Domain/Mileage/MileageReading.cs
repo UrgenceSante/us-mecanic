@@ -35,7 +35,6 @@ public sealed class MileageReading
     /// <summary>Date de saisie du relevé (inchangée par une modification).</summary>
     public DateTimeOffset RecordedAt { get; }
 
-    /// <param name="others">Autres relevés du même véhicule.</param>
     public static Result<MileageReading> Create(Guid vehicleId, MileageReadingEntry entry, IEnumerable<MileageReading> others, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(others);
@@ -48,7 +47,6 @@ public sealed class MileageReading
     }
 
     /// <summary>Applique les mêmes contrôles que la création, en excluant ce relevé des voisins.</summary>
-    /// <param name="others">Relevés du même véhicule (ce relevé peut en faire partie, il est ignoré).</param>
     public Result<MileageReading> Update(MileageReadingEntry entry, IEnumerable<MileageReading> others, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(others);
