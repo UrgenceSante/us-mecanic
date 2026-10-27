@@ -29,4 +29,4 @@ Le projet est piloté avec des agents spécialisés (`.claude/agents/`) et des c
 - Jamais de push direct sur `master`, jamais de merge par un agent. `dev` coche la ligne de roadmap qu'il livre, dans sa PR.
 - Un agent ne sort pas du périmètre de l'issue : toute découverte hors sujet est signalée, `pm` crée l'issue.
 - Positions GPS et identités des conducteurs : données personnelles, jamais dans les logs.
-- GitHub Project : `PROJECT_NUMBER=?`
+- GitHub Project : `PROJECT_NUMBER=2` (https://github.com/orgs/UrgenceSante/projects/2)
