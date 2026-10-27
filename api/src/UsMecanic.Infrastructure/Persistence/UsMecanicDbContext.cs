@@ -19,7 +19,7 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
 
     public DbSet<DeadlineCompletion> DeadlineCompletions => Set<DeadlineCompletion>();
 
-    public DbSet<MileageReading>MileageReadings => Set<MileageReading>();
+    public DbSet<MileageReading> MileageReadings => Set<MileageReading>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(UsMecanicDbContext).Assembly);
