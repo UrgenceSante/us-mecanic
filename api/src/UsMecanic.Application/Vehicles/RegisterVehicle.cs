@@ -6,7 +6,7 @@ namespace UsMecanic.Application.Vehicles;
 public sealed record RegisterVehicleCommand(string LicensePlate, VehicleDetailsInput Details);
 
 /// <summary>Ajoute un véhicule au parc. L'immatriculation doit être unique.</summary>
-public sealed class RegisterVehicle(IVehicleRepository repository, TimeProvider clock)
+public sealed class RegisterVehicle(IVehicleRepository repository, VehicleTypeLookup typeLookup, TimeProvider clock)
 {
     public async Task<Result<VehicleDto>> ExecuteAsync(RegisterVehicleCommand command, CancellationToken cancellationToken)
     {
@@ -24,6 +24,12 @@ public sealed class RegisterVehicle(IVehicleRepository repository, TimeProvider 
             return Result<VehicleDto>.Failure(details.Error!);
         }
 
+        var typeError = await typeLookup.CheckAssignableAsync(details.Value.TypeId, null, cancellationToken);
+        if (typeError is not null)
+        {
+            return Result<VehicleDto>.Failure(typeError);
+        }
+
         if (await repository.GetByPlateAsync(plate.Value, cancellationToken) is not null)
         {
             return Result<VehicleDto>.Failure(VehicleErrors.PlateAlreadyExists);
@@ -37,6 +43,6 @@ public sealed class RegisterVehicle(IVehicleRepository repository, TimeProvider 
 
         repository.Add(vehicle.Value);
         await repository.SaveChangesAsync(cancellationToken);
-        return Result<VehicleDto>.Success(VehicleDto.From(vehicle.Value));
+        return Result<VehicleDto>.Success(await typeLookup.ToDtoAsync(vehicle.Value, cancellationToken));
     }
 }

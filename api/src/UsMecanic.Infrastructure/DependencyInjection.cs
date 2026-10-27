@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
+using UsMecanic.Application.Vehicles.Types;
 using UsMecanic.Infrastructure.Persistence;
 using UsMecanic.Infrastructure.Vehicles;
 
@@ -30,6 +31,7 @@ public static class DependencyInjection
         services.AddHealthChecks().AddDbContextCheck<UsMecanicDbContext>("database");
 
         services.AddScoped<IVehicleRepository, VehicleRepository>();
+        services.AddScoped<IVehicleTypeRepository, VehicleTypeRepository>();
         services.AddSingleton<IVehicleImportReader, CsvVehicleImportReader>();
 
         return services;

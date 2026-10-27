@@ -132,7 +132,8 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         string.IsNullOrWhiteSpace(imported.Model) ? current.Model : imported.Model,
         imported.FirstRegistrationDate ?? current.FirstRegistrationDate,
         imported.Vin ?? current.Vin,
-        string.IsNullOrWhiteSpace(imported.InternalNumber) ? current.InternalNumber : imported.InternalNumber);
+        string.IsNullOrWhiteSpace(imported.InternalNumber) ? current.InternalNumber : imported.InternalNumber,
+        imported.TypeId ?? current.TypeId);
 
     private static VehicleImportLineResult Error(int line, string? plate, DomainError error) =>
         new(line, plate, ImportOutcome.Error, error.Code, error.Message);

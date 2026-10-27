@@ -27,6 +27,12 @@ internal sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.Property(v => v.InternalNumber).HasMaxLength(Vehicle.MaxTextLength);
         builder.Property(v => v.Status).HasConversion<string>().HasMaxLength(20);
 
+        // Type facultatif ; un type référencé ne peut pas être supprimé (il est seulement désactivé).
+        builder.HasOne<VehicleType>()
+            .WithMany()
+            .HasForeignKey(v => v.TypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Property(v => v.CreatedAt);
         builder.Ignore(v => v.Details);
     }

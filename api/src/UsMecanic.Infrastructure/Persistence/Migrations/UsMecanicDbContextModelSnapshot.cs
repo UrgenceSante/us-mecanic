@@ -63,6 +63,10 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("status");
 
+                    b.Property<Guid?>("TypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("type_id");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -79,7 +83,45 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_vehicles_license_plate");
 
+                    b.HasIndex("TypeId")
+                        .HasDatabaseName("ix_vehicles_type_id");
+
                     b.ToTable("vehicles", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Vehicles.VehicleType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_vehicle_types");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_vehicle_types_name");
+
+                    b.ToTable("vehicle_types", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Vehicles.Vehicle", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Vehicles.VehicleType", null)
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_vehicles_vehicle_types_type_id");
                 });
 #pragma warning restore 612, 618
         }
