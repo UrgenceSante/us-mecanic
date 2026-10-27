@@ -41,6 +41,16 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
   (ex. compteur remplacé, erreur de saisie précédente).
 - L'auteur du relevé n'est pas enregistré en phase 2 : il viendra de l'authentification
   (phase 9) ou de la source externe (phase 8).
+- Date du relevé : préremplie avec la date du jour, modifiable pour saisir un relevé passé
+  (rattrapage). Une date dans le futur est refusée.
+- Cohérence, évaluée par rapport aux relevés voisins **dans l'ordre des dates** (y compris
+  pour un relevé passé inséré entre deux autres) :
+  - valeur inférieure au relevé précédent ou supérieure au suivant : acceptée avec motif ;
+  - plus de **1 000 km par jour** en moyenne depuis le relevé précédent : avertissement,
+    enregistrement après confirmation.
+- Le kilométrage actuel d'un véhicule est celui du relevé le plus récent par date.
+- Par défaut (pas d'avis du propriétaire) : l'administrateur peut modifier ou supprimer un
+  relevé, sans trace de l'ancienne valeur. Les mêmes contrôles s'appliquent à la modification.
 
 ## Hors périmètre
 
@@ -55,5 +65,5 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
 
 ## Questions ouvertes
 
-- Correction et suppression d'un relevé.
+- Traçabilité des corrections de relevés : à revoir avec l'authentification (phase 9).
 - Liste des types d'échéances et leur périodicité.
