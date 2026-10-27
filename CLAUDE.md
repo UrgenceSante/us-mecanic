@@ -26,7 +26,9 @@ Le projet est piloté avec des agents spécialisés (`.claude/agents/`) et des c
 - `product` spécifie (`docs/specs/`, `docs/ROADMAP.md`, `docs/decisions/`), `pm` gère milestones, issues et avancement, `dev` implémente, `tester` teste, `reviewer` relit en lecture seule, `docs` documente.
 - Commandes : `/spec`, `/planifier`, `/tache <n>`, `/statut`.
 - Un milestone GitHub = une phase de `docs/ROADMAP.md`. Une issue = une demi-journée de travail = une branche `feat/<n>-slug` = une PR avec `Closes #<n>`.
-- Jamais de push direct sur `master`, jamais de merge par un agent. `dev` coche la ligne de roadmap qu'il livre, dans sa PR.
+- Jamais de push direct sur `master`. `dev` coche la ligne de roadmap qu'il livre, dans sa PR.
+- Merge automatique par l'orchestrateur (jamais par `dev`, `tester` ou `reviewer`), via l'auto-merge GitHub, si : CI verte, verdict `reviewer` APPROUVÉ, critères de la PR cochés et aucune question métier en attente.
+- Accord explicite du propriétaire requis, sans auto-merge, pour une PR qui : modifie ou supprime des données par migration (une création de table reste automatique) ; touche à l'authentification ou à la sécurité ; touche au déploiement (Dockerfile, `deploy/`, `.github/workflows/`) ; ou porte un choix métier signalé en relecture.
 - Un agent ne sort pas du périmètre de l'issue : toute découverte hors sujet est signalée, `pm` crée l'issue.
 - Positions GPS et identités des conducteurs : données personnelles, jamais dans les logs.
 - GitHub Project : `PROJECT_NUMBER=2` (https://github.com/orgs/UrgenceSante/projects/2)

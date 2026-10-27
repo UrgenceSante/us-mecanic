@@ -1,5 +1,5 @@
 ---
-description: Traite une issue de bout en bout - dev, tester, reviewer, PR - puis attend ton merge
+description: Traite une issue de bout en bout - dev, tester, reviewer, PR - puis merge automatique si les règles de CLAUDE.md le permettent
 argument-hint: <numéro de l'issue>
 ---
 
@@ -14,4 +14,4 @@ Traite l'issue GitHub #$ARGUMENTS de bout en bout. Si l'issue n'existe pas, est 
 7. Agent `docs` seulement si la tâche change un comportement visible, une API ou le déploiement.
 8. Termine par un rapport de 5 lignes maximum : ce qui est fait, lien de la PR, points qui demandent mon attention.
 
-Ne merge jamais. Ne ferme pas l'issue à la main : elle se fermera au merge. Ne modifie jamais la version ni `CHANGELOG.md`.
+Merge : applique la règle de `CLAUDE.md`. Si la PR y est éligible, coche ses critères et active l'auto-merge GitHub (méthode merge) une fois `reviewer` APPROUVÉ ; sinon, dis-moi pourquoi et attends mon merge. Ne ferme pas l'issue à la main : elle se fermera au merge. Ne modifie jamais la version ni `CHANGELOG.md`.
