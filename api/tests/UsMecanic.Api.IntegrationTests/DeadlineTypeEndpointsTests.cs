@@ -154,6 +154,7 @@ public class DeadlineTypeEndpointsTests : IClassFixture<ApiFactory>
         var unknown = await _client.PutAsJsonAsync(TypeUri(Guid.NewGuid()), new { name = NewName("X") });
 
         Assert.Equal(HttpStatusCode.Conflict, duplicate.StatusCode);
+        Assert.Equal("deadline_type.name_already_exists", await ErrorCodeAsync(duplicate));
         Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
         Assert.Equal("deadline_type.interval_months_invalid", await ErrorCodeAsync(invalid));
         Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
