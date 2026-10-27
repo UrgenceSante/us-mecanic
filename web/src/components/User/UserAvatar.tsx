@@ -14,8 +14,17 @@ import { useState } from "react";
 import { UserInitials } from "../Utils/Keycloak/UserInitials";
 import { deepOrange } from "@mui/material/colors";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { appConfig } from "../../config/appConfig";
 
 export default function UserAvatar() {
+  // Mode dev sans authentification (ADR-0001) : pas d'utilisateur, ni login ni logout.
+  if (appConfig.authDisabled) {
+    return null;
+  }
+  return <KeycloakUserAvatar />;
+}
+
+function KeycloakUserAvatar() {
   const { keycloak, initialized } = useKeycloak();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

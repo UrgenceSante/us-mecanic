@@ -27,6 +27,7 @@ entry() {
   entry keycloakUrl "${APP_KEYCLOAK_URL:-}"
   entry keycloakRealm "${APP_KEYCLOAK_REALM:-}"
   entry keycloakClientId "${APP_KEYCLOAK_CLIENT_ID:-}"
+  entry authDisabled "${APP_AUTH_DISABLED:-}"
   echo "};"
 } > "$TARGET"
 

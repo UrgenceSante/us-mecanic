@@ -17,6 +17,7 @@ services:
       APP_KEYCLOAK_URL: ${APP_KEYCLOAK_URL:-}
       APP_KEYCLOAK_REALM: ${APP_KEYCLOAK_REALM:-}
       APP_KEYCLOAK_CLIENT_ID: ${APP_KEYCLOAK_CLIENT_ID:-}
+      APP_AUTH_DISABLED: ${APP_AUTH_DISABLED:-}
 
   api:
     image: alexandredelesse/us-mecanic-api:${IMAGE_TAG}
@@ -30,6 +31,7 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       Auth__Authority: ${API_AUTH_AUTHORITY:-}
       Auth__Audience: ${API_AUTH_AUDIENCE:-}
+      Auth__Disabled: ${API_AUTH_DISABLED:-}
       Cors__AllowedOrigins__0: ${API_CORS_ORIGIN:-}
       # Les migrations sont appliquées au démarrage de l'API (Database__MigrateOnStartup)
       ConnectionStrings__Default: Host=db;Port=5432;Database=us_mecanic;Username=us_mecanic;Password=${DB_PASSWORD:?DB_PASSWORD manquant}

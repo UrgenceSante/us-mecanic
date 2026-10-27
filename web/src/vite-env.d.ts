@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_ENV_NAME?: string;
   readonly VITE_API_URL?: string;
+  readonly VITE_AUTH_DISABLED?: string;
   readonly VITE_LEGACY_API_URL?: string;
   readonly VITE_GEOLOC_API_URL?: string;
   readonly VITE_MAP_STYLE_URL?: string;

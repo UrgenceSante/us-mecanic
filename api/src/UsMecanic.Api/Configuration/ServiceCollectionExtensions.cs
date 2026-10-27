@@ -25,8 +25,12 @@ internal static class ServiceCollectionExtensions
                 options.TokenValidationParameters.ValidateAudience = !string.IsNullOrEmpty(auth.Audience);
             });
 
-        services.AddAuthorizationBuilder()
-            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+        // Auth:Disabled=true (dev uniquement, ADR-0001) : pas de fallback policy, les endpoints sont ouverts.
+        var authorization = services.AddAuthorizationBuilder();
+        if (!AuthOptions.IsDisabled(configuration))
+        {
+            authorization.SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+        }
 
         return services;
     }

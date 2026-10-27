@@ -22,6 +22,11 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+if (AuthOptions.IsDisabled(app.Configuration))
+{
+    AuthLog.AuthenticationDisabled(app.Logger);
+}
+
 if (app.Configuration.GetValue("Database:MigrateOnStartup", defaultValue: true))
 {
     await app.Services.MigrateDatabaseAsync();

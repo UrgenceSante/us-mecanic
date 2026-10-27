@@ -9,7 +9,7 @@ function createAuthenticatedClient(baseURL: string): AxiosInstance {
   const instance = axios.create({ baseURL, timeout: TIMEOUT_MS });
 
   instance.interceptors.request.use(async (config) => {
-    if (keycloak.authenticated) {
+    if (!appConfig.authDisabled && keycloak.authenticated) {
       await keycloak.updateToken(TOKEN_MIN_VALIDITY_S);
       config.headers.Authorization = `Bearer ${keycloak.token}`;
     }

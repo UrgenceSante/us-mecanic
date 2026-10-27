@@ -20,4 +20,17 @@ describe("resolveConfig", () => {
     expect(config.apiUrl).toBe(defaultConfig.apiUrl);
     expect(config.keycloakRealm).toBe(defaultConfig.keycloakRealm);
   });
+
+  it("laisse l'authentification active par défaut ou pour une valeur inconnue", () => {
+    expect(resolveConfig().authDisabled).toBe(false);
+    expect(resolveConfig({ authDisabled: "" }).authDisabled).toBe(false);
+    expect(resolveConfig({ authDisabled: "1" }).authDisabled).toBe(false);
+    expect(resolveConfig({ authDisabled: "oui" }).authDisabled).toBe(false);
+    expect(resolveConfig({ authDisabled: "false" }).authDisabled).toBe(false);
+  });
+
+  it("désactive l'authentification uniquement pour la valeur explicite true", () => {
+    expect(resolveConfig({ authDisabled: "true" }).authDisabled).toBe(true);
+    expect(resolveConfig({ authDisabled: true }).authDisabled).toBe(true);
+  });
 });
