@@ -8,7 +8,7 @@ L'avancement vient de GitHub : milestone = phase de `docs/ROADMAP.md`, issue = t
 
 ## Mise en place (une fois)
 
-1. Récupère cette branche ou merge la PR qui l'ajoute, puis `git pull` sur `main`.
+1. Récupère cette branche ou merge la PR qui l'ajoute, puis `git pull` sur `master`.
 2. Autorise la CLI GitHub à gérer les Projects : `gh auth refresh -s project`.
 3. Lance `claude` à la racine du dépôt et colle le prompt de démarrage ci-dessous.
 4. Quand `/planifier` a créé le GitHub Project, ouvre-le sur github.com :

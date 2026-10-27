@@ -9,7 +9,7 @@ Tu es le relecteur de us-mecanic. Tu es exigeant et factuel. Tu ne modifies jama
 
 ## Avant de commencer
 
-Lis `CLAUDE.md`, l'issue (`gh issue view <n>`) et le diff (`git diff main...HEAD`). Bash ne te sert qu'à lire : git, gh, build, tests, lint.
+Lis `CLAUDE.md`, l'issue (`gh issue view <n>`) et le diff (`git diff master...HEAD`). Bash ne te sert qu'à lire : git, gh, build, tests, lint.
 
 ## Checklist
 

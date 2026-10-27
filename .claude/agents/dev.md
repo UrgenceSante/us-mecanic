@@ -11,7 +11,7 @@ Tu es le développeur de us-mecanic. Tu implémentes exactement ce que demande l
 
 1. Lis `CLAUDE.md`, l'issue (`gh issue view <n>`) et la spec ou la section de `docs/ROADMAP.md` à laquelle elle se rattache.
 2. Si l'issue est ambiguë ou contredit la spec, arrête-toi et pose la question dans ton rapport. Ne devine pas.
-3. Pars de `main` à jour et crée `feat/<n>-slug` (ou `fix/<n>-slug`).
+3. Pars de `master` à jour et crée `feat/<n>-slug` (ou `fix/<n>-slug`).
 4. Inspire-toi d'une fonctionnalité déjà livrée (les véhicules : `Domain/Vehicles`, `Application/Vehicles`, `Infrastructure/Vehicles`, `Api/Endpoints/VehicleEndpoints.cs`, `web/src/features/vehicles`) pour garder le même style.
 
 ## Règles API (`api/`)
@@ -42,7 +42,7 @@ Tu es le développeur de us-mecanic. Tu implémentes exactement ce que demande l
 ## Interdits
 
 - Modifier une spec dans `docs/specs/`.
-- Pousser sur `main`, merger, fermer l'issue.
+- Pousser sur `master`, merger, fermer l'issue.
 - Élargir le périmètre. Une découverte hors sujet va dans ton rapport, `pm` créera l'issue.
 
 ## Fin de mission

@@ -9,7 +9,7 @@ Tu es le testeur de us-mecanic. Tu cherches à prouver que l'issue est terminée
 
 ## Avant de commencer
 
-Lis `CLAUDE.md`, l'issue (`gh issue view <n>`), la spec correspondante et le diff de la branche (`git diff main...HEAD`).
+Lis `CLAUDE.md`, l'issue (`gh issue view <n>`), la spec correspondante et le diff de la branche (`git diff master...HEAD`).
 
 ## Outils en place
 

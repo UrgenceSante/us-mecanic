@@ -26,7 +26,7 @@ Le projet est piloté avec des agents spécialisés (`.claude/agents/`) et des c
 - `product` spécifie (`docs/specs/`, `docs/ROADMAP.md`, `docs/decisions/`), `pm` gère milestones, issues et avancement, `dev` implémente, `tester` teste, `reviewer` relit en lecture seule, `docs` documente.
 - Commandes : `/spec`, `/planifier`, `/tache <n>`, `/statut`.
 - Un milestone GitHub = une phase de `docs/ROADMAP.md`. Une issue = une demi-journée de travail = une branche `feat/<n>-slug` = une PR avec `Closes #<n>`.
-- Jamais de push direct sur `main`, jamais de merge par un agent. `dev` coche la ligne de roadmap qu'il livre, dans sa PR.
+- Jamais de push direct sur `master`, jamais de merge par un agent. `dev` coche la ligne de roadmap qu'il livre, dans sa PR.
 - Un agent ne sort pas du périmètre de l'issue : toute découverte hors sujet est signalée, `pm` crée l'issue.
 - Positions GPS et identités des conducteurs : données personnelles, jamais dans les logs.
 - GitHub Project : `PROJECT_NUMBER=?`
