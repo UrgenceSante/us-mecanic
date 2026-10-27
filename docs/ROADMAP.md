@@ -45,7 +45,8 @@ Spec : `docs/specs/phase-2-kilometrage-echeances.md`.
 - [ ] Échéances : contrôle technique, assurance, entretien (au km et/ou à la date)
 - [ ] Types d'échéance administrables (dont agrément ARS, matériel médical, oxygène, extincteur…)
 - [ ] Échéance réalisée : calcul de la suivante
-- [ ] Tableau de bord des échéances proches ou dépassées
+- [ ] Tableau de bord (page d'accueil) : échéances proches ou dépassées, problèmes du parc
+- [ ] Vue « Problèmes » sur la fiche véhicule (logs de l'ancienne API, transitoire)
 
 ## Phase 3 — Carnet d'entretien
 

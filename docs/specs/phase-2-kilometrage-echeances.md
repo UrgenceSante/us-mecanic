@@ -95,6 +95,15 @@ En tant qu'administrateur, je veux voir les échéances proches et dépassées, 
 - [ ] Filtres : véhicule, type de véhicule, type d'échéance, statut (proche, dépassée).
 - [ ] Chaque ligne mène à la fiche véhicule et permet de marquer l'échéance réalisée.
 
+**US11 — Problèmes sur le tableau de bord et la fiche véhicule**
+En tant qu'administrateur, je veux voir les problèmes de tout le parc sur le tableau de bord et
+ceux d'un véhicule sur sa fiche, afin d'avoir une vue complète au même endroit.
+- [ ] Le tableau de bord a une vue « Problèmes » : la liste actuelle des logs mécaniques
+      (ancienne page d'accueil), pour tout le parc.
+- [ ] La fiche véhicule a une vue « Problèmes » : les mêmes logs filtrés sur son immatriculation.
+- [ ] Transitoire : les données viennent de l'ancienne API, comme aujourd'hui ; elles seront
+      reprises par la nouvelle API en phase 4.
+
 ### Should
 
 **US9 — Régler les seuils « proche »**
@@ -137,6 +146,9 @@ afin d'adapter l'alerte à l'organisation.
 - Notifications et alertes envoyées : phase 7.
 - Rôles, droits, auteur des saisies : phase 9.
 - Saisie directe de la prochaine date d'une échéance périodique (sans dernière réalisation).
+- Colonne « type de véhicule » dans l'import CSV : phase 8 (en phase 2, le type se saisit dans
+  le formulaire véhicule).
+- Nouveau modèle de problèmes dans l'API : phase 4.
 
 ## Impact sur le modèle de données
 
@@ -151,6 +163,4 @@ afin d'adapter l'alerte à l'organisation.
 
 ## Questions ouvertes
 
-- Page d'accueil actuelle (liste des logs mécaniques de l'ancienne API) : à déplacer vers une
-  autre entrée de menu quand le tableau de bord la remplace.
-- Import CSV des véhicules : ajouter une colonne « type de véhicule » ? (sinon en phase 8)
+Aucune à ce stade.
