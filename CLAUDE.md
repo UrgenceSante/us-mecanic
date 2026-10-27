@@ -29,6 +29,7 @@ Le projet est piloté avec des agents spécialisés (`.claude/agents/`) et des c
 - Jamais de push direct sur `master`. `dev` coche la ligne de roadmap qu'il livre, dans sa PR.
 - Merge automatique par l'orchestrateur (jamais par `dev`, `tester` ou `reviewer`), via l'auto-merge GitHub, si : CI verte, verdict `reviewer` APPROUVÉ, critères de la PR cochés et aucune question métier en attente.
 - Accord explicite du propriétaire requis, sans auto-merge, pour une PR qui : modifie ou supprime des données par migration (une création de table reste automatique) ; touche à l'authentification ou à la sécurité ; touche au déploiement (Dockerfile, `deploy/`, `.github/workflows/`) ; ou porte un choix métier signalé en relecture.
+- Points de reprise (une coupure de session ne doit rien perdre) : chaque branche est poussée dès que `dev` a fini et sa PR ouverte aussitôt (en brouillon si besoin) ; aucun travail ne reste uniquement en local ; au plus 3 tâches en parallèle. L'état d'une tâche se lit sur GitHub (issue, branche, PR), pas dans la conversation. À la reprise (« reprends ») : lancer `/statut`, terminer les branches et PR en cours avant d'en lancer de nouvelles, et ne lancer aucune nouvelle tâche sans accord du propriétaire.
 - Un agent ne sort pas du périmètre de l'issue : toute découverte hors sujet est signalée, `pm` crée l'issue.
 - Positions GPS et identités des conducteurs : données personnelles, jamais dans les logs.
 - GitHub Project : `PROJECT_NUMBER=2` (https://github.com/orgs/UrgenceSante/projects/2)
