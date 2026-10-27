@@ -18,7 +18,7 @@ public class ImportVehiclesTests
 
     private async Task<VehicleImportReport> ImportAsync(bool dryRun, params VehicleImportRow[] rows)
     {
-        var useCase = new ImportVehicles(new StubReader(rows), _repository, _clock);
+        var useCase = new ImportVehicles(new StubReader(rows), _repository, _clock, _clock.Calendar);
         var result = await useCase.ExecuteAsync(Stream.Null, dryRun, CancellationToken.None);
         Assert.True(result.IsSuccess, result.Error?.Message);
         return result.Value;
@@ -110,7 +110,7 @@ public class ImportVehiclesTests
     [Fact]
     public async Task Refuse_un_fichier_vide()
     {
-        var useCase = new ImportVehicles(new StubReader(), _repository, _clock);
+        var useCase = new ImportVehicles(new StubReader(), _repository, _clock, _clock.Calendar);
 
         var result = await useCase.ExecuteAsync(Stream.Null, false, CancellationToken.None);
 

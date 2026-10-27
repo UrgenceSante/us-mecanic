@@ -25,11 +25,11 @@ public class VehicleDeadlineUseCasesTests
         _type = _types.Seed("Contrôle technique");
     }
 
-    private VehicleDeadlineDtoFactory Factory => new(_types, _thresholds, _readings, _clock);
+    private VehicleDeadlineDtoFactory Factory => new(_types, _thresholds, _readings, _clock.Calendar);
 
-    private AddVehicleDeadline Add => new(new MileageVehicleGuard(_vehicles), _types, _deadlines, Factory, _clock);
+    private AddVehicleDeadline Add => new(new MileageVehicleGuard(_vehicles), _types, _deadlines, Factory, _clock.Calendar);
 
-    private UpdateVehicleDeadlineInterval Update => new(new MileageVehicleGuard(_vehicles), _deadlines, Factory, _clock);
+    private UpdateVehicleDeadlineInterval Update => new(new MileageVehicleGuard(_vehicles), _deadlines, Factory, _clock.Calendar);
 
     private ListVehicleDeadlines List => new(new MileageVehicleGuard(_vehicles), _deadlines, Factory);
 

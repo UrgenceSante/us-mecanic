@@ -53,7 +53,7 @@ internal sealed class InMemoryMileageReadingRepository : IMileageReadingReposito
 
     public MileageReading Seed(Guid vehicleId, DateOnly date, int kilometers, string? reason = null)
     {
-        var reading = MileageReading.Create(vehicleId, new MileageReadingEntry(date, kilometers, reason, ConfirmHighMileage: true), [], FixedClock.Default).Value;
+        var reading = MileageReading.Create(vehicleId, new MileageReadingEntry(date, kilometers, reason, ConfirmHighMileage: true), [], FixedClock.DefaultToday, FixedClock.Default).Value;
         Saved.Add(reading);
         return reading;
     }

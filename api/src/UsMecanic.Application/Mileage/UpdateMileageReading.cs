@@ -4,7 +4,7 @@ using UsMecanic.Domain.Mileage;
 namespace UsMecanic.Application.Mileage;
 
 /// <summary>Modifie un relevé avec les mêmes contrôles qu'à l'ajout. L'ancienne valeur n'est pas conservée.</summary>
-public sealed class UpdateMileageReading(MileageVehicleGuard guard, IMileageReadingRepository readings, TimeProvider clock)
+public sealed class UpdateMileageReading(MileageVehicleGuard guard, IMileageReadingRepository readings, TimeProvider clock, BusinessCalendar calendar)
 {
     public async Task<Result<MileageReadingDto>> ExecuteAsync(
         Guid vehicleId, Guid readingId, MileageReadingInput input, CancellationToken cancellationToken)
@@ -24,7 +24,7 @@ public sealed class UpdateMileageReading(MileageVehicleGuard guard, IMileageRead
         }
 
         var all = await readings.ListByVehicleAsync(vehicleId, cancellationToken);
-        var updated = reading.Update(input.ToEntry(), all, clock.GetUtcNow());
+        var updated = reading.Update(input.ToEntry(), all, calendar.Today, clock.GetUtcNow());
         if (updated.IsFailure)
         {
             return Result<MileageReadingDto>.Failure(updated.Error!);

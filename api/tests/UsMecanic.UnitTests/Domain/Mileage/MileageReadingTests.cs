@@ -10,7 +10,7 @@ public class MileageReadingTests
     private static readonly DateOnly Today = new(2026, 10, 1);
 
     private static MileageReading Existing(DateOnly date, int km) =>
-        MileageReading.Create(VehicleId, new MileageReadingEntry(date, km), [], Now).Value;
+        MileageReading.Create(VehicleId, new MileageReadingEntry(date, km), [], Today, Now).Value;
 
     private static MileageReadingEntry Entry(DateOnly date, int km, string? reason = null, bool confirm = false) =>
         new(date, km, reason, confirm);
@@ -18,7 +18,7 @@ public class MileageReadingTests
     [Fact]
     public void Le_premier_releve_est_accepte_et_conserve_ses_valeurs()
     {
-        var result = MileageReading.Create(VehicleId, Entry(Today, 12_000, "  Contrôle technique "), [], Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today, 12_000, "  Contrôle technique "), [], Today, Now);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(VehicleId, result.Value.VehicleId);
@@ -32,7 +32,7 @@ public class MileageReadingTests
     [Fact]
     public void Un_premier_releve_tres_eleve_n_est_pas_un_avertissement()
     {
-        var result = MileageReading.Create(VehicleId, Entry(Today, 900_000), [], Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today, 900_000), [], Today, Now);
 
         Assert.True(result.IsSuccess);
     }
@@ -40,7 +40,7 @@ public class MileageReadingTests
     [Fact]
     public void Un_motif_vide_est_ignore()
     {
-        var result = MileageReading.Create(VehicleId, Entry(Today, 10, "   "), [], Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today, 10, "   "), [], Today, Now);
 
         Assert.Null(result.Value.Reason);
     }
@@ -48,7 +48,7 @@ public class MileageReadingTests
     [Fact]
     public void Refuse_un_kilometrage_negatif()
     {
-        var result = MileageReading.Create(VehicleId, Entry(Today, -1), [], Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today, -1), [], Today, Now);
 
         Assert.Equal(MileageReadingErrors.NegativeKilometers, result.Error);
     }
@@ -56,14 +56,14 @@ public class MileageReadingTests
     [Fact]
     public void Accepte_zero_kilometre()
     {
-        Assert.True(MileageReading.Create(VehicleId, Entry(Today, 0), [], Now).IsSuccess);
+        Assert.True(MileageReading.Create(VehicleId, Entry(Today, 0), [], Today, Now).IsSuccess);
     }
 
     [Fact]
     public void Refuse_une_date_dans_le_futur_mais_accepte_aujourd_hui()
     {
-        var tomorrow = MileageReading.Create(VehicleId, Entry(Today.AddDays(1), 10), [], Now);
-        var today = MileageReading.Create(VehicleId, Entry(Today, 10), [], Now);
+        var tomorrow = MileageReading.Create(VehicleId, Entry(Today.AddDays(1), 10), [], Today, Now);
+        var today = MileageReading.Create(VehicleId, Entry(Today, 10), [], Today, Now);
 
         Assert.Equal(MileageReadingErrors.DateInFuture, tomorrow.Error);
         Assert.True(today.IsSuccess);
@@ -72,7 +72,7 @@ public class MileageReadingTests
     [Fact]
     public void Refuse_un_motif_trop_long()
     {
-        var result = MileageReading.Create(VehicleId, Entry(Today, 10, new string('x', MileageReading.MaxReasonLength + 1)), [], Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today, 10, new string('x', MileageReading.MaxReasonLength + 1)), [], Today, Now);
 
         Assert.Equal(MileageReadingErrors.ReasonTooLong, result.Error);
     }
@@ -82,8 +82,8 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today.AddDays(-10), 5_000) };
 
-        var without = MileageReading.Create(VehicleId, Entry(Today, 4_000), others, Now);
-        var with = MileageReading.Create(VehicleId, Entry(Today, 4_000, "Compteur remplacé"), others, Now);
+        var without = MileageReading.Create(VehicleId, Entry(Today, 4_000), others, Today, Now);
+        var with = MileageReading.Create(VehicleId, Entry(Today, 4_000, "Compteur remplacé"), others, Today, Now);
 
         Assert.Equal(MileageReadingErrors.ReasonRequired, without.Error);
         Assert.True(with.IsSuccess);
@@ -94,7 +94,7 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today.AddDays(-10), 5_000) };
 
-        Assert.True(MileageReading.Create(VehicleId, Entry(Today, 5_000), others, Now).IsSuccess);
+        Assert.True(MileageReading.Create(VehicleId, Entry(Today, 5_000), others, Today, Now).IsSuccess);
     }
 
     [Fact]
@@ -102,8 +102,8 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today.AddDays(-10), 5_000), Existing(Today.AddDays(-2), 5_500) };
 
-        var without = MileageReading.Create(VehicleId, Entry(Today.AddDays(-5), 5_600), others, Now);
-        var with = MileageReading.Create(VehicleId, Entry(Today.AddDays(-5), 5_600, "Erreur de saisie corrigée plus tard"), others, Now);
+        var without = MileageReading.Create(VehicleId, Entry(Today.AddDays(-5), 5_600), others, Today, Now);
+        var with = MileageReading.Create(VehicleId, Entry(Today.AddDays(-5), 5_600, "Erreur de saisie corrigée plus tard"), others, Today, Now);
 
         Assert.Equal(MileageReadingErrors.ReasonRequired, without.Error);
         Assert.True(with.IsSuccess);
@@ -114,7 +114,7 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today.AddDays(-10), 5_000), Existing(Today.AddDays(-2), 5_500) };
 
-        var result = MileageReading.Create(VehicleId, Entry(Today.AddDays(-5), 5_200), others, Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today.AddDays(-5), 5_200), others, Today, Now);
 
         Assert.True(result.IsSuccess);
     }
@@ -124,7 +124,7 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today, 50_000) };
 
-        var result = MileageReading.Create(VehicleId, Entry(Today.AddDays(-30), 40_000), others, Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today.AddDays(-30), 40_000), others, Today, Now);
 
         Assert.True(result.IsSuccess);
     }
@@ -134,8 +134,8 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today.AddDays(-2), 10_000) };
 
-        var refused = MileageReading.Create(VehicleId, Entry(Today, 12_001), others, Now);
-        var confirmed = MileageReading.Create(VehicleId, Entry(Today, 12_001, confirm: true), others, Now);
+        var refused = MileageReading.Create(VehicleId, Entry(Today, 12_001), others, Today, Now);
+        var confirmed = MileageReading.Create(VehicleId, Entry(Today, 12_001, confirm: true), others, Today, Now);
 
         Assert.Equal(MileageReadingErrors.HighMileageConfirmationRequired, refused.Error);
         Assert.True(confirmed.IsSuccess);
@@ -146,7 +146,7 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today.AddDays(-2), 10_000) };
 
-        Assert.True(MileageReading.Create(VehicleId, Entry(Today, 12_000), others, Now).IsSuccess);
+        Assert.True(MileageReading.Create(VehicleId, Entry(Today, 12_000), others, Today, Now).IsSuccess);
     }
 
     [Fact]
@@ -154,8 +154,8 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today, 10_000) };
 
-        var within = MileageReading.Create(VehicleId, Entry(Today, 11_000), others, Now);
-        var above = MileageReading.Create(VehicleId, Entry(Today, 11_001), others, Now);
+        var within = MileageReading.Create(VehicleId, Entry(Today, 11_000), others, Today, Now);
+        var above = MileageReading.Create(VehicleId, Entry(Today, 11_001), others, Today, Now);
 
         Assert.True(within.IsSuccess);
         Assert.Equal(MileageReadingErrors.HighMileageConfirmationRequired, above.Error);
@@ -166,7 +166,7 @@ public class MileageReadingTests
     {
         var others = new[] { Existing(Today, 10_000) };
 
-        var result = MileageReading.Create(VehicleId, Entry(Today, 9_000), others, Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today, 9_000), others, Today, Now);
 
         Assert.Equal(MileageReadingErrors.ReasonRequired, result.Error);
     }
@@ -177,7 +177,7 @@ public class MileageReadingTests
         var others = new[] { Existing(Today.AddDays(-1), 20_000) };
 
         // 20 000 -> 5 000 : en baisse, donc motif (pas d'avertissement de vitesse).
-        var result = MileageReading.Create(VehicleId, Entry(Today, 5_000), others, Now);
+        var result = MileageReading.Create(VehicleId, Entry(Today, 5_000), others, Today, Now);
 
         Assert.Equal(MileageReadingErrors.ReasonRequired, result.Error);
     }
@@ -188,8 +188,8 @@ public class MileageReadingTests
         var others = new[] { Existing(Today.AddDays(-10), 10_000), Existing(Today.AddDays(-1), 10_500) };
 
         // Au-dessus du suivant ET à plus de 1 000 km/jour du précédent : le motif ne suffit pas, il faut aussi confirmer.
-        var unconfirmed = MileageReading.Create(VehicleId, Entry(Today.AddDays(-9), 13_000, "Relevé du tableau de bord"), others, Now);
-        var confirmed = MileageReading.Create(VehicleId, Entry(Today.AddDays(-9), 13_000, "Relevé du tableau de bord", confirm: true), others, Now);
+        var unconfirmed = MileageReading.Create(VehicleId, Entry(Today.AddDays(-9), 13_000, "Relevé du tableau de bord"), others, Today, Now);
+        var confirmed = MileageReading.Create(VehicleId, Entry(Today.AddDays(-9), 13_000, "Relevé du tableau de bord", confirm: true), others, Today, Now);
 
         Assert.Equal(MileageReadingErrors.HighMileageConfirmationRequired, unconfirmed.Error);
         Assert.True(confirmed.IsSuccess);
@@ -204,7 +204,7 @@ public class MileageReadingTests
         IReadOnlyList<MileageReading> all = [first, second, third];
 
         // Sans exclusion, le précédent serait le relevé lui-même (5 300, même date) et 5 100 exigerait un motif.
-        var result = second.Update(Entry(Today.AddDays(-5), 5_100), all, Now);
+        var result = second.Update(Entry(Today.AddDays(-5), 5_100), all, Today, Now);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(5_100, second.Kilometers);
@@ -218,10 +218,10 @@ public class MileageReadingTests
         var third = Existing(Today.AddDays(-1), 5_600);
         IReadOnlyList<MileageReading> all = [first, second, third];
 
-        var tooLow = second.Update(Entry(Today.AddDays(-5), 4_900), all, Now);
-        var tooHigh = second.Update(Entry(Today.AddDays(-5), 5_700), all, Now);
-        var future = second.Update(Entry(Today.AddDays(1), 5_300), all, Now);
-        var fast = second.Update(Entry(Today.AddDays(-9), 7_000), all, Now);
+        var tooLow = second.Update(Entry(Today.AddDays(-5), 4_900), all, Today, Now);
+        var tooHigh = second.Update(Entry(Today.AddDays(-5), 5_700), all, Today, Now);
+        var future = second.Update(Entry(Today.AddDays(1), 5_300), all, Today, Now);
+        var fast = second.Update(Entry(Today.AddDays(-9), 7_000), all, Today, Now);
 
         Assert.Equal(MileageReadingErrors.ReasonRequired, tooLow.Error);
         Assert.Equal(MileageReadingErrors.ReasonRequired, tooHigh.Error);
@@ -239,7 +239,7 @@ public class MileageReadingTests
         IReadOnlyList<MileageReading> all = [first, second];
 
         // Déplacé avant le premier : 5 300 > 5 000 (suivant) => motif requis.
-        var result = second.Update(Entry(Today.AddDays(-20), 5_300), all, Now);
+        var result = second.Update(Entry(Today.AddDays(-20), 5_300), all, Today, Now);
 
         Assert.Equal(MileageReadingErrors.ReasonRequired, result.Error);
     }
@@ -250,7 +250,7 @@ public class MileageReadingTests
         var reading = Existing(Today.AddDays(-5), 5_300);
         var later = Now.AddDays(3);
 
-        var result = reading.Update(Entry(Today, 5_400, "Précision"), [reading], later);
+        var result = reading.Update(Entry(Today, 5_400, "Précision"), [reading], Today, later);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(Now, reading.RecordedAt);

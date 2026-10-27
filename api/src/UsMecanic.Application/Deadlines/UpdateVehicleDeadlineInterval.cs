@@ -9,7 +9,7 @@ public sealed class UpdateVehicleDeadlineInterval(
     MileageVehicleGuard guard,
     IVehicleDeadlineRepository deadlines,
     VehicleDeadlineDtoFactory factory,
-    TimeProvider clock)
+    BusinessCalendar calendar)
 {
     public async Task<Result<VehicleDeadlineDto>> ExecuteAsync(
         Guid vehicleId, Guid deadlineId, VehicleDeadlineIntervalInput input, CancellationToken cancellationToken)
@@ -28,7 +28,7 @@ public sealed class UpdateVehicleDeadlineInterval(
             return Result<VehicleDeadlineDto>.Failure(VehicleDeadlineErrors.NotFound);
         }
 
-        var today = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
+        var today = calendar.Today;
         var changed = deadline.ChangeInterval(input.IntervalMonths, input.IntervalKm, today);
         if (changed.IsFailure)
         {

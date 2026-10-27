@@ -7,14 +7,15 @@ public class VehicleTests
 {
     private static readonly LicensePlate Plate = LicensePlate.Create("AB-123-CD").Value;
     private static readonly DateTimeOffset Now = FixedClock.Default;
+    private static readonly DateOnly Today = FixedClock.DefaultToday;
 
     private static Vehicle Register(VehicleDetails? details = null) =>
-        Vehicle.Register(Plate, details ?? new VehicleDetails("Renault", "Master", new DateOnly(2022, 3, 1), null, "AMB-12"), Now).Value;
+        Vehicle.Register(Plate, details ?? new VehicleDetails("Renault", "Master", new DateOnly(2022, 3, 1), null, "AMB-12"), Today, Now).Value;
 
     [Fact]
     public void Register_cree_un_vehicule_actif_aux_champs_nettoyes()
     {
-        var vehicle = Vehicle.Register(Plate, new VehicleDetails("  Renault ", " ", null, null, null), Now).Value;
+        var vehicle = Vehicle.Register(Plate, new VehicleDetails("  Renault ", " ", null, null, null), Today, Now).Value;
 
         Assert.Equal(VehicleStatus.Active, vehicle.Status);
         Assert.Equal("Renault", vehicle.Brand);
@@ -27,9 +28,9 @@ public class VehicleTests
     [Fact]
     public void Register_refuse_une_mise_en_circulation_future()
     {
-        var details = new VehicleDetails(null, null, DateOnly.FromDateTime(Now.UtcDateTime).AddDays(1), null, null);
+        var details = new VehicleDetails(null, null, Today.AddDays(1), null, null);
 
-        Assert.Equal(VehicleErrors.FirstRegistrationInFuture, Vehicle.Register(Plate, details, Now).Error);
+        Assert.Equal(VehicleErrors.FirstRegistrationInFuture, Vehicle.Register(Plate, details, Today, Now).Error);
     }
 
     [Fact]
@@ -37,7 +38,7 @@ public class VehicleTests
     {
         var details = new VehicleDetails(new string('x', Vehicle.MaxTextLength + 1), null, null, null, null);
 
-        Assert.Equal(VehicleErrors.FieldTooLong, Vehicle.Register(Plate, details, Now).Error);
+        Assert.Equal(VehicleErrors.FieldTooLong, Vehicle.Register(Plate, details, Today, Now).Error);
     }
 
     [Fact]
@@ -45,7 +46,7 @@ public class VehicleTests
     {
         var vehicle = Register();
 
-        vehicle.UpdateDetails(vehicle.Details with { Brand = " Renault " }, Now.AddDays(1));
+        vehicle.UpdateDetails(vehicle.Details with { Brand = " Renault " }, Today, Now.AddDays(1));
 
         Assert.Equal(Now, vehicle.UpdatedAt);
     }
@@ -56,7 +57,7 @@ public class VehicleTests
         var vehicle = Register();
         var later = Now.AddDays(1);
 
-        var result = vehicle.UpdateDetails(vehicle.Details with { Model = "Trafic" }, later);
+        var result = vehicle.UpdateDetails(vehicle.Details with { Model = "Trafic" }, Today, later);
 
         Assert.True(result.IsSuccess);
         Assert.Equal("Trafic", vehicle.Model);
@@ -70,12 +71,12 @@ public class VehicleTests
         var vehicle = Register();
         Assert.Null(vehicle.TypeId);
 
-        var assigned = vehicle.UpdateDetails(vehicle.Details with { TypeId = typeId }, Now.AddDays(1));
+        var assigned = vehicle.UpdateDetails(vehicle.Details with { TypeId = typeId }, Today, Now.AddDays(1));
         Assert.True(assigned.IsSuccess);
         Assert.Equal(typeId, vehicle.TypeId);
         Assert.Equal(Now.AddDays(1), vehicle.UpdatedAt);
 
-        vehicle.UpdateDetails(vehicle.Details with { TypeId = null }, Now.AddDays(2));
+        vehicle.UpdateDetails(vehicle.Details with { TypeId = null }, Today, Now.AddDays(2));
         Assert.Null(vehicle.TypeId);
     }
 
@@ -85,7 +86,7 @@ public class VehicleTests
         var vehicle = Register();
         vehicle.ChangeStatus(VehicleStatus.Retired, Now);
 
-        Assert.Equal(VehicleErrors.Retired, vehicle.UpdateDetails(vehicle.Details with { Model = "X" }, Now).Error);
+        Assert.Equal(VehicleErrors.Retired, vehicle.UpdateDetails(vehicle.Details with { Model = "X" }, Today, Now).Error);
         Assert.Equal(VehicleErrors.Retired, vehicle.ChangeStatus(VehicleStatus.Active, Now).Error);
         Assert.True(vehicle.ChangeStatus(VehicleStatus.Retired, Now).IsSuccess);
     }

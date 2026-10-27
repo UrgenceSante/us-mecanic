@@ -10,9 +10,12 @@ namespace UsMecanic.Application;
 public static class DependencyInjection
 {
     /// <summary>Enregistre les cas d'usage de la couche Application.</summary>
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services, string? businessTimeZoneId = null)
     {
         services.AddSingleton(TimeProvider.System);
+        var zoneId = string.IsNullOrWhiteSpace(businessTimeZoneId) ? BusinessCalendar.DefaultTimeZoneId : businessTimeZoneId;
+        var zone = TimeZoneInfo.FindSystemTimeZoneById(zoneId);
+        services.AddSingleton(provider => new BusinessCalendar(provider.GetRequiredService<TimeProvider>(), zone));
 
         services.AddScoped<RegisterVehicle>();
         services.AddScoped<UpdateVehicleDetails>();
