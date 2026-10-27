@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { dashboardKeys } from "../../dashboard/api/dashboardQueries";
 import { mileageKeys } from "../../mileage/api/mileageQueries";
 import { vehicleKeys } from "../../vehicles/api/vehicleQueries";
 import type { DeadlineCompletionInput, VehicleDeadlineInput } from "../types/vehicleDeadline";
@@ -25,7 +26,7 @@ export function useAddVehicleDeadline(vehicleId: string) {
   });
 }
 
-/** Une réalisation avec km crée un relevé : on invalide échéances, relevés et véhicules (km actuel). */
+/** Une réalisation avec km crée un relevé : on invalide tableau de bord, échéances, relevés et véhicules (km actuel). */
 export function useCompleteVehicleDeadline(vehicleId: string, deadlineId: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -35,6 +36,7 @@ export function useCompleteVehicleDeadline(vehicleId: string, deadlineId: string
         queryClient.invalidateQueries({ queryKey: vehicleDeadlineKeys.list(vehicleId) }),
         queryClient.invalidateQueries({ queryKey: mileageKeys.list(vehicleId) }),
         queryClient.invalidateQueries({ queryKey: vehicleKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
       ]),
   });
 }
