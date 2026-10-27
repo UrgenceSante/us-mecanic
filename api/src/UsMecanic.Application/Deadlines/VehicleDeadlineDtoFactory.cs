@@ -20,8 +20,7 @@ public sealed class VehicleDeadlineDtoFactory(
 
         var typesById = (await types.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(t => t.Id);
         var global = await thresholds.GetAsync(cancellationToken);
-        var vehicleReadings = await readings.ListByVehicleAsync(vehicleId, cancellationToken);
-        int? currentKm = vehicleReadings.Count > 0 ? vehicleReadings[0].Kilometers : null;
+        var currentKm = (await readings.GetCurrentAsync(vehicleId, cancellationToken))?.Kilometers;
         var today = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
 
         return [.. deadlines.Select(deadline =>
