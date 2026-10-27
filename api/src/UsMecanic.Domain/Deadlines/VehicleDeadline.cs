@@ -123,6 +123,11 @@ public sealed class VehicleDeadline
             return Result<VehicleDeadline>.Failure(VehicleDeadlineErrors.KilometersInvalid);
         }
 
+        if (kilometers is null && (IntervalKm is not null || DueKm is not null))
+        {
+            return Result<VehicleDeadline>.Failure(DeadlineCompletionErrors.KilometersRequired);
+        }
+
         if (!Schedule.IsPeriodic)
         {
             LastDoneDate = date;

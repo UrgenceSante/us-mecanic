@@ -29,16 +29,16 @@ public class VehicleDeadlineCompletionTests
     }
 
     [Fact]
-    public void Periodique_sans_km_reel_le_critere_km_disparait_si_la_periodicite_a_aussi_des_mois()
+    public void Une_echeance_avec_critere_km_exige_le_km_reel_sans_rien_modifier()
     {
         var deadline = Periodic(12, 30_000, new DateOnly(2025, 10, 15), 20_000);
 
         var result = deadline.Complete(new DateOnly(2026, 9, 20), null, Today);
 
-        Assert.True(result.IsSuccess);
-        Assert.Null(deadline.LastDoneKm);
-        Assert.Equal(new DateOnly(2027, 9, 20), deadline.DueDate);
-        Assert.Null(deadline.DueKm);
+        Assert.Equal(DeadlineCompletionErrors.KilometersRequired, result.Error);
+        Assert.Equal(new DateOnly(2025, 10, 15), deadline.LastDoneDate);
+        Assert.Equal(20_000, deadline.LastDoneKm);
+        Assert.Equal(50_000, deadline.DueKm);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class VehicleDeadlineCompletionTests
 
         var result = deadline.Complete(new DateOnly(2026, 9, 20), null, Today);
 
-        Assert.Equal(VehicleDeadlineErrors.CriterionRequired, result.Error);
+        Assert.Equal(DeadlineCompletionErrors.KilometersRequired, result.Error);
         Assert.Equal(new DateOnly(2026, 1, 15), deadline.LastDoneDate);
         Assert.Equal(57_000, deadline.DueKm);
     }
