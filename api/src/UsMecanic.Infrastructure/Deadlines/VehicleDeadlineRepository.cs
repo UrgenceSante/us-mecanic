@@ -15,6 +15,22 @@ internal sealed class VehicleDeadlineRepository(UsMecanicDbContext db) : IVehicl
             .Where(d => d.VehicleId == vehicleId)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<VehicleDeadline>> ListActiveAsync(Guid? vehicleId, Guid? deadlineTypeId, CancellationToken cancellationToken)
+    {
+        var query = db.VehicleDeadlines.AsNoTracking().Where(d => !d.IsClosed);
+        if (vehicleId is { } vehicle)
+        {
+            query = query.Where(d => d.VehicleId == vehicle);
+        }
+
+        if (deadlineTypeId is { } type)
+        {
+            query = query.Where(d => d.DeadlineTypeId == type);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
     public Task<bool> ActiveExistsAsync(Guid vehicleId, Guid deadlineTypeId, CancellationToken cancellationToken) =>
         db.VehicleDeadlines.AnyAsync(d => d.VehicleId == vehicleId && d.DeadlineTypeId == deadlineTypeId && !d.IsClosed, cancellationToken);
 

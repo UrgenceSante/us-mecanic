@@ -51,6 +51,7 @@ app.MapDeadlineTypeEndpoints();
 app.MapDeadlineThresholdsEndpoints();
 app.MapMileageReadingEndpoints();
 app.MapVehicleDeadlineEndpoints();
+app.MapDashboardEndpoints();
 
 await app.RunAsync();
 

@@ -18,6 +18,10 @@ internal sealed class InMemoryVehicleDeadlineRepository : IVehicleDeadlineReposi
     public Task<IReadOnlyList<VehicleDeadline>> ListByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<VehicleDeadline>>([.. Saved.Where(d => d.VehicleId == vehicleId)]);
 
+    public Task<IReadOnlyList<VehicleDeadline>> ListActiveAsync(Guid? vehicleId, Guid? deadlineTypeId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<VehicleDeadline>>(
+            [.. Saved.Where(d => !d.IsClosed && (vehicleId is null || d.VehicleId == vehicleId) && (deadlineTypeId is null || d.DeadlineTypeId == deadlineTypeId))]);
+
     public Task<bool> ActiveExistsAsync(Guid vehicleId, Guid deadlineTypeId, CancellationToken cancellationToken) =>
         Task.FromResult(Saved.Exists(d => d.VehicleId == vehicleId && d.DeadlineTypeId == deadlineTypeId && !d.IsClosed));
 

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using UsMecanic.Application.Dashboard;
 using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Mileage;
 using UsMecanic.Application.Vehicles;
@@ -46,6 +47,7 @@ public static class DependencyInjection
         services.AddScoped<AddVehicleDeadline>();
         services.AddScoped<UpdateVehicleDeadlineInterval>();
         services.AddScoped<CompleteVehicleDeadline>();
+        services.AddScoped<ListDashboardDeadlines>();
 
         return services;
     }
