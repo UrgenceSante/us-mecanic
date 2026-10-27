@@ -52,6 +52,17 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
 - Par défaut (pas d'avis du propriétaire) : l'administrateur peut modifier ou supprimer un
   relevé, sans trace de l'ancienne valeur. Les mêmes contrôles s'appliquent à la modification.
 
+### Échéances
+
+- **Types d'échéance** : référentiel administrable (l'administrateur ajoute ses types). Types
+  fournis au départ : contrôle technique, assurance, entretien constructeur, agrément ARS,
+  matériel médical, oxygène, extincteur.
+- **Périodicité** : en mois et/ou en km, **modifiable pour chaque véhicule**.
+- Échéance à double critère (km et date) : elle tombe au **premier des deux atteint**.
+- **Échéance proche** : par défaut 30 jours ou 1 000 km avant ; seuils **paramétrables par
+  l'administrateur**.
+- Statuts affichés : à jour, proche, dépassée.
+
 ## Hors périmètre
 
 - Import de l'historique (km, échéances) et source de kilométrage externe : phase 8.
@@ -66,4 +77,3 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
 ## Questions ouvertes
 
 - Traçabilité des corrections de relevés : à revoir avec l'authentification (phase 9).
-- Liste des types d'échéances et leur périodicité.
