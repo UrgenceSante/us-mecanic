@@ -123,6 +123,7 @@ public class VehicleTypeEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(created.Id, Assert.Single(filtered!).Id);
 
         var changed = await _client.PutAsJsonAsync(new Uri($"/api/vehicles/{created.Id}", UriKind.Relative), new { brand = "Renault", typeId = (Guid?)null });
+        Assert.Equal(HttpStatusCode.OK, changed.StatusCode);
         Assert.Null((await changed.Content.ReadFromJsonAsync<VehicleDto>(Json))!.TypeId);
     }
 
