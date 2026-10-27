@@ -42,9 +42,9 @@ Spec : `docs/specs/phase-2-kilometrage-echeances.md`.
 - [ ] Relevés kilométriques : saisie manuelle, historique, contrôle de cohérence
 - [ ] Kilométrage actuel affiché sur la fiche et la liste du parc
 - [x] Types de véhicule (ambulance, VSL, sang…) administrables
-- [ ] Échéances : contrôle technique, assurance, entretien (au km et/ou à la date)
+- [x] Échéances : contrôle technique, assurance, entretien (au km et/ou à la date)
 - [x] Types d'échéance administrables (dont agrément ARS, matériel médical, oxygène, extincteur…)
-- [ ] Échéance réalisée : calcul de la suivante
+- [x] Échéance réalisée : calcul de la suivante
 - [ ] Tableau de bord (page d'accueil) : échéances proches ou dépassées, problèmes du parc
 - [x] Vue « Problèmes » sur la fiche véhicule (logs de l'ancienne API, transitoire)
 

@@ -9,6 +9,7 @@ import PropertyDisplay from "../../../components/Utils/PropertyDisplay";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { problemMessage } from "../../../shared/api/problemMessage";
 import { useChangeVehicleStatus, useUpdateVehicle, useVehicle } from "../api/vehicleQueries";
+import VehicleDeadlines from "../../vehicle-deadlines/components/VehicleDeadlines";
 import VehicleMileage from "../../mileage/components/VehicleMileage";
 import VehicleProblems from "../components/VehicleProblems";
 import VehicleFormDialog from "../components/VehicleFormDialog";
@@ -86,6 +87,8 @@ export default function VehicleDetailPage() {
         currentMileage={data.currentMileage}
         currentMileageDate={data.currentMileageDate}
       />
+
+      <VehicleDeadlines vehicleId={data.id} status={data.status} currentMileage={data.currentMileage} />
 
       <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
 
