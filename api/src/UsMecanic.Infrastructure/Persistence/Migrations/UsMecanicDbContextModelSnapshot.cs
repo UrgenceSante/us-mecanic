@@ -84,6 +84,42 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.ToTable("deadline_types", (string)null);
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Mileage.MileageReading", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int>("Kilometers")
+                        .HasColumnType("integer")
+                        .HasColumnName("kilometers");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mileage_readings");
+
+                    b.HasIndex("VehicleId", "Date")
+                        .HasDatabaseName("ix_mileage_readings_vehicle_id_date");
+
+                    b.ToTable("mileage_readings", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Vehicles.Vehicle", b =>
                 {
                     b.Property<Guid>("Id")
@@ -175,6 +211,16 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_vehicle_types_name");
 
                     b.ToTable("vehicle_types", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Mileage.MileageReading", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_mileage_readings_vehicles_vehicle_id");
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Vehicles.Vehicle", b =>

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using UsMecanic.Application.Deadlines;
+using UsMecanic.Application.Mileage;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
@@ -32,6 +33,11 @@ public static class DependencyInjection
         services.AddScoped<DeactivateDeadlineType>();
         services.AddScoped<GetDeadlineThresholds>();
         services.AddScoped<UpdateDeadlineThresholds>();
+        services.AddScoped<MileageVehicleGuard>();
+        services.AddScoped<ListMileageReadings>();
+        services.AddScoped<AddMileageReading>();
+        services.AddScoped<UpdateMileageReading>();
+        services.AddScoped<DeleteMileageReading>();
 
         return services;
     }
