@@ -46,6 +46,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapSystemEndpoints();
 app.MapVehicleEndpoints();
+app.MapVehicleTypeEndpoints();
 
 await app.RunAsync();
 

@@ -7,6 +7,8 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
 {
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
 
+    public DbSet<VehicleType> VehicleTypes => Set<VehicleType>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(UsMecanicDbContext).Assembly);
 }

@@ -33,13 +33,16 @@ public sealed class Vehicle
     /// <summary>Numéro ou indicatif interne au parc (ex. « AMB-12 »).</summary>
     public string? InternalNumber { get; private set; }
 
+    /// <summary>Type d'utilisation (facultatif) : identifiant d'un <see cref="VehicleType"/>.</summary>
+    public Guid? TypeId { get; private set; }
+
     public VehicleStatus Status { get; private set; } = VehicleStatus.Active;
 
     public DateTimeOffset CreatedAt { get; }
 
     public DateTimeOffset UpdatedAt { get; private set; }
 
-    public VehicleDetails Details => new(Brand, Model, FirstRegistrationDate, Vin, InternalNumber);
+    public VehicleDetails Details => new(Brand, Model, FirstRegistrationDate, Vin, InternalNumber, TypeId);
 
     public static Result<Vehicle> Register(LicensePlate licensePlate, VehicleDetails details, DateTimeOffset now)
     {
@@ -99,6 +102,7 @@ public sealed class Vehicle
         InternalNumber = internalNumber;
         FirstRegistrationDate = details.FirstRegistrationDate;
         Vin = details.Vin;
+        TypeId = details.TypeId;
         UpdatedAt = now;
         return Result<Vehicle>.Success(this);
     }

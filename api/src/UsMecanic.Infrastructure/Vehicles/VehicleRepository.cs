@@ -26,6 +26,11 @@ internal sealed class VehicleRepository(UsMecanicDbContext db) : IVehicleReposit
             query = query.Where(v => v.Status == status);
         }
 
+        if (filter.TypeId is { } typeId)
+        {
+            query = query.Where(v => v.TypeId == typeId);
+        }
+
         // La recherche texte est faite en mémoire : le parc compte quelques centaines de véhicules
         // et l'immatriculation est un value object (non traduisible en LIKE par EF).
         var vehicles = await query.ToListAsync(cancellationToken);

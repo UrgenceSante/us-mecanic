@@ -52,6 +52,18 @@ public class ImportVehiclesTests
     }
 
     [Fact]
+    public async Task Conserve_le_type_d_un_vehicule_existant()
+    {
+        var typeId = Guid.NewGuid();
+        var existing = _repository.Seed("AB-123-CD", new VehicleDetails("Renault", null, null, null, null, typeId));
+
+        var report = await ImportAsync(false, new VehicleImportRow(2, "AB-123-CD", Model: "Master"));
+
+        Assert.Equal(ImportOutcome.Updated, Assert.Single(report.Lines).Outcome);
+        Assert.Equal(typeId, existing.TypeId);
+    }
+
+    [Fact]
     public async Task Signale_les_lignes_identiques_a_l_existant()
     {
         _repository.Seed("AB-123-CD", new VehicleDetails("Renault", null, null, null, null));

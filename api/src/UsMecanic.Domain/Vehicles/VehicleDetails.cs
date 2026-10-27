@@ -6,4 +6,5 @@ public sealed record VehicleDetails(
     string? Model,
     DateOnly? FirstRegistrationDate,
     Vin? Vin,
-    string? InternalNumber);
+    string? InternalNumber,
+    Guid? TypeId = null);

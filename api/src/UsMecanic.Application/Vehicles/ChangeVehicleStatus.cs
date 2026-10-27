@@ -4,7 +4,7 @@ using UsMecanic.Domain.Vehicles;
 namespace UsMecanic.Application.Vehicles;
 
 /// <summary>Met un véhicule en service, l'immobilise ou le sort du parc.</summary>
-public sealed class ChangeVehicleStatus(IVehicleRepository repository, TimeProvider clock)
+public sealed class ChangeVehicleStatus(IVehicleRepository repository, VehicleTypeLookup typeLookup, TimeProvider clock)
 {
     public async Task<Result<VehicleDto>> ExecuteAsync(Guid id, VehicleStatus status, CancellationToken cancellationToken)
     {
@@ -21,6 +21,6 @@ public sealed class ChangeVehicleStatus(IVehicleRepository repository, TimeProvi
         }
 
         await repository.SaveChangesAsync(cancellationToken);
-        return Result<VehicleDto>.Success(VehicleDto.From(vehicle));
+        return Result<VehicleDto>.Success(await typeLookup.ToDtoAsync(vehicle, cancellationToken));
     }
 }

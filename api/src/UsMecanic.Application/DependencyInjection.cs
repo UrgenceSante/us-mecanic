@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
+using UsMecanic.Application.Vehicles.Types;
 
 namespace UsMecanic.Application;
 
@@ -17,6 +18,12 @@ public static class DependencyInjection
         services.AddScoped<GetVehicle>();
         services.AddScoped<ListVehicles>();
         services.AddScoped<ImportVehicles>();
+        services.AddScoped<VehicleTypeLookup>();
+
+        services.AddScoped<ListVehicleTypes>();
+        services.AddScoped<CreateVehicleType>();
+        services.AddScoped<RenameVehicleType>();
+        services.AddScoped<DeactivateVehicleType>();
 
         return services;
     }
