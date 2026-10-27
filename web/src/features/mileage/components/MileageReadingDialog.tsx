@@ -1,4 +1,12 @@
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 import { useState, type FormEvent } from "react";
 import { todayLocalIso } from "../types/date";
 import type { MileageReadingInput } from "../types/mileageReading";
@@ -12,6 +20,8 @@ interface MileageReadingDialogProps {
   /** L'API a signalé plus de 1 000 km/jour : demande de confirmation. */
   confirmationRequired: boolean;
   onSubmit: (input: MileageReadingInput) => void;
+  /** Le km ou la date a changé alors qu'une confirmation était demandée : elle n'est plus valable. */
+  onConfirmationInvalidated: () => void;
   onClose: () => void;
 }
 
@@ -21,6 +31,7 @@ export default function MileageReadingDialog({
   reasonRequired,
   confirmationRequired,
   onSubmit,
+  onConfirmationInvalidated,
   onClose,
 }: MileageReadingDialogProps) {
   const [kilometers, setKilometers] = useState("");
@@ -30,6 +41,10 @@ export default function MileageReadingDialog({
 
   const trimmedReason = reason.trim();
   const reasonMissing = reasonRequired && trimmedReason === "";
+
+  const invalidateConfirmation = () => {
+    if (confirmationRequired) onConfirmationInvalidated();
+  };
 
   const send = (confirmHighMileage: boolean) =>
     onSubmit({
@@ -58,13 +73,15 @@ export default function MileageReadingDialog({
           )}
           {reasonRequired && (
             <Alert severity="info" sx={{ marginBottom: 2 }}>
-              Ce kilométrage est incohérent avec les relevés voisins : un motif est obligatoire.
+              Ce kilométrage est incohérent avec les relevés voisins : un motif
+              est obligatoire.
             </Alert>
           )}
           {confirmationRequired && (
             <Alert severity="warning" sx={{ marginBottom: 2 }}>
-              Plus de 1 000 km/jour en moyenne depuis le relevé précédent. Vérifiez la valeur saisie, puis confirmez
-              pour l'enregistrer quand même.
+              Plus de 1 000 km/jour en moyenne depuis le relevé précédent.
+              Vérifiez la valeur saisie, puis confirmez pour l'enregistrer quand
+              même.
             </Alert>
           )}
           <TextField
@@ -76,7 +93,10 @@ export default function MileageReadingDialog({
             margin="dense"
             value={kilometers}
             slotProps={{ htmlInput: { min: 0, step: 1 } }}
-            onChange={(e) => setKilometers(e.target.value)}
+            onChange={(e) => {
+              setKilometers(e.target.value);
+              invalidateConfirmation();
+            }}
           />
           <TextField
             label="Date du relevé"
@@ -85,8 +105,14 @@ export default function MileageReadingDialog({
             fullWidth
             margin="dense"
             value={date}
-            slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: todayLocalIso() } }}
-            onChange={(e) => setDate(e.target.value)}
+            slotProps={{
+              inputLabel: { shrink: true },
+              htmlInput: { max: todayLocalIso() },
+            }}
+            onChange={(e) => {
+              setDate(e.target.value);
+              invalidateConfirmation();
+            }}
           />
           <TextField
             label="Motif"
@@ -96,7 +122,11 @@ export default function MileageReadingDialog({
             required={reasonRequired}
             value={reason}
             error={reasonTouched && reasonMissing}
-            helperText={reasonRequired ? "Obligatoire : valeur incohérente avec les relevés voisins" : "Facultatif"}
+            helperText={
+              reasonRequired
+                ? "Obligatoire : valeur incohérente avec les relevés voisins"
+                : "Facultatif"
+            }
             slotProps={{ htmlInput: { maxLength: 500 } }}
             onChange={(e) => setReason(e.target.value)}
           />
@@ -104,7 +134,12 @@ export default function MileageReadingDialog({
         <DialogActions>
           <Button onClick={onClose}>Annuler</Button>
           {confirmationRequired ? (
-            <Button variant="contained" color="warning" disabled={submitting || reasonMissing} onClick={() => send(true)}>
+            <Button
+              variant="contained"
+              color="warning"
+              disabled={submitting || reasonMissing}
+              onClick={() => send(true)}
+            >
               Confirmer et enregistrer
             </Button>
           ) : (

@@ -1,11 +1,28 @@
-import { Alert, Button, List, ListItem, ListItemText, Paper, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import SpeedIcon from "@mui/icons-material/Speed";
 import { useState } from "react";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import type { VehicleStatus } from "../../vehicles/types/vehicle";
-import { HIGH_MILEAGE_CONFIRMATION_REQUIRED, REASON_REQUIRED, mileageErrorCode, mileageErrorMessage } from "../api/mileageErrors";
-import { useAddMileageReading, useMileageReadings } from "../api/mileageQueries";
+import {
+  HIGH_MILEAGE_CONFIRMATION_REQUIRED,
+  REASON_REQUIRED,
+  mileageErrorCode,
+  mileageErrorMessage,
+} from "../api/mileageErrors";
+import {
+  useAddMileageReading,
+  useMileageReadings,
+} from "../api/mileageQueries";
 import type { MileageReadingInput } from "../types/mileageReading";
 import MileageReadingDialog from "./MileageReadingDialog";
 
@@ -18,7 +35,12 @@ interface VehicleMileageProps {
 
 const formatKm = (km: number) => `${km.toLocaleString("fr-FR")} km`;
 
-export default function VehicleMileage({ vehicleId, status, currentMileage, currentMileageDate }: VehicleMileageProps) {
+export default function VehicleMileage({
+  vehicleId,
+  status,
+  currentMileage,
+  currentMileageDate,
+}: VehicleMileageProps) {
   const { notifySuccess } = useNotifSnack();
   const [open, setOpen] = useState(false);
   const readings = useMileageReadings(vehicleId);
@@ -27,7 +49,10 @@ export default function VehicleMileage({ vehicleId, status, currentMileage, curr
   const errorCode = add.isError ? mileageErrorCode(add.error) : undefined;
   const reasonRequired = errorCode === REASON_REQUIRED;
   const confirmationRequired = errorCode === HIGH_MILEAGE_CONFIRMATION_REQUIRED;
-  const dialogError = add.isError && !reasonRequired && !confirmationRequired ? mileageErrorMessage(add.error) : null;
+  const dialogError =
+    add.isError && !reasonRequired && !confirmationRequired
+      ? mileageErrorMessage(add.error)
+      : null;
 
   const close = () => {
     setOpen(false);
@@ -59,9 +84,13 @@ export default function VehicleMileage({ vehicleId, status, currentMileage, curr
           )}
         </Stack>
         <Typography>
-          {currentMileage == null ? "Aucun relevé" : `${formatKm(currentMileage)} au ${formatDateOnly(currentMileageDate)}`}
+          {currentMileage == null
+            ? "Aucun relevé"
+            : `${formatKm(currentMileage)} au ${formatDateOnly(currentMileageDate)}`}
         </Typography>
-        {readings.isError && <Alert severity="error">{mileageErrorMessage(readings.error)}</Alert>}
+        {readings.isError && (
+          <Alert severity="error">{mileageErrorMessage(readings.error)}</Alert>
+        )}
         {readings.data && readings.data.length > 0 && (
           <List dense aria-label="Historique des relevés">
             {readings.data.map((r) => (
@@ -82,6 +111,7 @@ export default function VehicleMileage({ vehicleId, status, currentMileage, curr
           reasonRequired={reasonRequired}
           confirmationRequired={confirmationRequired}
           onSubmit={submit}
+          onConfirmationInvalidated={() => add.reset()}
           onClose={close}
         />
       )}
