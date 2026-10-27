@@ -59,8 +59,17 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
   matériel médical, oxygène, extincteur.
 - **Périodicité** : en mois et/ou en km, **modifiable pour chaque véhicule**.
 - Échéance à double critère (km et date) : elle tombe au **premier des deux atteint**.
-- **Échéance proche** : par défaut 30 jours ou 1 000 km avant ; seuils **paramétrables par
-  l'administrateur**.
+- **Échéance ponctuelle** : simple date (et/ou km) sans périodicité, ex. fin d'un contrat
+  d'assurance.
+- **Échéance proche** : seuils globaux par défaut (30 jours ou 1 000 km avant), modifiables par
+  l'administrateur, et **surchargeables par type** (ex. 60 jours pour l'agrément ARS).
+- **Création d'un type** : l'application propose de l'ajouter aux véhicules d'un type de
+  véhicule donné (voir questions ouvertes).
+- **Échéance réalisée** : la suivante est calculée à partir de la date et du km **réels** de
+  réalisation (CT prévu le 1er mars, fait le 15 mars : suivant le 15 mars de l'année suivante).
+  Une échéance ponctuelle réalisée n'en génère pas de nouvelle.
+- Statut du véhicule : les échéances d'un véhicule sorti du parc sont masquées, celles d'un
+  véhicule immobilisé restent affichées (règle susceptible d'être revue).
 - Statuts affichés : à jour, proche, dépassée.
 
 ## Hors périmètre
@@ -76,4 +85,5 @@ Décisions de cadrage déjà prises (voir `docs/ROADMAP.md`) :
 
 ## Questions ouvertes
 
+- « Type de véhicule » : notion absente du modèle actuel (marque, modèle seulement), à définir.
 - Traçabilité des corrections de relevés : à revoir avec l'authentification (phase 9).
