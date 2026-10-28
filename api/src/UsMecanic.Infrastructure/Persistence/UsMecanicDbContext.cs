@@ -14,6 +14,8 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
 
     public DbSet<Garage> Garages => Set<Garage>();
 
+    public DbSet<Intervention> Interventions => Set<Intervention>();
+
     public DbSet<DeadlineType> DeadlineTypes => Set<DeadlineType>();
 
     public DbSet<DeadlineThresholds> GlobalDeadlineThresholds => Set<DeadlineThresholds>();

@@ -202,6 +202,69 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.ToTable("garages", (string)null);
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Maintenance.Intervention", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<Guid?>("GarageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("garage_id");
+
+                    b.Property<int?>("Kilometers")
+                        .HasColumnType("integer")
+                        .HasColumnName("kilometers");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.Property<string>("Work")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("work");
+
+                    b.HasKey("Id")
+                        .HasName("pk_interventions");
+
+                    b.HasIndex("GarageId")
+                        .HasDatabaseName("ix_interventions_garage_id");
+
+                    b.HasIndex("VehicleId", "Date")
+                        .HasDatabaseName("ix_interventions_vehicle_id_date");
+
+                    b.ToTable("interventions", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Maintenance.InterventionDeadline", b =>
+                {
+                    b.Property<Guid>("InterventionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("intervention_id");
+
+                    b.Property<Guid>("VehicleDeadlineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_deadline_id");
+
+                    b.HasKey("InterventionId", "VehicleDeadlineId")
+                        .HasName("pk_intervention_deadlines");
+
+                    b.HasIndex("VehicleDeadlineId")
+                        .HasDatabaseName("ix_intervention_deadlines_vehicle_deadline_id");
+
+                    b.ToTable("intervention_deadlines", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Mileage.MileageReading", b =>
                 {
                     b.Property<Guid>("Id")
@@ -358,6 +421,39 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_vehicle_deadlines_vehicles_vehicle_id");
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Maintenance.Intervention", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Maintenance.Garage", null)
+                        .WithMany()
+                        .HasForeignKey("GarageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_interventions_garages_garage_id");
+
+                    b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_interventions_vehicles_vehicle_id");
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Maintenance.InterventionDeadline", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Maintenance.Intervention", null)
+                        .WithMany("Deadlines")
+                        .HasForeignKey("InterventionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_intervention_deadlines_interventions_intervention_id");
+
+                    b.HasOne("UsMecanic.Domain.Deadlines.VehicleDeadline", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleDeadlineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_intervention_deadlines_vehicle_deadlines_vehicle_deadline_id");
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Mileage.MileageReading", b =>
                 {
                     b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
@@ -375,6 +471,11 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_vehicles_vehicle_types_type_id");
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Maintenance.Intervention", b =>
+                {
+                    b.Navigation("Deadlines");
                 });
 #pragma warning restore 612, 618
         }
