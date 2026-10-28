@@ -13,6 +13,7 @@ import Page404 from "./pages/Page404";
 import VehicleListPage from "./features/vehicles/pages/VehicleListPage";
 import VehicleDetailPage from "./features/vehicles/pages/VehicleDetailPage";
 import VehicleImportPage from "./features/vehicles/pages/VehicleImportPage";
+import GaragesPage from "./features/garages/pages/GaragesPage";
 import VehicleTypesPage from "./features/vehicle-types/pages/VehicleTypesPage";
 import DeadlineTypesPage from "./features/deadline-types/pages/DeadlineTypesPage";
 
@@ -35,6 +36,7 @@ function App() {
               <Route path="/vehicles" element={<VehicleListPage />} />
               <Route path="/vehicles/import" element={<VehicleImportPage />} />
               <Route path="/vehicle-types" element={<VehicleTypesPage />} />
+              <Route path="/garages" element={<GaragesPage />} />
               <Route path="/deadline-types" element={<DeadlineTypesPage />} />
               <Route path="/vehicles/:vehicleId" element={<VehicleDetailPage />} />
               <Route path="/analyse/:logId" element={<AnalyseDetail />} />
