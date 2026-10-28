@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import VehicleMaintenanceLog from "./VehicleMaintenanceLog";
 import { todayLocalIso } from "../../mileage/types/date";
 
-const api = vi.hoisted(() => ({ listInterventions: vi.fn(), addIntervention: vi.fn() }));
+const api = vi.hoisted(() => ({ listInterventions: vi.fn(), addIntervention: vi.fn(), deleteIntervention: vi.fn() }));
 const deadlinesApi = vi.hoisted(() => ({ listVehicleDeadlines: vi.fn() }));
 const garagesApi = vi.hoisted(() => ({ listGarages: vi.fn(), createGarage: vi.fn() }));
 vi.mock("../api/interventionsApi", () => api);
@@ -123,5 +123,42 @@ describe("VehicleMaintenanceLog", () => {
 
     fireEvent.change(screen.getByLabelText(/Kilométrage/), { target: { value: "75100" } });
     await waitFor(() => expect(screen.queryByText(/Plus de 1 000 km\/jour/)).toBeNull());
+  });
+
+  it("supprime une intervention après confirmation, avec l'avertissement sur les échéances et le relevé", async () => {
+    api.deleteIntervention.mockResolvedValue(undefined);
+    renderLog();
+    fireEvent.click(await screen.findByRole("button", { name: /Supprimer l'intervention du/ }));
+    expect(
+      screen.getByText(
+        "Les échéances réalisées par cette intervention ne seront pas recalculées et le relevé kilométrique est conservé.",
+      ),
+    ).toBeInTheDocument();
+    expect(api.deleteIntervention).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Supprimer" }));
+
+    await waitFor(() => expect(api.deleteIntervention).toHaveBeenCalledWith("v1", "i1"));
+    await waitFor(() => expect(screen.queryByText("Supprimer l'intervention")).toBeNull());
+    await waitFor(() => expect(api.listInterventions.mock.calls.length).toBeGreaterThan(1));
+  });
+
+  it("n'appelle pas l'API si la suppression est annulée, et affiche l'erreur en cas d'échec", async () => {
+    api.deleteIntervention.mockRejectedValue(problem("intervention.not_found"));
+    renderLog();
+    fireEvent.click(await screen.findByRole("button", { name: /Supprimer l'intervention du/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Annuler" }));
+    await waitFor(() => expect(screen.queryByText("Supprimer l'intervention")).toBeNull());
+    expect(api.deleteIntervention).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /Supprimer l'intervention du/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Supprimer" }));
+    expect(await screen.findByText("Cette intervention n'existe plus.")).toBeInTheDocument();
+  });
+
+  it("masque la suppression pour un véhicule sorti du parc", async () => {
+    renderLog("Retired");
+    expect(await screen.findByText("Vidange complète")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Supprimer l'intervention du/ })).toBeNull();
   });
 });

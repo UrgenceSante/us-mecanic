@@ -8,6 +8,10 @@ export async function listInterventions(vehicleId: string): Promise<Intervention
   return data;
 }
 
+export async function deleteIntervention(vehicleId: string, interventionId: string): Promise<void> {
+  await apiClient.delete(`${interventionsUrl(vehicleId)}/${interventionId}`);
+}
+
 export async function addIntervention(vehicleId: string, input: InterventionInput): Promise<Intervention> {
   const { data } = await apiClient.post<Intervention>(interventionsUrl(vehicleId), input);
   return data;

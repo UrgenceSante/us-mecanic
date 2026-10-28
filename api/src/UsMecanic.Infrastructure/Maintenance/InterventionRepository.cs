@@ -26,7 +26,7 @@ internal sealed class InterventionRepository(UsMecanicDbContext db) : IIntervent
     public void Remove(Intervention intervention)
     {
         // La FK des liens est en Restrict : ils sont supprimés explicitement, dans le même SaveChanges (même transaction).
-        db.Set<InterventionDeadline>().RemoveRange(intervention.Deadlines);
+        db.Set<InterventionDeadline>().RemoveRange(intervention.Deadlines.ToList());
         db.Interventions.Remove(intervention);
     }
 

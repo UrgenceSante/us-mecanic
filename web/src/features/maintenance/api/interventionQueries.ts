@@ -4,7 +4,7 @@ import { mileageKeys } from "../../mileage/api/mileageQueries";
 import { vehicleDeadlineKeys } from "../../vehicle-deadlines/api/vehicleDeadlineQueries";
 import { vehicleKeys } from "../../vehicles/api/vehicleQueries";
 import type { InterventionInput } from "../types/intervention";
-import { addIntervention, listInterventions } from "./interventionsApi";
+import { addIntervention, deleteIntervention, listInterventions } from "./interventionsApi";
 
 export const interventionKeys = {
   all: ["interventions"] as const,
@@ -29,6 +29,21 @@ export function useAddIntervention(vehicleId: string) {
         queryClient.invalidateQueries({ queryKey: interventionKeys.list(vehicleId) }),
         queryClient.invalidateQueries({ queryKey: vehicleDeadlineKeys.list(vehicleId) }),
         queryClient.invalidateQueries({ queryKey: mileageKeys.list(vehicleId) }),
+        queryClient.invalidateQueries({ queryKey: vehicleKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
+  });
+}
+
+/** Suppression : échéances non recalculées et relevé conservé, mais carnet, échéances et tableau de bord se rafraîchissent. */
+export function useDeleteIntervention(vehicleId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (interventionId: string) => deleteIntervention(vehicleId, interventionId),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: interventionKeys.list(vehicleId) }),
+        queryClient.invalidateQueries({ queryKey: vehicleDeadlineKeys.list(vehicleId) }),
         queryClient.invalidateQueries({ queryKey: vehicleKeys.all }),
         queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
       ]),
