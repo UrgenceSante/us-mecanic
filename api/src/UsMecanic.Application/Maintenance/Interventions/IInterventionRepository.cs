@@ -11,7 +11,13 @@ public interface IInterventionRepository
     /// <summary>Interventions d'un véhicule avec leurs échéances liées, de la plus récente à la plus ancienne.</summary>
     Task<IReadOnlyList<Intervention>> ListByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken);
 
+    /// <summary>Intervention du véhicule avec ses échéances liées, suivie par le contexte (pour la supprimer).</summary>
+    Task<Intervention?> GetAsync(Guid vehicleId, Guid interventionId, CancellationToken cancellationToken);
+
     void Add(Intervention intervention);
+
+    /// <summary>Supprime l'intervention et ses liens avec les échéances (les échéances et les relevés ne sont pas touchés).</summary>
+    void Remove(Intervention intervention);
 
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }

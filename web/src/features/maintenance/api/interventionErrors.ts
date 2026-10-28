@@ -3,6 +3,7 @@ import { completionFlow, type CompletionFlow } from "../../vehicle-deadlines/api
 import { deadlineErrorMessage } from "../../vehicle-deadlines/api/vehicleDeadlineErrors";
 
 const messages: Record<string, string> = {
+  "intervention.not_found": "Cette intervention n'existe plus.",
   "intervention.work_required": "Les travaux réalisés sont obligatoires.",
   "intervention.work_too_long": "Les travaux sont trop longs.",
   "intervention.date_in_future": "La date de l'intervention ne peut pas être dans le futur.",

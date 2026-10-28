@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<InterventionDtoFactory>();
         services.AddScoped<ListInterventions>();
         services.AddScoped<AddIntervention>();
+        services.AddScoped<DeleteIntervention>();
 
         services.AddScoped<ListDeadlineTypes>();
         services.AddScoped<CreateDeadlineType>();
