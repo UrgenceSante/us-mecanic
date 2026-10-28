@@ -22,3 +22,24 @@ export interface DeadlineThresholds {
   dueSoonDays: number;
   dueSoonKm: number;
 }
+
+/** Corps de l'ajout en lot : types de véhicule visés, dernière réalisation facultative (sinon aujourd'hui côté API). */
+export interface AssignDeadlineTypeInput {
+  vehicleTypeIds: string[];
+  lastDoneDate: string | null;
+}
+
+export interface AssignDeadlineTypeError {
+  vehicleId: string;
+  licensePlate: string;
+  code: string;
+  message: string;
+}
+
+/** Bilan de l'ajout en lot. */
+export interface AssignDeadlineTypeResult {
+  added: number;
+  skippedAlreadyActive: number;
+  skippedRetired: number;
+  errors: AssignDeadlineTypeError[];
+}

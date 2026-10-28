@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { dashboardKeys } from "../../dashboard/api/dashboardQueries";
+import { vehicleDeadlineKeys } from "../../vehicle-deadlines/api/vehicleDeadlineQueries";
 import {
+  assignDeadlineType,
   createDeadlineType,
   deactivateDeadlineType,
   getDeadlineThresholds,
@@ -7,7 +10,7 @@ import {
   updateDeadlineThresholds,
   updateDeadlineType,
 } from "./deadlineTypesApi";
-import type { DeadlineTypeInput } from "../types/deadlineType";
+import type { AssignDeadlineTypeInput, DeadlineTypeInput } from "../types/deadlineType";
 
 export const deadlineTypeKeys = {
   all: ["deadline-types"] as const,
@@ -26,7 +29,10 @@ export function useDeadlineTypes(includeInactive = false) {
 }
 
 export function useDeadlineThresholds() {
-  return useQuery({ queryKey: deadlineThresholdKeys.all, queryFn: getDeadlineThresholds });
+  return useQuery({
+    queryKey: deadlineThresholdKeys.all,
+    queryFn: getDeadlineThresholds,
+  });
 }
 
 function useInvalidateTypes() {
@@ -50,6 +56,19 @@ export function useUpdateDeadlineType() {
 export function useDeactivateDeadlineType() {
   const onSuccess = useInvalidateTypes();
   return useMutation({ mutationFn: deactivateDeadlineType, onSuccess });
+}
+
+/** L'ajout en lot crée des échéances : on invalide celles des véhicules et le tableau de bord. */
+export function useAssignDeadlineType(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: AssignDeadlineTypeInput) => assignDeadlineType(id, input),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: vehicleDeadlineKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
+  });
 }
 
 /** Les seuils globaux changent l'état « proche » des types sans seuil propre : on invalide aussi les types. */

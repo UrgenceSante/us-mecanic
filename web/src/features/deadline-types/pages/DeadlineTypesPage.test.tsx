@@ -12,6 +12,7 @@ const api = vi.hoisted(() => ({
   updateDeadlineThresholds: vi.fn(),
 }));
 vi.mock("../api/deadlineTypesApi", () => api);
+vi.mock("../../vehicle-types/api/vehicleTypesApi", () => ({ listVehicleTypes: vi.fn().mockResolvedValue([]) }));
 vi.mock("../../../hooks/useNotifSnack", () => ({
   default: () => ({ notifySuccess: vi.fn(), notifyError: vi.fn() }),
 }));
