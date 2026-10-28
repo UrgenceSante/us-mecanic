@@ -53,7 +53,7 @@ Spec : `docs/specs/phase-2-kilometrage-echeances.md`.
 Spec : `docs/specs/phase-3-carnet-entretien.md`.
 
 - [x] Garages administrables (création à la volée depuis la saisie)
-- [ ] Interventions réalisées : date, km, garage, travaux ; une ou plusieurs échéances, ou aucune
+- [x] Interventions réalisées : date, km, garage, travaux ; une ou plusieurs échéances, ou aucune
 - [x] « Marquer réalisée » crée une intervention ; reprise des réalisations existantes
 - [ ] Carnet d'entretien sur la fiche véhicule, suppression d'une intervention
 
