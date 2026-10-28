@@ -93,6 +93,7 @@ public class DeadlineTypeAssignEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(done.AddMonths(12), created.DueDate);
 
         var again = await _client.PostAsJsonAsync(AssignUri(typeId), new { vehicleTypeIds = new[] { vehicleTypeId } });
+        Assert.Equal(HttpStatusCode.OK, again.StatusCode);
         var second = (await again.Content.ReadFromJsonAsync<ReportDto>(Json))!;
         Assert.Equal(0, second.Added);
         Assert.Equal(2, second.SkippedAlreadyActive);

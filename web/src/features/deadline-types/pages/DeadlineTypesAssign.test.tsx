@@ -55,7 +55,10 @@ describe("DeadlineTypesPage : ajout à des véhicules", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     api.listDeadlineTypes.mockResolvedValue([ars, oneOff]);
-    api.getDeadlineThresholds.mockResolvedValue({ dueSoonDays: 30, dueSoonKm: 2000 });
+    api.getDeadlineThresholds.mockResolvedValue({
+      dueSoonDays: 30,
+      dueSoonKm: 2000,
+    });
     vehicleTypesApi.listVehicleTypes.mockResolvedValue([
       { id: "vt1", name: "Ambulance", isActive: true },
       { id: "vt2", name: "VSL", isActive: true },
@@ -79,7 +82,9 @@ describe("DeadlineTypesPage : ajout à des véhicules", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
-    expect(await screen.findByText(/Ajouter « Agrément ARS » à des véhicules/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Ajouter « Agrément ARS » à des véhicules/),
+    ).toBeInTheDocument();
     const submit = screen.getByRole("button", { name: "Ajouter" });
     expect(submit).toBeDisabled();
     fireEvent.click(await screen.findByLabelText("Ambulance"));
@@ -95,8 +100,12 @@ describe("DeadlineTypesPage : ajout à des véhicules", () => {
         lastDoneDate: "2026-09-01",
       }),
     );
-    expect(await screen.findByText(/3 échéance\(s\) ajoutée\(s\)/)).toBeInTheDocument();
-    expect(screen.getByText(/1 déjà concerné\(s\), 2 sorti\(s\) du parc/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/3 échéance\(s\) ajoutée\(s\)/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/1 déjà concerné\(s\), 2 sorti\(s\) du parc/),
+    ).toBeInTheDocument();
   });
 
   it("ne propose pas l'ajout après la création d'un type ponctuel", async () => {
@@ -111,6 +120,11 @@ describe("DeadlineTypesPage : ajout à des véhicules", () => {
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
     await waitFor(() => expect(api.createDeadlineType).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: "Enregistrer" }),
+      ).not.toBeInTheDocument(),
+    );
     expect(screen.queryByText(/à des véhicules/)).not.toBeInTheDocument();
   });
 
