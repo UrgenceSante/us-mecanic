@@ -11,6 +11,7 @@ import { problemMessage } from "../../../shared/api/problemMessage";
 import { useChangeVehicleStatus, useUpdateVehicle, useVehicle } from "../api/vehicleQueries";
 import VehicleDeadlines from "../../vehicle-deadlines/components/VehicleDeadlines";
 import VehicleMileage from "../../mileage/components/VehicleMileage";
+import VehicleMaintenanceLog from "../../maintenance/components/VehicleMaintenanceLog";
 import VehicleProblems from "../components/VehicleProblems";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import VehicleStatusActions from "../components/VehicleStatusActions";
@@ -89,6 +90,8 @@ export default function VehicleDetailPage() {
       />
 
       <VehicleDeadlines vehicleId={data.id} status={data.status} currentMileage={data.currentMileage} />
+
+      <VehicleMaintenanceLog vehicleId={data.id} status={data.status} currentMileage={data.currentMileage} />
 
       <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
 

@@ -1,0 +1,127 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import VehicleMaintenanceLog from "./VehicleMaintenanceLog";
+import { todayLocalIso } from "../../mileage/types/date";
+
+const api = vi.hoisted(() => ({ listInterventions: vi.fn(), addIntervention: vi.fn() }));
+const deadlinesApi = vi.hoisted(() => ({ listVehicleDeadlines: vi.fn() }));
+const garagesApi = vi.hoisted(() => ({ listGarages: vi.fn(), createGarage: vi.fn() }));
+vi.mock("../api/interventionsApi", () => api);
+vi.mock("../../vehicle-deadlines/api/vehicleDeadlinesApi", () => deadlinesApi);
+vi.mock("../../garages/api/garagesApi", () => garagesApi);
+vi.mock("../../../hooks/useNotifSnack", () => ({
+  default: () => ({ notifySuccess: vi.fn(), notifyError: vi.fn() }),
+}));
+
+function problem(code: string) {
+  const response = { status: 400, data: { code, title: "Erreur" } } as AxiosResponse;
+  return new AxiosError("Erreur", "ERR_BAD_REQUEST", {} as InternalAxiosRequestConfig, null, response);
+}
+
+const base = {
+  vehicleId: "v1", deadlineTypeId: "t", intervalMonths: null, intervalKm: null, lastDoneDate: null,
+  lastDoneKm: null, dueDate: null, dueKm: null, isClosed: false, status: "UpToDate",
+};
+const deadlines = [
+  { ...base, id: "d1", typeName: "Contrôle technique", dueDate: "2027-01-01" },
+  { ...base, id: "d2", typeName: "Vidange", intervalKm: 20000, dueKm: 80000 },
+  { ...base, id: "d3", typeName: "Close", isClosed: true, status: null },
+];
+const interventions = [
+  {
+    id: "i1", vehicleId: "v1", date: "2026-05-01", kilometers: 70000, garage: { id: "g1", name: "Garage Dupont" },
+    work: "Vidange complète", recordedAt: "2026-05-01T10:00:00Z", deadlines: [{ id: "d2", typeName: "Vidange" }],
+  },
+];
+
+function renderLog(status: "Active" | "Retired" = "Active") {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  render(
+    <QueryClientProvider client={client}>
+      <VehicleMaintenanceLog vehicleId="v1" status={status} currentMileage={75000} />
+    </QueryClientProvider>,
+  );
+}
+
+const openDialog = async () => {
+  fireEvent.click(await screen.findByRole("button", { name: "Ajouter une intervention" }));
+  await screen.findByText("Échéances réalisées");
+};
+const fillWork = () => fireEvent.change(screen.getByLabelText(/Travaux réalisés/), { target: { value: "Freins" } });
+const save = () => fireEvent.click(screen.getByRole("button", { name: /Enregistrer/ }));
+
+describe("VehicleMaintenanceLog", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    api.listInterventions.mockResolvedValue(interventions);
+    deadlinesApi.listVehicleDeadlines.mockResolvedValue(deadlines);
+    garagesApi.listGarages.mockResolvedValue([]);
+  });
+
+  it("affiche le carnet avec garage, travaux et échéances réalisées", async () => {
+    renderLog();
+    expect(await screen.findByText("Vidange complète")).toBeInTheDocument();
+    expect(screen.getByText(/Garage Dupont/)).toBeInTheDocument();
+    expect(screen.getByText(/70\D000 km/)).toBeInTheDocument();
+    expect(screen.getByText("Vidange")).toBeInTheDocument();
+  });
+
+  it("désactive la saisie pour un véhicule sorti du parc", async () => {
+    renderLog("Retired");
+    expect(await screen.findByText(/Saisie indisponible/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Ajouter une intervention" })).toBeNull();
+  });
+
+  it("préremplit date et km, ne propose que les échéances en cours et envoie l'intervention", async () => {
+    api.addIntervention.mockResolvedValue(interventions[0]);
+    renderLog();
+    await openDialog();
+    expect(screen.getByLabelText(/Date de l'intervention/)).toHaveValue(todayLocalIso());
+    expect(screen.getByLabelText(/Kilométrage/)).toHaveValue(75000);
+    expect(screen.queryByLabelText("Close")).toBeNull();
+
+    fillWork();
+    fireEvent.click(screen.getByLabelText("Contrôle technique"));
+    save();
+
+    await waitFor(() => expect(api.addIntervention).toHaveBeenCalled());
+    expect(api.addIntervention).toHaveBeenCalledWith("v1", {
+      date: todayLocalIso(), kilometers: 75000, garageId: null, work: "Freins",
+      deadlineIds: ["d1"], reason: null, confirmHighMileage: false,
+    });
+  });
+
+  it("exige les travaux et le km si une échéance cochée a un critère km", async () => {
+    renderLog();
+    await openDialog();
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    fillWork();
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeEnabled();
+
+    fireEvent.change(screen.getByLabelText(/Kilométrage/), { target: { value: "" } });
+    fireEvent.click(screen.getByLabelText("Vidange"));
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    expect(screen.getByText(/critère kilométrique/)).toBeInTheDocument();
+  });
+
+  it("demande un motif puis une confirmation, remise à zéro si le km change", async () => {
+    api.addIntervention
+      .mockRejectedValueOnce(problem("mileage_reading.reason_required"))
+      .mockRejectedValueOnce(problem("mileage_reading.high_mileage_confirmation_required"))
+      .mockResolvedValue(interventions[0]);
+    renderLog();
+    await openDialog();
+    fillWork();
+    save();
+    expect(await screen.findByText(/un motif est obligatoire/)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Motif/), { target: { value: "Compteur changé" } });
+    save();
+    expect(await screen.findByText(/Plus de 1 000 km\/jour/)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Kilométrage/), { target: { value: "75100" } });
+    await waitFor(() => expect(screen.queryByText(/Plus de 1 000 km\/jour/)).toBeNull());
+  });
+});
