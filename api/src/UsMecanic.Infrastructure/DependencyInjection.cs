@@ -45,7 +45,6 @@ public static class DependencyInjection
         services.AddScoped<IDeadlineThresholdsRepository, DeadlineThresholdsRepository>();
         services.AddScoped<IMileageReadingRepository, MileageReadingRepository>();
         services.AddScoped<IVehicleDeadlineRepository, VehicleDeadlineRepository>();
-        services.AddScoped<IDeadlineCompletionRepository, DeadlineCompletionRepository>();
         services.AddSingleton<IVehicleImportReader, CsvVehicleImportReader>();
 
         return services;

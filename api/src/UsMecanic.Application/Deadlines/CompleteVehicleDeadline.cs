@@ -1,22 +1,22 @@
+using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
 using UsMecanic.Domain.Common;
 using UsMecanic.Domain.Deadlines;
-using UsMecanic.Domain.Mileage;
+using UsMecanic.Domain.Maintenance;
 
 namespace UsMecanic.Application.Deadlines;
 
 /// <summary>
-/// Marque une échéance réalisée. Un km fourni crée un relevé kilométrique avec les mêmes contrôles que
-/// <see cref="AddMileageReading"/> ; relevé, réalisation et échéance sont enregistrés ensemble (une seule transaction).
+/// Marque une échéance réalisée en créant une intervention liée à cette seule échéance (travaux = commentaire s'il est
+/// renseigné, sinon nom du type d'échéance). Les contrôles et l'enregistrement (relevé km, échéance, intervention,
+/// une seule transaction) sont ceux de <see cref="AddIntervention"/>.
 /// </summary>
 public sealed class CompleteVehicleDeadline(
     MileageVehicleGuard guard,
     IVehicleDeadlineRepository deadlines,
-    IDeadlineCompletionRepository completions,
-    IMileageReadingRepository readings,
-    VehicleDeadlineDtoFactory factory,
-    TimeProvider clock,
-    BusinessCalendar calendar)
+    IDeadlineTypeRepository types,
+    AddIntervention addIntervention,
+    VehicleDeadlineDtoFactory factory)
 {
     public async Task<Result<VehicleDeadlineDto>> ExecuteAsync(
         Guid vehicleId, Guid deadlineId, DeadlineCompletionInput input, CancellationToken cancellationToken)
@@ -40,50 +40,23 @@ public sealed class CompleteVehicleDeadline(
             return Result<VehicleDeadlineDto>.Failure(VehicleDeadlineErrors.Closed);
         }
 
-        var now = clock.GetUtcNow();
-        var today = calendar.Today;
-        var completion = DeadlineCompletion.Create(deadline.Id, input.Date, input.Kilometers, input.Comment, now);
-        if (completion.IsFailure)
+        var comment = string.IsNullOrWhiteSpace(input.Comment) ? null : input.Comment.Trim();
+        if (comment?.Length > DeadlineCompletionErrors.MaxCommentLength)
         {
-            return Result<VehicleDeadlineDto>.Failure(completion.Error!);
+            return Result<VehicleDeadlineDto>.Failure(DeadlineCompletionErrors.CommentTooLong);
         }
 
-        var reading = await CreateReadingAsync(vehicleId, input, today, now, cancellationToken);
-        if (reading.IsFailure)
+        var work = comment ?? (await types.GetByIdAsync(deadline.DeadlineTypeId, cancellationToken))?.Name;
+        var intervention = new InterventionInput(
+            input.Date, input.Kilometers, input.GarageId, work, [deadline.Id], input.Reason, input.ConfirmHighMileage);
+        var created = await addIntervention.ExecuteAsync(vehicleId, intervention, cancellationToken);
+        if (created.IsFailure)
         {
-            return Result<VehicleDeadlineDto>.Failure(reading.Error!);
+            // Même code d'erreur qu'avant l'introduction des interventions.
+            return Result<VehicleDeadlineDto>.Failure(
+                created.Error == InterventionErrors.DateInFuture ? DeadlineCompletionErrors.DateInFuture : created.Error!);
         }
 
-        var done = deadline.Complete(input.Date, input.Kilometers, today);
-        if (done.IsFailure)
-        {
-            return Result<VehicleDeadlineDto>.Failure(done.Error!);
-        }
-
-        completions.Add(completion.Value);
-        if (reading.Value is not null)
-        {
-            readings.Add(reading.Value);
-        }
-
-        await deadlines.SaveChangesAsync(cancellationToken);
         return Result<VehicleDeadlineDto>.Success((await factory.BuildAsync(vehicleId, [deadline], cancellationToken))[0]);
-    }
-
-    /// <summary>Relevé à créer (mêmes contrôles qu'un ajout de relevé), ou <c>null</c> sans km.</summary>
-    private async Task<Result<MileageReading?>> CreateReadingAsync(
-        Guid vehicleId, DeadlineCompletionInput input, DateOnly today, DateTimeOffset now, CancellationToken cancellationToken)
-    {
-        if (input.Kilometers is not { } kilometers)
-        {
-            return Result<MileageReading?>.Success(null);
-        }
-
-        var existing = await readings.ListByVehicleAsync(vehicleId, cancellationToken);
-        var entry = new MileageReadingEntry(input.Date, kilometers, input.Reason, input.ConfirmHighMileage);
-        var created = MileageReading.Create(vehicleId, entry, existing, today, now);
-        return created.IsSuccess
-            ? Result<MileageReading?>.Success(created.Value)
-            : Result<MileageReading?>.Failure(created.Error!);
     }
 }

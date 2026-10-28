@@ -27,7 +27,7 @@ internal static class VehicleDeadlineEndpoints
 
         deadlines.MapPost("/{deadlineId:guid}/completions", async (Guid vehicleId, Guid deadlineId, DeadlineCompletionInput input, CompleteVehicleDeadline useCase, CancellationToken ct) =>
                 (await useCase.ExecuteAsync(vehicleId, deadlineId, input, ct)).ToOk())
-            .WithSummary("Marque une échéance réalisée (périodique : calcule la suivante ; ponctuelle : la clôt) et crée un relevé si un km est fourni");
+            .WithSummary("Marque une échéance réalisée (périodique : calcule la suivante ; ponctuelle : la clôt) crée une intervention liée à cette échéance et un relevé si un km est fourni");
 
         return app;
     }
