@@ -6,6 +6,8 @@ const messages: Record<string, string> = {
   [KILOMETERS_REQUIRED]: "Cette échéance a un critère kilométrique : le kilométrage de réalisation est obligatoire.",
   "deadline_completion.date_in_future": "La date de réalisation ne peut pas être dans le futur.",
   "deadline_completion.comment_too_long": "Le commentaire est trop long.",
+  "intervention.garage_unknown": "Ce garage n'existe plus.",
+  "intervention.garage_inactive": "Ce garage est désactivé : choisissez-en un autre.",
   "vehicle_deadline.already_active": "Une échéance de ce type est déjà en cours pour ce véhicule.",
   "vehicle_deadline.closed": "Cette échéance est déjà close.",
   "vehicle_deadline.criterion_required": "Indiquez au moins une date ou un kilométrage d'échéance.",

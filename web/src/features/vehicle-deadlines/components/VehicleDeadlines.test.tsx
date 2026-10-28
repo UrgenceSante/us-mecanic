@@ -10,8 +10,10 @@ const api = vi.hoisted(() => ({
   addVehicleDeadline: vi.fn(),
   completeVehicleDeadline: vi.fn(),
 }));
+const garagesApi = vi.hoisted(() => ({ listGarages: vi.fn(), createGarage: vi.fn() }));
 const typesApi = vi.hoisted(() => ({ listDeadlineTypes: vi.fn() }));
 vi.mock("../api/vehicleDeadlinesApi", () => api);
+vi.mock("../../garages/api/garagesApi", () => garagesApi);
 vi.mock("../../deadline-types/api/deadlineTypesApi", () => typesApi);
 vi.mock("../../../hooks/useNotifSnack", () => ({
   default: () => ({ notifySuccess: vi.fn(), notifyError: vi.fn() }),
@@ -60,6 +62,7 @@ describe("VehicleDeadlines", () => {
     vi.resetAllMocks();
     api.listVehicleDeadlines.mockResolvedValue(deadlines);
     typesApi.listDeadlineTypes.mockResolvedValue(types);
+    garagesApi.listGarages.mockResolvedValue([{ id: "g1", name: "Garage Dupont", isActive: true }]);
   });
 
   it("affiche statuts, prochaine échéance et dernière réalisation", async () => {
@@ -123,6 +126,7 @@ describe("VehicleDeadlines", () => {
       expect(api.completeVehicleDeadline).toHaveBeenCalledWith("v1", "d2", {
         date: todayLocalIso(),
         kilometers: 75000,
+        garageId: null,
         comment: "RAS",
         reason: null,
         confirmHighMileage: false,
@@ -166,5 +170,37 @@ describe("VehicleDeadlines", () => {
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
     expect(await screen.findByText(/le kilométrage de réalisation est obligatoire/)).toBeInTheDocument();
+  });
+
+  it("envoie le garage choisi", async () => {
+    api.completeVehicleDeadline.mockResolvedValue(deadlines[1]);
+    renderBlock();
+
+    await complete("Vidange");
+    fireEvent.mouseDown(screen.getByLabelText("Garage"));
+    fireEvent.click(await screen.findByRole("option", { name: "Garage Dupont" }));
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+    await waitFor(() => expect(api.completeVehicleDeadline).toHaveBeenCalled());
+    expect(api.completeVehicleDeadline.mock.calls[0][2]).toMatchObject({ garageId: "g1" });
+  });
+
+  it("vide le km prérempli quand la date n'est plus aujourd'hui", async () => {
+    renderBlock();
+
+    await complete("Vidange");
+    expect(screen.getByLabelText(/Kilométrage/)).toHaveValue(75000);
+    fireEvent.change(screen.getByLabelText(/Date de réalisation/), { target: { value: "2026-01-10" } });
+    expect(screen.getByLabelText(/Kilométrage/)).toHaveValue(null);
+  });
+
+  it("traduit un garage désactivé", async () => {
+    api.completeVehicleDeadline.mockRejectedValue(problem("intervention.garage_inactive"));
+    renderBlock();
+
+    await complete("Vidange");
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+    expect(await screen.findByText(/Ce garage est désactivé/)).toBeInTheDocument();
   });
 });

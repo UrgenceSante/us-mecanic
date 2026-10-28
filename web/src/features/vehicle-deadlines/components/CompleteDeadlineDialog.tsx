@@ -1,5 +1,6 @@
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { useState, type FormEvent } from "react";
+import GarageSelect from "../../garages/components/GarageSelect";
 import { todayLocalIso } from "../../mileage/types/date";
 import type { DeadlineCompletionInput, VehicleDeadline } from "../types/vehicleDeadline";
 
@@ -29,7 +30,9 @@ export default function CompleteDeadlineDialog({
   onClose,
 }: CompleteDeadlineDialogProps) {
   const [date, setDate] = useState(todayLocalIso());
-  const [kilometers, setKilometers] = useState(currentMileage === null ? "" : String(currentMileage));
+  const prefilledKm = currentMileage === null ? "" : String(currentMileage);
+  const [kilometers, setKilometers] = useState(prefilledKm);
+  const [garageId, setGarageId] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [reason, setReason] = useState("");
   const [reasonTouched, setReasonTouched] = useState(false);
@@ -46,6 +49,7 @@ export default function CompleteDeadlineDialog({
     onSubmit({
       date,
       kilometers: kilometers.trim() === "" ? null : Number(kilometers),
+      garageId,
       comment: comment.trim() === "" ? null : comment.trim(),
       reason: trimmedReason === "" ? null : trimmedReason,
       confirmHighMileage,
@@ -89,6 +93,8 @@ export default function CompleteDeadlineDialog({
             slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: todayLocalIso() } }}
             onChange={(e) => {
               setDate(e.target.value);
+              // Le km prérempli est celui d'aujourd'hui : faux pour une date passée, on le vide.
+              if (e.target.value !== todayLocalIso() && kilometers === prefilledKm) setKilometers("");
               invalidateConfirmation();
             }}
           />
@@ -106,6 +112,9 @@ export default function CompleteDeadlineDialog({
               invalidateConfirmation();
             }}
           />
+          <div style={{ marginTop: 8, marginBottom: 4 }}>
+            <GarageSelect value={garageId} onChange={setGarageId} />
+          </div>
           <TextField
             label="Commentaire"
             fullWidth
