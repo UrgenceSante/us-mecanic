@@ -1,11 +1,19 @@
 import { apiClient } from "../../../api/client";
-import type { DeadlineThresholds, DeadlineType, DeadlineTypeInput } from "../types/deadlineType";
+import type {
+  AssignDeadlineTypeInput,
+  AssignDeadlineTypeResult,
+  DeadlineThresholds,
+  DeadlineType,
+  DeadlineTypeInput,
+} from "../types/deadlineType";
 
 const TYPES = "api/deadline-types";
 const THRESHOLDS = "api/deadline-thresholds";
 
 export async function listDeadlineTypes(includeInactive: boolean): Promise<DeadlineType[]> {
-  const { data } = await apiClient.get<DeadlineType[]>(TYPES, { params: { includeInactive } });
+  const { data } = await apiClient.get<DeadlineType[]>(TYPES, {
+    params: { includeInactive },
+  });
   return data;
 }
 
@@ -21,6 +29,14 @@ export async function updateDeadlineType(id: string, input: DeadlineTypeInput): 
 
 export async function deactivateDeadlineType(id: string): Promise<DeadlineType> {
   const { data } = await apiClient.post<DeadlineType>(`${TYPES}/${id}/deactivate`);
+  return data;
+}
+
+export async function assignDeadlineType(
+  id: string,
+  input: AssignDeadlineTypeInput,
+): Promise<AssignDeadlineTypeResult> {
+  const { data } = await apiClient.post<AssignDeadlineTypeResult>(`${TYPES}/${id}/assign`, input);
   return data;
 }
 

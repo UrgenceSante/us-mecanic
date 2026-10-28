@@ -16,6 +16,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { useState } from "react";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
@@ -26,6 +27,7 @@ import {
   useUpdateDeadlineType,
 } from "../api/deadlineTypeQueries";
 import { deadlineTypeErrorMessage } from "../api/deadlineTypeErrors";
+import AssignDeadlineTypeDialog from "../components/AssignDeadlineTypeDialog";
 import DeadlineThresholdsSection from "../components/DeadlineThresholdsSection";
 import DeadlineTypeDialog from "../components/DeadlineTypeDialog";
 import type { DeadlineType, DeadlineTypeInput } from "../types/deadlineType";
@@ -43,6 +45,8 @@ export default function DeadlineTypesPage() {
   const update = useUpdateDeadlineType();
   const deactivate = useDeactivateDeadlineType();
 
+  const [assigning, setAssigning] = useState<DeadlineType | undefined>(undefined);
+
   const mutation = editing ? update : create;
 
   const closeDialog = () => {
@@ -57,7 +61,15 @@ export default function DeadlineTypesPage() {
       closeDialog();
     };
     if (editing) update.mutate({ id: editing.id, input }, { onSuccess });
-    else create.mutate(input, { onSuccess });
+    else {
+      // À la création d'un type périodique, on propose de l'ajouter aux véhicules.
+      create.mutate(input, {
+        onSuccess: (created) => {
+          onSuccess();
+          if (!created.isOneOff) setAssigning(created);
+        },
+      });
+    }
   };
 
   const handleDeactivate = (type: DeadlineType) =>
@@ -114,6 +126,16 @@ export default function DeadlineTypesPage() {
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
+                    {type.isActive && !type.isOneOff && (
+                      <Tooltip title="Ajouter à des véhicules">
+                        <IconButton
+                          aria-label={`Ajouter ${type.name} à des véhicules`}
+                          onClick={() => setAssigning(type)}
+                        >
+                          <PlaylistAddIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                     {type.isActive && (
                       <Tooltip title="Désactiver">
                         <IconButton
@@ -139,6 +161,8 @@ export default function DeadlineTypesPage() {
       )}
 
       <DeadlineThresholdsSection />
+
+      {assigning && <AssignDeadlineTypeDialog type={assigning} onClose={() => setAssigning(undefined)} />}
 
       {editing !== undefined && (
         <DeadlineTypeDialog
