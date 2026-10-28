@@ -50,8 +50,12 @@ Spec : `docs/specs/phase-2-kilometrage-echeances.md`.
 
 ## Phase 3 — Carnet d'entretien
 
-- [ ] Interventions réalisées : date, km, garage, travaux
-- [ ] Lien entre une échéance réalisée et l'intervention correspondante
+Spec : `docs/specs/phase-3-carnet-entretien.md`.
+
+- [ ] Garages administrables (création à la volée depuis la saisie)
+- [ ] Interventions réalisées : date, km, garage, travaux ; une ou plusieurs échéances, ou aucune
+- [ ] « Marquer réalisée » crée une intervention ; reprise des réalisations existantes
+- [ ] Carnet d'entretien sur la fiche véhicule, suppression d'une intervention
 
 ## Phase 4 — Problèmes et résolution
 
