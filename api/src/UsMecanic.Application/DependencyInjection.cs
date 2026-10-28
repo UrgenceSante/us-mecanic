@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<VehicleDeadlineDtoFactory>();
         services.AddScoped<ListVehicleDeadlines>();
         services.AddScoped<AddVehicleDeadline>();
+        services.AddScoped<AssignDeadlineType>();
         services.AddScoped<UpdateVehicleDeadlineInterval>();
         services.AddScoped<CompleteVehicleDeadline>();
         services.AddScoped<ListDashboardDeadlines>();

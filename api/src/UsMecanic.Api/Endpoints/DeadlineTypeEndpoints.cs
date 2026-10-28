@@ -9,6 +9,8 @@ internal static class DeadlineTypeEndpoints
         public DeadlineTypeInput ToInput() => new(Name, DefaultIntervalMonths, DefaultIntervalKm, DueSoonDays, DueSoonKm);
     }
 
+    public sealed record AssignRequest(IReadOnlyCollection<Guid>? VehicleTypeIds, DateOnly? LastDoneDate);
+
     public static IEndpointRouteBuilder MapDeadlineTypeEndpoints(this IEndpointRouteBuilder app)
     {
         var types = app.MapGroup("/api/deadline-types").WithTags("Types d'échéance");
@@ -33,6 +35,10 @@ internal static class DeadlineTypeEndpoints
         types.MapPost("/{id:guid}/deactivate", async (Guid id, DeactivateDeadlineType useCase, CancellationToken ct) =>
                 (await useCase.ExecuteAsync(id, ct)).ToOk())
             .WithSummary("Désactive un type d'échéance (il n'est plus proposé mais reste affiché sur les échéances existantes)");
+
+        types.MapPost("/{id:guid}/assign", async (Guid id, AssignRequest request, AssignDeadlineType useCase, CancellationToken ct) =>
+                (await useCase.ExecuteAsync(id, request.VehicleTypeIds, request.LastDoneDate, ct)).ToOk())
+            .WithSummary("Ajoute le type d'échéance (périodicité par défaut) aux véhicules d'un ou plusieurs types de véhicule ; renvoie le bilan");
 
         return app;
     }

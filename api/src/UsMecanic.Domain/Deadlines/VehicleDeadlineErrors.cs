@@ -33,4 +33,10 @@ public static class VehicleDeadlineErrors
 
     public static readonly DomainError LastDoneInFuture =
         new("vehicle_deadline.last_done_in_future", "La date de dernière réalisation ne peut pas être dans le futur.");
+
+    public static readonly DomainError OneOffNotAssignable =
+        new("vehicle_deadline.one_off_not_assignable", "Un type d'échéance ponctuel (sans périodicité) ne peut pas être ajouté en lot : sa date d'échéance dépend de chaque véhicule.");
+
+    public static readonly DomainError VehicleTypesRequired =
+        new("vehicle_deadline.vehicle_types_required", "Au moins un type de véhicule est requis.");
 }
