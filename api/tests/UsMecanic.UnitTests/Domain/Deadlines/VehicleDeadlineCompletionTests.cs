@@ -103,21 +103,4 @@ public class VehicleDeadlineCompletionTests
         Assert.Equal(VehicleDeadlineErrors.KilometersInvalid, result.Error);
         Assert.False(deadline.IsClosed);
     }
-
-    [Fact]
-    public void La_realisation_nettoie_le_commentaire_et_refuse_un_commentaire_trop_long()
-    {
-        var now = new DateTimeOffset(2026, 10, 1, 8, 0, 0, TimeSpan.Zero);
-        var id = Guid.NewGuid();
-
-        var ok = DeadlineCompletion.Create(id, Today, 1_000, "  Fait au garage ", now);
-        var blank = DeadlineCompletion.Create(id, Today, null, "   ", now);
-        var tooLong = DeadlineCompletion.Create(id, Today, null, new string('x', DeadlineCompletion.MaxCommentLength + 1), now);
-
-        Assert.Equal("Fait au garage", ok.Value.Comment);
-        Assert.Equal(now, ok.Value.RecordedAt);
-        Assert.Equal(id, ok.Value.VehicleDeadlineId);
-        Assert.Null(blank.Value.Comment);
-        Assert.Equal(DeadlineCompletionErrors.CommentTooLong, tooLong.Error);
-    }
 }

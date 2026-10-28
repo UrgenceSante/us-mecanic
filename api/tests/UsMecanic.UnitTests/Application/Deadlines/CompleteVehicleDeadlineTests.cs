@@ -1,6 +1,8 @@
 using UsMecanic.Application.Deadlines;
+using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
 using UsMecanic.Domain.Deadlines;
+using UsMecanic.Domain.Maintenance;
 using UsMecanic.Domain.Mileage;
 using UsMecanic.Domain.Vehicles;
 using UsMecanic.UnitTests.TestDoubles;
@@ -16,7 +18,8 @@ public class CompleteVehicleDeadlineTests
     private readonly InMemoryDeadlineThresholdsRepository _thresholds = new();
     private readonly InMemoryMileageReadingRepository _readings = new();
     private readonly InMemoryVehicleDeadlineRepository _deadlines = new();
-    private readonly InMemoryDeadlineCompletionRepository _completions = new();
+    private readonly InMemoryGarageRepository _garages = new();
+    private readonly InMemoryInterventionRepository _interventions = new();
     private readonly FixedClock _clock = new();
     private readonly Vehicle _vehicle;
     private readonly DeadlineType _type;
@@ -25,14 +28,22 @@ public class CompleteVehicleDeadlineTests
     {
         _vehicle = _vehicles.Seed("AB-123-CD");
         _type = _types.Seed("Contrôle technique");
-        _deadlines.SharedSaves.Add(() => _readings.SaveChangesAsync(CancellationToken.None));
-        _deadlines.SharedSaves.Add(_completions.Flush);
+        _interventions.SharedSaves.Add(() => _readings.SaveChangesAsync(CancellationToken.None));
+        _interventions.SharedSaves.Add(() => _deadlines.SaveChangesAsync(CancellationToken.None));
     }
 
     private VehicleDeadlineDtoFactory Factory => new(_types, _thresholds, _readings, _clock.Calendar);
 
-    private CompleteVehicleDeadline Complete =>
-        new(new MileageVehicleGuard(_vehicles), _deadlines, _completions, _readings, Factory, _clock, _clock.Calendar);
+    private CompleteVehicleDeadline Complete
+    {
+        get
+        {
+            var guard = new MileageVehicleGuard(_vehicles);
+            var add = new AddIntervention(
+                guard, _garages, _deadlines, _readings, _interventions, new InterventionDtoFactory(_garages, _deadlines, _types), _clock, _clock.Calendar);
+            return new CompleteVehicleDeadline(guard, _deadlines, _types, add, Factory);
+        }
+    }
 
     private async Task<VehicleDeadlineDto> AddAsync(VehicleDeadlineInput input)
     {
@@ -64,10 +75,12 @@ public class CompleteVehicleDeadlineTests
         Assert.Equal(DeadlineStatus.UpToDate, result.Value.Status);
         var reading = Assert.Single(_readings.Saved);
         Assert.Equal((date, 21_000), (reading.Date, reading.Kilometers));
-        var completion = Assert.Single(_completions.Saved);
-        Assert.Equal(deadline.Id, completion.VehicleDeadlineId);
-        Assert.Equal("Révision complète", completion.Comment);
-        Assert.Equal(_clock.Now, completion.RecordedAt);
+        var intervention = Assert.Single(_interventions.Saved);
+        Assert.Equal(deadline.Id, Assert.Single(intervention.Deadlines).VehicleDeadlineId);
+        Assert.Equal("Révision complète", intervention.Work);
+        Assert.Equal((date, 21_000), (intervention.Date, intervention.Kilometers));
+        Assert.Equal(_clock.Now, intervention.RecordedAt);
+        Assert.Null(intervention.GarageId);
     }
 
     [Fact]
@@ -83,7 +96,22 @@ public class CompleteVehicleDeadlineTests
         Assert.Equal(Today, result.Value.LastDoneDate);
         Assert.Single(_deadlines.Saved);
         Assert.Empty(_readings.Saved);
-        Assert.Single(_completions.Saved);
+        var intervention = Assert.Single(_interventions.Saved);
+        Assert.Equal("Contrôle technique", intervention.Work);
+    }
+
+    [Fact]
+    public async Task Le_garage_est_transmis_et_un_garage_inconnu_ou_inactif_est_refuse()
+    {
+        var deadline = await AddOneOffAsync();
+        var garage = _garages.Seed("Garage Martin");
+
+        var unknown = await Complete.ExecuteAsync(_vehicle.Id, deadline.Id, new DeadlineCompletionInput(Today, GarageId: Guid.NewGuid()), CancellationToken.None);
+        var ok = await Complete.ExecuteAsync(_vehicle.Id, deadline.Id, new DeadlineCompletionInput(Today, GarageId: garage.Id), CancellationToken.None);
+
+        Assert.Equal(InterventionErrors.GarageUnknown, unknown.Error);
+        Assert.True(ok.IsSuccess);
+        Assert.Equal(garage.Id, Assert.Single(_interventions.Saved).GarageId);
     }
 
     [Fact]
@@ -99,7 +127,7 @@ public class CompleteVehicleDeadlineTests
         Assert.Equal(MileageReadingErrors.ReasonRequired, result.Error);
         Assert.Equal(saves, _deadlines.SaveCount);
         Assert.Single(_readings.Saved);
-        Assert.Empty(_completions.Saved);
+        Assert.Empty(_interventions.Saved);
         Assert.Equal(Today.AddMonths(-11), _deadlines.Saved[0].LastDoneDate);
     }
 
@@ -128,8 +156,8 @@ public class CompleteVehicleDeadlineTests
         var withKm = await Complete.ExecuteAsync(_vehicle.Id, deadline.Id, new DeadlineCompletionInput(Today.AddDays(1), 1_000), CancellationToken.None);
 
         Assert.Equal(DeadlineCompletionErrors.DateInFuture, withoutKm.Error);
-        Assert.Equal(MileageReadingErrors.DateInFuture, withKm.Error);
-        Assert.Empty(_completions.Saved);
+        Assert.Equal(DeadlineCompletionErrors.DateInFuture, withKm.Error);
+        Assert.Empty(_interventions.Saved);
         Assert.False(_deadlines.Saved[0].IsClosed);
     }
 
@@ -144,7 +172,7 @@ public class CompleteVehicleDeadlineTests
 
         Assert.Equal(VehicleDeadlineErrors.Closed, closed.Error);
         Assert.Equal(VehicleDeadlineErrors.NotFound, unknown.Error);
-        Assert.Single(_completions.Saved);
+        Assert.Single(_interventions.Saved);
         Assert.Empty(_readings.Saved);
     }
 
@@ -152,7 +180,7 @@ public class CompleteVehicleDeadlineTests
     public async Task Un_commentaire_trop_long_est_refuse()
     {
         var deadline = await AddOneOffAsync();
-        var input = new DeadlineCompletionInput(Today, Comment: new string('x', DeadlineCompletion.MaxCommentLength + 1));
+        var input = new DeadlineCompletionInput(Today, Comment: new string('x', DeadlineCompletionInput.MaxCommentLength + 1));
 
         var result = await Complete.ExecuteAsync(_vehicle.Id, deadline.Id, input, CancellationToken.None);
 
@@ -170,6 +198,6 @@ public class CompleteVehicleDeadlineTests
 
         Assert.Equal(VehicleErrors.NotFound, unknown.Error);
         Assert.Equal(VehicleErrors.Retired, retired.Error);
-        Assert.Empty(_completions.Saved);
+        Assert.Empty(_interventions.Saved);
     }
 }

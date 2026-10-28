@@ -22,7 +22,6 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
 
     public DbSet<VehicleDeadline> VehicleDeadlines => Set<VehicleDeadline>();
 
-    public DbSet<DeadlineCompletion> DeadlineCompletions => Set<DeadlineCompletion>();
 
     public DbSet<MileageReading> MileageReadings => Set<MileageReading>();
 

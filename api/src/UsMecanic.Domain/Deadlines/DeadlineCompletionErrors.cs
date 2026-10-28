@@ -11,5 +11,5 @@ public static class DeadlineCompletionErrors
         new("deadline_completion.kilometers_required", "Le kilométrage est obligatoire pour réaliser une échéance au km.");
 
     public static readonly DomainError CommentTooLong =
-        new("deadline_completion.comment_too_long", $"Le commentaire est limité à {DeadlineCompletion.MaxCommentLength} caractères.");
+        new("deadline_completion.comment_too_long", $"Le commentaire est limité à {DeadlineCompletionInput.MaxCommentLength} caractères.");
 }
