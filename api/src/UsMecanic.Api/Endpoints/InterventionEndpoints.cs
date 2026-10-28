@@ -21,6 +21,13 @@ internal static class InterventionEndpoints
             })
             .WithSummary("Ajoute une intervention : réalise les échéances cochées et crée un relevé si un km est fourni (une seule transaction)");
 
+        interventions.MapDelete("/{interventionId:guid}", async (Guid vehicleId, Guid interventionId, DeleteIntervention useCase, CancellationToken ct) =>
+            {
+                var result = await useCase.ExecuteAsync(vehicleId, interventionId, ct);
+                return result.IsSuccess ? TypedResults.NoContent() : result.Error!.ToProblem();
+            })
+            .WithSummary("Supprime une intervention et ses liens ; les échéances ne sont pas recalculées et le relevé kilométrique est conservé");
+
         return app;
     }
 }

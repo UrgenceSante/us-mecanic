@@ -7,6 +7,7 @@ namespace UsMecanic.UnitTests.TestDoubles;
 internal sealed class InMemoryInterventionRepository : IInterventionRepository
 {
     private readonly List<Intervention> _pending = [];
+    private readonly List<Intervention> _removed = [];
 
     public List<Intervention> Saved { get; } = [];
 
@@ -21,7 +22,12 @@ internal sealed class InMemoryInterventionRepository : IInterventionRepository
             [.. Saved.Where(i => i.VehicleId == vehicleId).OrderByDescending(i => i.Date).ThenByDescending(i => i.RecordedAt)]);
     }
 
+    public Task<Intervention?> GetAsync(Guid vehicleId, Guid interventionId, CancellationToken cancellationToken) =>
+        Task.FromResult(Saved.Find(i => i.Id == interventionId && i.VehicleId == vehicleId));
+
     public void Add(Intervention intervention) => _pending.Add(intervention);
+
+    public void Remove(Intervention intervention) => _removed.Add(intervention);
 
     /// <summary>Autres dépôts enregistrés dans la même unité de travail (un seul SaveChanges en production).</summary>
     public List<Func<Task>> SharedSaves { get; } = [];
@@ -30,6 +36,8 @@ internal sealed class InMemoryInterventionRepository : IInterventionRepository
     {
         Saved.AddRange(_pending);
         _pending.Clear();
+        Saved.RemoveAll(_removed.Contains);
+        _removed.Clear();
         SaveCount++;
         foreach (var save in SharedSaves)
         {

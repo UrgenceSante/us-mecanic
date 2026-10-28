@@ -78,6 +78,9 @@ public class InterventionEndpointsTests : IClassFixture<ApiFactory>
     private async Task<List<ReadingDto>> ListReadingsAsync(Guid vehicleId) =>
         (await _client.GetFromJsonAsync<List<ReadingDto>>(ReadingsUri(vehicleId), Json))!;
 
+    private static Uri InterventionUri(Guid vehicleId, Guid interventionId) =>
+        new($"/api/vehicles/{vehicleId}/interventions/{interventionId}", UriKind.Relative);
+
     private static async Task<string?> ErrorCodeAsync(HttpResponseMessage response)
     {
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
@@ -249,5 +252,67 @@ public class InterventionEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.Conflict, afterRetired.StatusCode);
         Assert.Equal("vehicle.retired", await ErrorCodeAsync(afterRetired));
         Assert.Equal(HttpStatusCode.OK, readRetired.StatusCode);
+    }
+
+    [Fact]
+    public async Task La_suppression_retire_l_intervention_sans_recalculer_l_echeance_et_conserve_le_releve()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var typeId = await CreateTypeAsync("Entretien");
+        var deadline = await AddDeadlineAsync(vehicleId, new
+        {
+            deadlineTypeId = typeId,
+            intervalMonths = 12,
+            intervalKm = 30_000,
+            lastDoneDate = Offset(-300),
+            lastDoneKm = 20_000,
+        });
+        var date = Offset(-3);
+        var created = await _client.PostAsJsonAsync(
+            InterventionsUri(vehicleId), new { date, kilometers = 21_000, work = "Vidange", deadlineIds = new[] { deadline.Id } });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var intervention = (await created.Content.ReadFromJsonAsync<InterventionDto>(Json))!;
+
+        var deleted = await _client.DeleteAsync(InterventionUri(vehicleId, intervention.Id));
+        var again = await _client.DeleteAsync(InterventionUri(vehicleId, intervention.Id));
+        var logbook = await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json);
+        var deadlines = await ListDeadlinesAsync(vehicleId);
+        var readings = await ListReadingsAsync(vehicleId);
+
+        Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, again.StatusCode);
+        Assert.Equal("intervention.not_found", await ErrorCodeAsync(again));
+        Assert.Empty(logbook!);
+        var kept = Assert.Single(deadlines);
+        Assert.Equal(date, kept.LastDoneDate);
+        Assert.Equal(21_000, kept.LastDoneKm);
+        Assert.Equal(date.AddMonths(12), kept.DueDate);
+        Assert.Equal(51_000, kept.DueKm);
+        Assert.Equal(21_000, Assert.Single(readings).Kilometers);
+    }
+
+    [Fact]
+    public async Task La_suppression_refuse_une_intervention_d_un_autre_vehicule_ou_un_vehicule_sorti_du_parc()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var otherId = await CreateVehicleAsync();
+        var created = await _client.PostAsJsonAsync(InterventionsUri(vehicleId), new { date = Offset(-1), work = "Vidange" });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var intervention = (await created.Content.ReadFromJsonAsync<InterventionDto>(Json))!;
+
+        var otherVehicle = await _client.DeleteAsync(InterventionUri(otherId, intervention.Id));
+        var unknownVehicle = await _client.DeleteAsync(InterventionUri(Guid.NewGuid(), intervention.Id));
+        var anonymous = await _anonymous.DeleteAsync(InterventionUri(vehicleId, intervention.Id));
+        var retired = await _client.PutAsJsonAsync(new Uri($"/api/vehicles/{vehicleId}/status", UriKind.Relative), new { status = "Retired" });
+        Assert.Equal(HttpStatusCode.OK, retired.StatusCode);
+        var afterRetired = await _client.DeleteAsync(InterventionUri(vehicleId, intervention.Id));
+
+        Assert.Equal(HttpStatusCode.NotFound, otherVehicle.StatusCode);
+        Assert.Equal("intervention.not_found", await ErrorCodeAsync(otherVehicle));
+        Assert.Equal(HttpStatusCode.NotFound, unknownVehicle.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, afterRetired.StatusCode);
+        Assert.Equal("vehicle.retired", await ErrorCodeAsync(afterRetired));
+        Assert.Single((await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json))!);
     }
 }

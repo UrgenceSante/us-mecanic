@@ -40,6 +40,8 @@ public class InterventionUseCasesTests
 
     private ListInterventions List => new(new MileageVehicleGuard(_vehicles), _interventions, DtoFactory);
 
+    private DeleteIntervention Delete => new(new MileageVehicleGuard(_vehicles), _interventions);
+
     private InterventionDtoFactory DtoFactory => new(_garages, _deadlines, _types);
 
     private async Task<VehicleDeadlineDto> AddDeadlineAsync(Guid vehicleId, VehicleDeadlineInput input)
@@ -260,5 +262,51 @@ public class InterventionUseCasesTests
         Assert.Equal(VehicleErrors.NotFound, unknown.Error);
         Assert.True(empty.IsSuccess);
         Assert.Empty(empty.Value);
+    }
+
+    [Fact]
+    public async Task La_suppression_retire_l_intervention_sans_recalculer_les_echeances_ni_toucher_au_releve()
+    {
+        var deadline = await AddPeriodicKmAsync();
+        var date = Today.AddDays(-3);
+        var added = await ExecuteAsync(new InterventionInput(date, 21_000, Work: "Vidange", DeadlineIds: [deadline.Id]));
+
+        var result = await Delete.ExecuteAsync(_vehicle.Id, added.Value.Id, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(added.Value.Id, result.Value);
+        Assert.Empty(_interventions.Saved);
+        Assert.Single(_readings.Saved);
+        var kept = Stored(deadline.Id);
+        Assert.Equal(date, kept.LastDoneDate);
+        Assert.Equal(21_000, kept.LastDoneKm);
+    }
+
+    [Fact]
+    public async Task La_suppression_d_une_intervention_inconnue_ou_d_un_autre_vehicule_est_refusee()
+    {
+        var other = _vehicles.Seed("ZZ-999-ZZ");
+        var added = await ExecuteAsync(new InterventionInput(Today.AddDays(-1), Work: "Vidange"));
+
+        var unknown = await Delete.ExecuteAsync(_vehicle.Id, Guid.NewGuid(), CancellationToken.None);
+        var otherVehicle = await Delete.ExecuteAsync(other.Id, added.Value.Id, CancellationToken.None);
+        var unknownVehicle = await Delete.ExecuteAsync(Guid.NewGuid(), added.Value.Id, CancellationToken.None);
+
+        Assert.Equal(InterventionErrors.NotFound, unknown.Error);
+        Assert.Equal(InterventionErrors.NotFound, otherVehicle.Error);
+        Assert.Equal(VehicleErrors.NotFound, unknownVehicle.Error);
+        Assert.Single(_interventions.Saved);
+    }
+
+    [Fact]
+    public async Task La_suppression_est_refusee_pour_un_vehicule_sorti_du_parc()
+    {
+        var added = await ExecuteAsync(new InterventionInput(Today.AddDays(-1), Work: "Vidange"));
+        _vehicle.ChangeStatus(VehicleStatus.Retired, _clock.Now);
+
+        var result = await Delete.ExecuteAsync(_vehicle.Id, added.Value.Id, CancellationToken.None);
+
+        Assert.Equal(VehicleErrors.Retired, result.Error);
+        Assert.Single(_interventions.Saved);
     }
 }

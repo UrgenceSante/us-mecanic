@@ -4,6 +4,10 @@ namespace UsMecanic.Domain.Maintenance;
 
 public static class InterventionErrors
 {
+    /// <summary>Intervention inexistante ou appartenant à un autre véhicule.</summary>
+    public static readonly DomainError NotFound =
+        DomainError.NotFound("intervention.not_found", "Intervention introuvable.");
+
     public static readonly DomainError WorkRequired =
         new("intervention.work_required", "Les travaux réalisés sont obligatoires.");
 

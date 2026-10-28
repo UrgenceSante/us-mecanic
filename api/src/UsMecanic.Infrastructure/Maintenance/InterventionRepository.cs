@@ -16,7 +16,19 @@ internal sealed class InterventionRepository(UsMecanicDbContext db) : IIntervent
             .ThenByDescending(i => i.RecordedAt)
             .ToListAsync(cancellationToken);
 
+    public Task<Intervention?> GetAsync(Guid vehicleId, Guid interventionId, CancellationToken cancellationToken) =>
+        db.Interventions
+            .Include(i => i.Deadlines)
+            .FirstOrDefaultAsync(i => i.Id == interventionId && i.VehicleId == vehicleId, cancellationToken);
+
     public void Add(Intervention intervention) => db.Interventions.Add(intervention);
+
+    public void Remove(Intervention intervention)
+    {
+        // La FK des liens est en Restrict : ils sont supprimés explicitement, dans le même SaveChanges (même transaction).
+        db.Set<InterventionDeadline>().RemoveRange(intervention.Deadlines);
+        db.Interventions.Remove(intervention);
+    }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 }
