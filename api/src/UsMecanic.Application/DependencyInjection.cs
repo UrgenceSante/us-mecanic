@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using UsMecanic.Application.Dashboard;
 using UsMecanic.Application.Deadlines;
+using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Application.Mileage;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
@@ -30,6 +31,11 @@ public static class DependencyInjection
         services.AddScoped<CreateVehicleType>();
         services.AddScoped<RenameVehicleType>();
         services.AddScoped<DeactivateVehicleType>();
+
+        services.AddScoped<ListGarages>();
+        services.AddScoped<CreateGarage>();
+        services.AddScoped<RenameGarage>();
+        services.AddScoped<DeactivateGarage>();
 
         services.AddScoped<ListDeadlineTypes>();
         services.AddScoped<CreateDeadlineType>();

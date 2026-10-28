@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UsMecanic.Domain.Deadlines;
+using UsMecanic.Domain.Maintenance;
 using UsMecanic.Domain.Mileage;
 using UsMecanic.Domain.Vehicles;
 
@@ -10,6 +11,8 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
 
     public DbSet<VehicleType> VehicleTypes => Set<VehicleType>();
+
+    public DbSet<Garage> Garages => Set<Garage>();
 
     public DbSet<DeadlineType> DeadlineTypes => Set<DeadlineType>();
 
