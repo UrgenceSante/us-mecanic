@@ -54,7 +54,7 @@ Spec : `docs/specs/phase-3-carnet-entretien.md`.
 
 - [x] Garages administrables (création à la volée depuis la saisie)
 - [ ] Interventions réalisées : date, km, garage, travaux ; une ou plusieurs échéances, ou aucune
-- [ ] « Marquer réalisée » crée une intervention ; reprise des réalisations existantes
+- [x] « Marquer réalisée » crée une intervention ; reprise des réalisations existantes
 - [ ] Carnet d'entretien sur la fiche véhicule, suppression d'une intervention
 
 ## Phase 4 — Problèmes et résolution
