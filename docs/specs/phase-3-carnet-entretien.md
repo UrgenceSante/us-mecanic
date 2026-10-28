@@ -1,6 +1,6 @@
 # Phase 3 — Carnet d'entretien
 
-Statut : brouillon, en attente de validation
+Statut : validée le 2026-10-28
 
 ## Contexte et objectif
 
