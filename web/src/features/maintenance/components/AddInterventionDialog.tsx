@@ -24,7 +24,8 @@ interface AddInterventionDialogProps {
 export default function AddInterventionDialog(props: AddInterventionDialogProps) {
   const { deadlines, currentMileage, submitting, error, reasonRequired, confirmationRequired } = props;
   const [date, setDate] = useState(todayLocalIso());
-  const [kilometers, setKilometers] = useState(currentMileage == null ? "" : String(currentMileage));
+  const prefilledKm = currentMileage == null ? "" : String(currentMileage);
+  const [kilometers, setKilometers] = useState(prefilledKm);
   const [garageId, setGarageId] = useState<string | null>(null);
   const [work, setWork] = useState("");
   const [checked, setChecked] = useState<string[]>([]);
@@ -77,6 +78,8 @@ export default function AddInterventionDialog(props: AddInterventionDialogProps)
             slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: todayLocalIso() } }}
             onChange={(e) => {
               setDate(e.target.value);
+              // Le km prérempli est celui d'aujourd'hui : faux pour une intervention passée, on le vide.
+              if (e.target.value !== todayLocalIso() && kilometers === prefilledKm) setKilometers("");
               invalidateConfirmation();
             }}
           />
