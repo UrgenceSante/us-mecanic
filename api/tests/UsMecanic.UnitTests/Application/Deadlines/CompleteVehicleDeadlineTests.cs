@@ -180,7 +180,7 @@ public class CompleteVehicleDeadlineTests
     public async Task Un_commentaire_trop_long_est_refuse()
     {
         var deadline = await AddOneOffAsync();
-        var input = new DeadlineCompletionInput(Today, Comment: new string('x', DeadlineCompletionInput.MaxCommentLength + 1));
+        var input = new DeadlineCompletionInput(Today, Comment: new string('x', DeadlineCompletionErrors.MaxCommentLength + 1));
 
         var result = await Complete.ExecuteAsync(_vehicle.Id, deadline.Id, input, CancellationToken.None);
 

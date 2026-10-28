@@ -41,7 +41,7 @@ public sealed class CompleteVehicleDeadline(
         }
 
         var comment = string.IsNullOrWhiteSpace(input.Comment) ? null : input.Comment.Trim();
-        if (comment?.Length > DeadlineCompletionInput.MaxCommentLength)
+        if (comment?.Length > DeadlineCompletionErrors.MaxCommentLength)
         {
             return Result<VehicleDeadlineDto>.Failure(DeadlineCompletionErrors.CommentTooLong);
         }

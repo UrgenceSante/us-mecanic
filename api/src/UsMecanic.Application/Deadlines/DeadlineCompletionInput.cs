@@ -13,7 +13,4 @@ public sealed record DeadlineCompletionInput(
     string? Comment = null,
     string? Reason = null,
     bool ConfirmHighMileage = false,
-    Guid? GarageId = null)
-{
-    public const int MaxCommentLength = 1000;
-}
+    Guid? GarageId = null);
