@@ -22,7 +22,8 @@ release publie une version figée pour la prod.
 ## Exigences
 
 **T1 — Publication à chaque merge sur `master` (Must)**
-- [ ] Un merge sur `master` lance la CI puis publie les images web et api avec les tags `dev` et `dev-<sha>`.
+- [ ] Un merge sur `master` lance la CI puis publie les images web et api avec les tags `dev`, `latest-dev` (convention des autres stacks du VPS)
+      et `dev-<sha>`.
 - [ ] Une CI rouge ne publie rien.
 
 **T2 — Publication d'une release (Must)**
