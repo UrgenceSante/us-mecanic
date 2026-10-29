@@ -218,5 +218,26 @@ public sealed class Problem
         return Result<ProblemAction>.Success(action);
     }
 
+    /// <summary>
+    /// Niveau de blocage au jour <paramref name="today"/> (date métier) : immobilisant non résolu, puis signalé non
+    /// analysé, puis au moins une action en retard (échéance strictement avant aujourd'hui et action non close), sinon autre.
+    /// </summary>
+    public ProblemBlockingLevel BlockingLevelAt(DateOnly today)
+    {
+        if (Status != ProblemStatus.Resolved && Immobilized == true)
+        {
+            return ProblemBlockingLevel.Immobilizing;
+        }
+
+        if (Status == ProblemStatus.Reported)
+        {
+            return ProblemBlockingLevel.Unanalyzed;
+        }
+
+        return _actions.Exists(a => !a.IsClosed && a.DueDate is { } due && due < today)
+            ? ProblemBlockingLevel.OverdueAction
+            : ProblemBlockingLevel.Other;
+    }
+
     private static string? CleanComment(string? comment) => string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
 }
