@@ -67,7 +67,6 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 - [ ] Référentiels (natures, acteurs, actions, contraintes) administrables
 - [ ] Migration des écrans `MecanicLog` / `Analyse` vers `features/issues`
 - [ ] Liaison d'une action à une intervention du carnet ; tableau de bord trié par blocage
-- [ ] Import des problèmes de l'ancienne API (Should)
 - [ ] Déploiement continu : images `dev` à chaque merge sur `master`, branche `dev` retirée
       (spec technique `docs/specs/technique-deploiement-continu.md`)
 
@@ -88,6 +87,7 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 ## Phase 8 — Alimentation de la base
 
 - [ ] Import de l'historique (km, échéances) sur le modèle de l'import véhicules
+- [ ] Import des problèmes, analyses et actions de l'ancienne API
 - [ ] Port « source de kilométrage » pour une source externe (géoloc, télématique…)
 
 ## Phase 9 — Authentification et nettoyage

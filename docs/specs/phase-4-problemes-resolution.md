@@ -22,8 +22,9 @@ Principe retenu : reprendre le fonctionnement actuel simplement ; il évoluera �
 **US1 — Signaler un problème (API)**
 En tant que chauffeur, je veux signaler un problème sur un véhicule depuis mon application, afin qu'il
 soit pris en charge.
-- [ ] Route d'API de signalement : véhicule, date, description, auteur du signalement. Le contrat sera
-      affiné à l'usage.
+- [ ] Route d'API de signalement : immatriculation du véhicule, date, description, auteur du signalement.
+      Le contrat sera affiné à l'usage.
+- [ ] Véhicule inconnu : refus ; véhicule sorti du parc : refus.
 - [ ] L'auteur du signalement est obligatoire : identifiant texte (nom ou matricule) envoyé par l'app
       chauffeur ; il viendra du jeton Keycloak en phase 9.
 - [ ] Route authentifiée par défaut ; toutes les applications partagent le même Keycloak (rôles en phase 9).
@@ -33,6 +34,7 @@ soit pris en charge.
 - [ ] L'administrateur renseigne nature, élément concerné, analyse (texte) et immobilisation (oui/non).
 - [ ] Le problème passe au statut « Analysé ».
 - [ ] Immobilisation cochée : le véhicule passe automatiquement au statut « immobilisé ».
+- [ ] Véhicule sorti du parc : analyse refusée.
 
 **US3 — Actions de résolution**
 - [ ] Une analyse porte 0..n actions : acteur, type, contrainte, échéance, commentaire, clôture.
@@ -44,7 +46,8 @@ soit pris en charge.
 
 **US4 — Référentiels administrables**
 - [ ] Natures, éléments concernés, acteurs, types d'action, contraintes : créer, renommer, désactiver.
-- [ ] Valeurs de départ : les listes actuelles de l'ancienne API.
+- [ ] Valeurs de départ : un petit jeu de valeurs fictives (quelques entrées par référentiel), à
+      compléter par l'administrateur.
 
 **US5 — Écrans**
 - [ ] Les vues « Problèmes » (tableau de bord et fiche véhicule) lisent la nouvelle API ; migration des
@@ -53,21 +56,19 @@ soit pris en charge.
       signalés non analysés, puis actions en retard, puis les autres ; à égalité, le plus ancien d'abord).
 - [ ] Filtres : statut, véhicule, nature.
 
-### Should
-
-**US6 — Reprise de l'historique**
-- [ ] Mécanisme d'import des problèmes, analyses et actions de l'ancienne API, s'il reste simple.
-
 ## Règles métier
 
 - Statuts : Signalé → Analysé → Résolu (résolution automatique). Susceptible d'évoluer.
 - L'identité de l'auteur d'un signalement est une donnée personnelle : jamais dans les logs. Conservée
   sans limite pour la traçabilité ; une durée de conservation pourra être fixée en phase 9 (RGPD).
 - Les champs « Rappel » et « CallBack » de l'ancienne action ne sont pas repris.
+- Action en retard : échéance passée et action non close.
+- Suppression d'une intervention reliée à une action : le lien est retiré, l'action reste.
 
 ## Hors périmètre
 
 - Application chauffeur (hors repo).
+- Import de l'historique de l'ancienne API : phase 8.
 
 ## Impact sur le modèle de données
 
