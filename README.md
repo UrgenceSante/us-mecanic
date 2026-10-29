@@ -73,10 +73,11 @@ Une même image est déployée en dev et en prod. Le conteneur génère `/config
 
 ## Branches, versions et CI/CD
 
-| Branche | Rôle | Règles | Publication |
-|---|---|---|---|
-| `dev` | intégration, environnement **dev** | push direct autorisé | à chaque push : CI puis images `dev` et `dev-<sha>` |
-| `master` | **prod** | PR depuis `dev` uniquement, CI verte obligatoire | release-please → tag `vX.Y.Z` → images `X.Y.Z`, `X.Y`, `latest` |
+Une seule branche longue : `master`. Plus de branche `dev`.
+
+- Tout changement passe par une **PR vers `master`** (CI verte obligatoire).
+- Merge sur `master` : CI, puis publication des images `dev`, `latest-dev` et `dev-<sha>` (environnement **dev**).
+- Release (PR release-please fusionnée) : tag `vX.Y.Z`, puis images `X.Y.Z`, `X.Y` et `latest` (environnement **prod**).
 
 - **Versionnage `major.minor.patch`** via [release-please](https://github.com/googleapis/release-please) à partir des [Conventional Commits](https://www.conventionalcommits.org/fr/) :
   - `fix:` → patch ;
@@ -84,12 +85,11 @@ Une même image est déployée en dev et en prod. Le conteneur génère `/config
   - `feat!:` ou `BREAKING CHANGE:` → major (tant qu'on est en `0.x`, un breaking change bumpe le minor).
 - À chaque push sur `master`, release-please ouvre ou met à jour une **PR de release** (numéro de version + `CHANGELOG.md`). La fusionner crée le tag, la release GitHub et publie les images.
 - La version est synchronisée dans `web/package.json` et `api/Directory.Build.props`. Elle ne se modifie pas à la main.
-- Fusionner `dev` → `master` avec un **merge commit** (pas de squash) pour conserver les messages de commit dans le changelog.
 
 Workflows (`.github/workflows/`) :
 
 - `ci.yml` : lint, typecheck, tests + couverture et build pour le web et l'API (sur chaque PR, et réutilisé par les deux suivants) ;
-- `dev.yml` : push sur `dev` → CI → publication des images dev ;
+- `master.yml` : push sur `master` → CI → publication des images dev ;
 - `release.yml` : push sur `master` → release-please → publication des images versionnées ;
 - `docker-publish.yml` : workflow réutilisable de build et push Docker Hub.
 
@@ -99,11 +99,20 @@ Secrets GitHub requis : `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
 
 ## Déploiement
 
+Watchtower, sur le VPS, suit les tags (configuration par le propriétaire, hors dépôt) :
+
+| Environnement | Tag suivi |
+|---|---|
+| dev | `latest-dev` (republié à chaque merge sur `master`) |
+| prod | une version figée (`X.Y.Z`) ou `latest` |
+
+`deploy/redeploy.sh` reste utilisable pour un déploiement manuel ou un retour arrière (tag précis, ex. `./redeploy.sh prod 0.2.0` ou `./redeploy.sh dev dev-<sha>`).
+
 Sur le serveur, dans le dossier `deploy/` :
 
 ```bash
 cp .env.dev.example .env.dev      # une seule fois, puis adapter
-./redeploy.sh dev                 # image "dev" la plus récente
+./redeploy.sh dev                 # image "latest-dev" (dernier merge sur master)
 ./redeploy.sh prod 0.2.1          # version précise en prod
 ```
 

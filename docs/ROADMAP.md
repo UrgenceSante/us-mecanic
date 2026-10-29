@@ -67,7 +67,7 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 - [x] Référentiels (natures, acteurs, actions, contraintes) administrables
 - [x] Migration des écrans `MecanicLog` / `Analyse` vers `features/issues`
 - [x] Liaison d'une action à une intervention du carnet ; tableau de bord trié par blocage
-- [ ] Déploiement continu : images `dev` à chaque merge sur `master`, branche `dev` retirée
+- [x] Déploiement continu : images `dev` à chaque merge sur `master`, branche `dev` retirée
       (spec technique `docs/specs/technique-deploiement-continu.md`)
 
 ## Phase 5 — Coûts
