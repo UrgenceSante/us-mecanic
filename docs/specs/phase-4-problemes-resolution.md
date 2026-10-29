@@ -22,7 +22,10 @@ Principe retenu : reprendre le fonctionnement actuel simplement ; il évoluera �
 **US1 — Signaler un problème (API)**
 En tant que chauffeur, je veux signaler un problème sur un véhicule depuis mon application, afin qu'il
 soit pris en charge.
-- [ ] Route d'API de signalement : véhicule, date, description. Le contrat sera affiné à l'usage.
+- [ ] Route d'API de signalement : véhicule, date, description, auteur du signalement. Le contrat sera
+      affiné à l'usage.
+- [ ] L'auteur du signalement est obligatoire (identification à préciser, voir questions ouvertes).
+- [ ] Route authentifiée par défaut ; toutes les applications partagent le même Keycloak (rôles en phase 9).
 - [ ] Le problème créé a le statut « Signalé ».
 
 **US2 — Analyser un problème**
@@ -32,11 +35,13 @@ soit pris en charge.
 
 **US3 — Actions de résolution**
 - [ ] Une analyse porte 0..n actions : acteur, type, contrainte, échéance, commentaire, clôture.
+- [ ] Une action peut être reliée à une intervention du carnet d'entretien du même véhicule.
 - [ ] Quand toutes les actions sont closes, le problème passe automatiquement à « Résolu » ; si le
       véhicule avait été immobilisé par ce problème, il revient en service.
 
 **US4 — Référentiels administrables**
 - [ ] Natures, éléments concernés, acteurs, types d'action, contraintes : créer, renommer, désactiver.
+- [ ] Valeurs de départ : les listes actuelles de l'ancienne API.
 
 **US5 — Écrans**
 - [ ] Les vues « Problèmes » (tableau de bord et fiche véhicule) lisent la nouvelle API ; migration des
@@ -50,6 +55,8 @@ soit pris en charge.
 ## Règles métier
 
 - Statuts : Signalé → Analysé → Résolu (résolution automatique). Susceptible d'évoluer.
+- L'identité de l'auteur d'un signalement est une donnée personnelle : jamais dans les logs.
+- Les champs « Rappel » et « CallBack » de l'ancienne action ne sont pas repris.
 
 ## Hors périmètre
 
@@ -59,10 +66,11 @@ soit pris en charge.
 
 - **Problème** : véhicule, date, description, statut.
 - **Analyse** : nature, élément, texte, immobilisation.
-- **Action** : acteur, type, contrainte, échéance, commentaire, close.
+- **Problème** porte aussi l'auteur du signalement.
+- **Action** : acteur, type, contrainte, échéance, commentaire, close, intervention liée facultative.
 - **Référentiels** : nature, élément concerné, acteur, type d'action, contrainte.
 
 ## Questions ouvertes
 
-- Identité de l'équipage sur le signalement (donnée personnelle).
-- Authentification de l'application chauffeur.
+- Identification de l'auteur du signalement (champ envoyé par l'app chauffeur ou identité Keycloak).
+- Authentification et rôles de l'application chauffeur : phase 9.
