@@ -1,7 +1,7 @@
 name: CI
 
 # Qualité : lint, typage, tests et build du front et de l'API.
-# Déclenché sur chaque PR et réutilisé par les workflows de publication (dev / release).
+# Déclenché sur chaque PR et réutilisé par les workflows de publication (master / release).
 on:
   pull_request:
   workflow_call:
