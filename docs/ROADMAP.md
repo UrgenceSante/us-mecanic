@@ -65,7 +65,7 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 - [x] Analyse : nature, élément concerné, immobilisation (lien avec le statut du véhicule)
 - [x] Actions de résolution : acteur, type, contrainte, échéance, clôture
 - [x] Référentiels (natures, acteurs, actions, contraintes) administrables
-- [ ] Migration des écrans `MecanicLog` / `Analyse` vers `features/issues`
+- [x] Migration des écrans `MecanicLog` / `Analyse` vers `features/issues`
 - [x] Liaison d'une action à une intervention du carnet ; tableau de bord trié par blocage
 - [ ] Déploiement continu : images `dev` à chaque merge sur `master`, branche `dev` retirée
       (spec technique `docs/specs/technique-deploiement-continu.md`)

@@ -1,7 +1,6 @@
 import "./App.css";
 import { HashRouter, Route, Routes } from "react-router";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
-import AnalyseDetail from "./pages/AnalyseDetail";
 import SubscriptionContainer from "./components/Subscription/SubscriptionContainer";
 import GeolocPage from "./pages/GeolocPage";
 import AppLayout from "./pages/AppLayout";
@@ -42,7 +41,6 @@ function App() {
               <Route path="/problem-references" element={<ProblemReferencesPage />} />
               <Route path="/deadline-types" element={<DeadlineTypesPage />} />
               <Route path="/vehicles/:vehicleId" element={<VehicleDetailPage />} />
-              <Route path="/analyse/:logId" element={<AnalyseDetail />} />
               <Route path="/problems/:problemId" element={<ProblemDetailPage />} />
               <Route
                 path="/notification-subscriptions"
