@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dashboardKeys } from "../../dashboard/api/dashboardQueries";
-import { vehicleDeadlineKeys } from "../../vehicle-deadlines/api/vehicleDeadlineQueries";
+import { vehicleDeadlineKeys } from "../../vehicle-deadlines/api/vehicleDeadlineKeys";
 import {
   assignDeadlineType,
   createDeadlineType,

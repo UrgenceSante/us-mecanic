@@ -14,7 +14,7 @@ vi.mock("../../vehicles/api/vehiclesApi", () => vehiclesApi);
 vi.mock("../../deadline-types/api/deadlineTypesApi", () => typesApi);
 vi.mock("../../vehicle-types/api/vehicleTypesApi", () => vehicleTypesApi);
 vi.mock("../../vehicle-deadlines/api/vehicleDeadlinesApi", () => deadlinesApi);
-vi.mock("../../../components/MecanicLog/MecanicLogTable", () => ({ default: () => <div>Liste des logs</div> }));
+vi.mock("../../issues/components/DashboardProblems", () => ({ default: () => <div>Liste des problèmes</div> }));
 vi.mock("../../../hooks/useNotifSnack", () => ({
   default: () => ({ notifySuccess: vi.fn(), notifyError: vi.fn() }),
 }));
@@ -108,10 +108,10 @@ describe("DashboardPage", () => {
     await waitFor(() => expect(api.listDashboardDeadlines).toHaveBeenCalledTimes(2));
   });
 
-  it("affiche la liste des logs dans l'onglet Problèmes", async () => {
+  it("affiche la liste des problèmes dans l'onglet Problèmes", async () => {
     renderPage();
     await screen.findByText("Vidange");
     fireEvent.click(screen.getByRole("tab", { name: "Problèmes" }));
-    expect(screen.getByText("Liste des logs")).toBeInTheDocument();
+    expect(screen.getByText("Liste des problèmes")).toBeInTheDocument();
   });
 });

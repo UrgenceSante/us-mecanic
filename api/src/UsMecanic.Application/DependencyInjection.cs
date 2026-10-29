@@ -4,6 +4,8 @@ using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
+using UsMecanic.Application.Problems;
+using UsMecanic.Application.Problems.References;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
@@ -38,10 +40,26 @@ public static class DependencyInjection
         services.AddScoped<RenameGarage>();
         services.AddScoped<DeactivateGarage>();
 
+        services.AddScoped(typeof(ListProblemReferences<>));
+        services.AddScoped(typeof(CreateProblemReference<>));
+        services.AddScoped(typeof(RenameProblemReference<>));
+        services.AddScoped(typeof(DeactivateProblemReference<>));
+
         services.AddScoped<InterventionDtoFactory>();
         services.AddScoped<ListInterventions>();
         services.AddScoped<AddIntervention>();
         services.AddScoped<DeleteIntervention>();
+
+        services.AddScoped<ReportProblem>();
+        services.AddScoped<ListVehicleProblems>();
+        services.AddScoped<ListFleetProblems>();
+        services.AddScoped<GetProblem>();
+        services.AddScoped<AnalyzeProblem>();
+        services.AddScoped<ProblemActionInterventionCheck>();
+        services.AddScoped<AddProblemAction>();
+        services.AddScoped<UpdateProblemAction>();
+        services.AddScoped<ProblemVehicleStatusSync>();
+        services.AddScoped<CloseProblemAction>();
 
         services.AddScoped<ListDeadlineTypes>();
         services.AddScoped<CreateDeadlineType>();

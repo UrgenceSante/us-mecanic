@@ -1,7 +1,6 @@
 import "./App.css";
 import { HashRouter, Route, Routes } from "react-router";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
-import AnalyseDetail from "./pages/AnalyseDetail";
 import SubscriptionContainer from "./components/Subscription/SubscriptionContainer";
 import GeolocPage from "./pages/GeolocPage";
 import AppLayout from "./pages/AppLayout";
@@ -14,8 +13,10 @@ import VehicleListPage from "./features/vehicles/pages/VehicleListPage";
 import VehicleDetailPage from "./features/vehicles/pages/VehicleDetailPage";
 import VehicleImportPage from "./features/vehicles/pages/VehicleImportPage";
 import GaragesPage from "./features/garages/pages/GaragesPage";
+import ProblemReferencesPage from "./features/problem-references/pages/ProblemReferencesPage";
 import VehicleTypesPage from "./features/vehicle-types/pages/VehicleTypesPage";
 import DeadlineTypesPage from "./features/deadline-types/pages/DeadlineTypesPage";
+import ProblemDetailPage from "./features/issues/pages/ProblemDetailPage";
 
 function App() {
   return (
@@ -37,9 +38,10 @@ function App() {
               <Route path="/vehicles/import" element={<VehicleImportPage />} />
               <Route path="/vehicle-types" element={<VehicleTypesPage />} />
               <Route path="/garages" element={<GaragesPage />} />
+              <Route path="/problem-references" element={<ProblemReferencesPage />} />
               <Route path="/deadline-types" element={<DeadlineTypesPage />} />
               <Route path="/vehicles/:vehicleId" element={<VehicleDetailPage />} />
-              <Route path="/analyse/:logId" element={<AnalyseDetail />} />
+              <Route path="/problems/:problemId" element={<ProblemDetailPage />} />
               <Route
                 path="/notification-subscriptions"
                 element={<SubscriptionContainer />}
