@@ -2,6 +2,7 @@ import { Button, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow,
 import { useState } from "react";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { useInterventions } from "../../maintenance/api/interventionQueries";
+import { formatParisDate } from "../../../shared/format/formatParisDate";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import { problemErrorMessage } from "../api/problemErrors";
 import { useAddProblemAction, useCloseProblemAction, useUpdateProblemAction } from "../api/problemMutations";
@@ -68,7 +69,7 @@ export default function ProblemActions({ problem }: { problem: Problem }) {
                 <TableCell>{formatDateOnly(a.dueDate)}</TableCell>
                 <TableCell>{a.comment ?? "-"}</TableCell>
                 <TableCell>{interventionLabel(a.interventionId)}</TableCell>
-                <TableCell>{a.isClosed ? `Clôturée le ${formatDateOnly(a.closedAt?.slice(0, 10) ?? null)}` : "Ouverte"}</TableCell>
+                <TableCell>{a.isClosed ? `Clôturée le ${a.closedAt ? formatParisDate(a.closedAt) : "-"}` : "Ouverte"}</TableCell>
                 <TableCell align="right">
                   {!a.isClosed && (
                     <>

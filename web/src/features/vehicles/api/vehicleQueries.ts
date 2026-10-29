@@ -20,7 +20,7 @@ export function useVehicles(filter: VehicleFilter) {
 }
 
 export function useVehicle(id: string) {
-  return useQuery({ queryKey: vehicleKeys.detail(id), queryFn: () => getVehicle(id) });
+  return useQuery({ queryKey: vehicleKeys.detail(id), queryFn: () => getVehicle(id), enabled: id !== "" });
 }
 
 /** Toute écriture invalide l'ensemble des requêtes véhicules (listes et fiches). */

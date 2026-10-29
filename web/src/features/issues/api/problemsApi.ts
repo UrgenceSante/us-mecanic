@@ -5,6 +5,7 @@ import type {
   FleetProblem,
   FleetProblemFilter,
   Problem,
+  ProblemAction,
   UpdateProblemActionInput,
 } from "../types/problem";
 
@@ -34,8 +35,8 @@ export async function analyzeProblem(id: string, input: AnalyzeProblemInput): Pr
   return data;
 }
 
-export async function addProblemAction(id: string, input: AddProblemActionInput): Promise<Problem> {
-  const { data } = await apiClient.post<Problem>(`api/problems/${id}/actions`, input);
+export async function addProblemAction(id: string, input: AddProblemActionInput): Promise<ProblemAction> {
+  const { data } = await apiClient.post<ProblemAction>(`api/problems/${id}/actions`, input);
   return data;
 }
 
@@ -43,12 +44,12 @@ export async function updateProblemAction(
   id: string,
   actionId: string,
   input: UpdateProblemActionInput,
-): Promise<Problem> {
-  const { data } = await apiClient.put<Problem>(`api/problems/${id}/actions/${actionId}`, input);
+): Promise<ProblemAction> {
+  const { data } = await apiClient.put<ProblemAction>(`api/problems/${id}/actions/${actionId}`, input);
   return data;
 }
 
-export async function closeProblemAction(id: string, actionId: string): Promise<Problem> {
-  const { data } = await apiClient.post<Problem>(`api/problems/${id}/actions/${actionId}/close`);
+export async function closeProblemAction(id: string, actionId: string): Promise<ProblemAction> {
+  const { data } = await apiClient.post<ProblemAction>(`api/problems/${id}/actions/${actionId}/close`);
   return data;
 }

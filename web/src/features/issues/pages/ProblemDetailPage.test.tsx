@@ -173,7 +173,7 @@ describe("ProblemDetailPage - actions", () => {
 
   it("ajoute une action avec une intervention du véhicule", async () => {
     api.getProblem.mockResolvedValue({ ...analyzed, actions: [] });
-    api.addProblemAction.mockResolvedValue(analyzed);
+    api.addProblemAction.mockResolvedValue(action);
     renderPage();
     fireEvent.click(await screen.findByRole("button", { name: "Ajouter une action" }));
 
@@ -215,7 +215,7 @@ describe("ProblemDetailPage - actions", () => {
 
   it("modifie échéance, commentaire et intervention en renvoyant les trois champs", async () => {
     api.getProblem.mockResolvedValue(analyzed);
-    api.updateProblemAction.mockResolvedValue(analyzed);
+    api.updateProblemAction.mockResolvedValue({ ...action, comment: "RDV pris" });
     renderPage();
     fireEvent.click(await screen.findByRole("button", { name: "Modifier" }));
     fireEvent.change(screen.getByLabelText("Commentaire"), { target: { value: "RDV pris" } });
@@ -231,7 +231,7 @@ describe("ProblemDetailPage - actions", () => {
 
   it("clôture une action après confirmation et affiche le statut résolu", async () => {
     api.getProblem.mockResolvedValue(analyzed);
-    api.closeProblemAction.mockResolvedValue({ ...analyzed, status: "Resolved" });
+    api.closeProblemAction.mockResolvedValue({ ...action, isClosed: true, closedAt: "2026-07-10T22:30:00Z" });
     renderPage();
     fireEvent.click(await screen.findByRole("button", { name: "Clôturer" }));
     expect(api.closeProblemAction).not.toHaveBeenCalled();
@@ -239,13 +239,13 @@ describe("ProblemDetailPage - actions", () => {
     api.getProblem.mockResolvedValue({
       ...analyzed,
       status: "Resolved",
-      actions: [{ ...action, isClosed: true, closedAt: "2026-03-10T08:00:00Z" }],
+      actions: [{ ...action, isClosed: true, closedAt: "2026-07-10T22:30:00Z" }],
     });
     const dialog = within(await screen.findByRole("dialog"));
     fireEvent.click(dialog.getByRole("button", { name: "Clôturer" }));
     await waitFor(() => expect(api.closeProblemAction).toHaveBeenCalledWith("p1", "act1"));
     expect(await screen.findByText("Résolu")).toBeInTheDocument();
-    expect(await screen.findByText("Clôturée le 10/03/2026")).toBeInTheDocument();
+    expect(await screen.findByText("Clôturée le 11/07/2026")).toBeInTheDocument();
   });
 
   it("traduit l'erreur d'une action déjà clôturée", async () => {
@@ -256,6 +256,22 @@ describe("ProblemDetailPage - actions", () => {
     const dialog = within(await screen.findByRole("dialog"));
     fireEvent.click(dialog.getByRole("button", { name: "Clôturer" }));
     expect(await screen.findByText("Cette action est déjà clôturée.")).toBeInTheDocument();
+  });
+
+  it("repasse à Analysé à l'écran quand on ajoute une action sur un problème Résolu", async () => {
+    const closed = { ...action, isClosed: true, closedAt: "2026-03-10T08:00:00Z" };
+    api.getProblem.mockResolvedValue({ ...analyzed, status: "Resolved", actions: [closed] });
+    api.addProblemAction.mockResolvedValue({ ...action, id: "act2" });
+    renderPage();
+    expect(await screen.findByText("Résolu")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Ajouter une action" }));
+    await choose(/Acteur/, "Garage");
+    await choose(/Type d'action/, "Réparer");
+    await choose(/Contrainte/, "Bloquante");
+    api.getProblem.mockResolvedValue({ ...analyzed, actions: [closed, { ...action, id: "act2" }] });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(await screen.findByText("Analysé")).toBeInTheDocument();
+    expect(screen.queryByText("Résolu")).not.toBeInTheDocument();
   });
 
   it("affiche un message si le problème est introuvable", async () => {
