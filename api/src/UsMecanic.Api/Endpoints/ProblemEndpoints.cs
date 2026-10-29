@@ -1,4 +1,5 @@
 using UsMecanic.Application.Problems;
+using UsMecanic.Domain.Problems;
 
 namespace UsMecanic.Api.Endpoints;
 
@@ -15,6 +16,11 @@ internal static class ProblemEndpoints
             })
             .WithTags("Problèmes")
             .WithSummary("Signale un problème sur un véhicule désigné par son immatriculation (statut « Signalé »)");
+
+        app.MapGet("/api/problems", async (ProblemStatus? status, Guid? vehicleId, Guid? natureId, ListFleetProblems useCase, CancellationToken ct) =>
+                TypedResults.Ok(await useCase.ExecuteAsync(new FleetProblemFilter(status, vehicleId, natureId), ct)))
+            .WithTags("Problèmes")
+            .WithSummary("Problèmes du parc, du plus au moins bloquant (immobilisants, non analysés, action en retard, autres), filtrables par statut, véhicule et nature ; les résolus n'y figurent que si le statut Resolved est demandé");
 
         app.MapGet("/api/vehicles/{vehicleId:guid}/problems", async (Guid vehicleId, ListVehicleProblems useCase, CancellationToken ct) =>
                 (await useCase.ExecuteAsync(vehicleId, ct)).ToOk())
