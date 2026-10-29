@@ -99,7 +99,8 @@ public class ProblemAnalysisEndpointsTests : IClassFixture<ApiFactory>
 
         var detail = (await _client.GetFromJsonAsync<ProblemDto>(ProblemUri(problemId), Json))!;
         Assert.Equal("Analyzed", detail.Status);
-        Assert.Equal(problem.Analysis.AnalyzedAt, detail.Analysis!.AnalyzedAt);
+        // PostgreSQL stocke les horodatages à la microseconde : la réponse du PUT est plus précise.
+        Assert.Equal(problem.Analysis.AnalyzedAt, detail.Analysis!.AnalyzedAt, TimeSpan.FromMilliseconds(1));
     }
 
     [Fact]
