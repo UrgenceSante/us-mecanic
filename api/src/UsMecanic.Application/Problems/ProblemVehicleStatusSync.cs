@@ -15,6 +15,8 @@ public sealed class ProblemVehicleStatusSync(IProblemRepository problems, IVehic
 {
     /// <param name="problem">Problème après modification.</param>
     /// <param name="previousStatus">Statut du problème avant modification.</param>
+    /// <param name="now">Horodatage de la modification.</param>
+    /// <param name="cancellationToken">Jeton d'annulation.</param>
     /// <returns>L'erreur à renvoyer, ou <c>null</c>.</returns>
     public async Task<DomainError?> ApplyAsync(Problem problem, ProblemStatus previousStatus, DateTimeOffset now, CancellationToken cancellationToken)
     {

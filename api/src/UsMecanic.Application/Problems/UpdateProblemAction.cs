@@ -30,6 +30,7 @@ public sealed class UpdateProblemAction(
             return Result<ProblemActionDto>.Failure(guardError);
         }
 
+        // Doublon volontaire du contrôle du domaine : une action close répond already_closed avant tout contrôle d'intervention.
         if (problem.Actions.FirstOrDefault(a => a.Id == actionId)?.IsClosed == true)
         {
             return Result<ProblemActionDto>.Failure(ProblemErrors.ActionAlreadyClosed);
