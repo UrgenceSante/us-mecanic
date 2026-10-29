@@ -130,6 +130,7 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
         <ReferenceNameDialog
           singular={config.singular}
           feminine={config.feminine}
+          definite={config.definite}
           initialName={editing?.name}
           submitting={mutation.isPending}
           error={mutation.isError ? problemReferenceErrorMessage(mutation.error, config) : null}

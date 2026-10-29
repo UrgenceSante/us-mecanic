@@ -5,6 +5,8 @@ interface ReferenceNameDialogProps {
   /** Libellé singulier du référentiel, ex. « nature » ou « type d'action ». */
   singular: string;
   feminine: boolean;
+  /** Libellé avec article défini, ex. « l'élément » ou « la nature ». */
+  definite: string;
   /** Nom actuel en renommage ; absent en création. */
   initialName?: string;
   submitting: boolean;
@@ -14,7 +16,7 @@ interface ReferenceNameDialogProps {
 }
 
 export default function ReferenceNameDialog(props: ReferenceNameDialogProps) {
-  const { singular, feminine, initialName, submitting, error, onSubmit, onClose } = props;
+  const { singular, feminine, definite, initialName, submitting, error, onSubmit, onClose } = props;
   const [name, setName] = useState(initialName ?? "");
 
   const handleSubmit = (e: FormEvent) => {
@@ -25,7 +27,7 @@ export default function ReferenceNameDialog(props: ReferenceNameDialogProps) {
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="xs">
       <form onSubmit={handleSubmit}>
-        <DialogTitle>{initialName === undefined ? `Ajouter ${feminine ? "une" : "un"} ${singular}` : `Renommer ${feminine ? "la" : "le"} ${singular}`}</DialogTitle>
+        <DialogTitle>{initialName === undefined ? `Ajouter ${feminine ? "une" : "un"} ${singular}` : `Renommer ${definite}`}</DialogTitle>
         <DialogContent>
           {error && (
             <Alert severity="error" sx={{ marginBottom: 2 }}>
