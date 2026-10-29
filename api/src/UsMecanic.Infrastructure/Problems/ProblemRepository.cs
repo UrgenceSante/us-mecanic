@@ -10,13 +10,14 @@ internal sealed class ProblemRepository(UsMecanicDbContext db) : IProblemReposit
     public async Task<IReadOnlyList<Problem>> ListByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken) =>
         await db.Problems
             .AsNoTracking()
+            .Include(p => p.Actions)
             .Where(p => p.VehicleId == vehicleId)
             .OrderByDescending(p => p.Date)
             .ThenByDescending(p => p.RecordedAt)
             .ToListAsync(cancellationToken);
 
     public Task<Problem?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
-        db.Problems.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        db.Problems.Include(p => p.Actions).FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
     public void Add(Problem problem) => db.Problems.Add(problem);
 

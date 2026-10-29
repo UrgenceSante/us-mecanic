@@ -337,6 +337,70 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.ToTable("problems", (string)null);
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Problems.ProblemAction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ActorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actor_id");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("comment");
+
+                    b.Property<Guid>("ConstraintId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("constraint_id");
+
+                    b.Property<DateOnly?>("DueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("due_date");
+
+                    b.Property<Guid?>("InterventionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("intervention_id");
+
+                    b.Property<Guid>("ProblemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("problem_id");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<Guid>("TypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("type_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_problem_actions");
+
+                    b.HasIndex("ActorId")
+                        .HasDatabaseName("ix_problem_actions_actor_id");
+
+                    b.HasIndex("ConstraintId")
+                        .HasDatabaseName("ix_problem_actions_constraint_id");
+
+                    b.HasIndex("InterventionId")
+                        .HasDatabaseName("ix_problem_actions_intervention_id");
+
+                    b.HasIndex("ProblemId")
+                        .HasDatabaseName("ix_problem_actions_problem_id");
+
+                    b.HasIndex("TypeId")
+                        .HasDatabaseName("ix_problem_actions_type_id");
+
+                    b.ToTable("problem_actions", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Problems.ProblemActionType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -642,6 +706,43 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_problems_vehicles_vehicle_id");
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Problems.ProblemAction", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Problems.ProblemActor", null)
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_problem_actions_problem_actors_actor_id");
+
+                    b.HasOne("UsMecanic.Domain.Problems.ProblemConstraint", null)
+                        .WithMany()
+                        .HasForeignKey("ConstraintId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_problem_actions_problem_constraints_constraint_id");
+
+                    b.HasOne("UsMecanic.Domain.Maintenance.Intervention", null)
+                        .WithMany()
+                        .HasForeignKey("InterventionId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_problem_actions_interventions_intervention_id");
+
+                    b.HasOne("UsMecanic.Domain.Problems.Problem", null)
+                        .WithMany("Actions")
+                        .HasForeignKey("ProblemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_problem_actions_problems_problem_id");
+
+                    b.HasOne("UsMecanic.Domain.Problems.ProblemActionType", null)
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_problem_actions_problem_action_types_type_id");
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Vehicles.Vehicle", b =>
                 {
                     b.HasOne("UsMecanic.Domain.Vehicles.VehicleType", null)
@@ -654,6 +755,11 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("UsMecanic.Domain.Maintenance.Intervention", b =>
                 {
                     b.Navigation("Deadlines");
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Problems.Problem", b =>
+                {
+                    b.Navigation("Actions");
                 });
 #pragma warning restore 612, 618
         }
