@@ -31,6 +31,26 @@ internal static class ProblemEndpoints
             .WithTags("Problèmes")
             .WithSummary("Analyse un problème signalé (nature, élément, texte, immobilisation) : il passe à « Analysé »");
 
+        app.MapPost("/api/problems/{problemId:guid}/actions", async (Guid problemId, AddProblemActionInput input, AddProblemAction useCase, CancellationToken ct) =>
+            {
+                var result = await useCase.ExecuteAsync(problemId, input, ct);
+                return result.IsSuccess
+                    ? TypedResults.Created($"/api/problems/{problemId}", result.Value)
+                    : result.Error!.ToProblem();
+            })
+            .WithTags("Problèmes")
+            .WithSummary("Ajoute une action de résolution (acteur, type, contrainte, échéance, commentaire, intervention) à un problème analysé");
+
+        app.MapPut("/api/problems/{problemId:guid}/actions/{actionId:guid}", async (Guid problemId, Guid actionId, UpdateProblemActionInput input, UpdateProblemAction useCase, CancellationToken ct) =>
+                (await useCase.ExecuteAsync(problemId, actionId, input, ct)).ToOk())
+            .WithTags("Problèmes")
+            .WithSummary("Modifie l'échéance, le commentaire et l'intervention liée d'une action ouverte");
+
+        app.MapPost("/api/problems/{problemId:guid}/actions/{actionId:guid}/close", async (Guid problemId, Guid actionId, CloseProblemAction useCase, CancellationToken ct) =>
+                (await useCase.ExecuteAsync(problemId, actionId, ct)).ToOk())
+            .WithTags("Problèmes")
+            .WithSummary("Clôture une action de résolution");
+
         return app;
     }
 }
