@@ -12,7 +12,7 @@ import { useChangeVehicleStatus, useUpdateVehicle, useVehicle } from "../api/veh
 import VehicleDeadlines from "../../vehicle-deadlines/components/VehicleDeadlines";
 import VehicleMileage from "../../mileage/components/VehicleMileage";
 import VehicleMaintenanceLog from "../../maintenance/components/VehicleMaintenanceLog";
-import VehicleProblems from "../components/VehicleProblems";
+import VehicleProblems from "../../issues/components/VehicleProblems";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import VehicleStatusActions from "../components/VehicleStatusActions";
 import VehicleStatusChip from "../components/VehicleStatusChip";
@@ -95,7 +95,7 @@ export default function VehicleDetailPage() {
 
       <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
 
-      <VehicleProblems licensePlate={data.licensePlate} />
+      <VehicleProblems vehicleId={data.id} />
 
       {editing && (
         <VehicleFormDialog

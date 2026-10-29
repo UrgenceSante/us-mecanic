@@ -1,6 +1,6 @@
 import { Stack, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
-import MecanicLogTable from "../../../components/MecanicLog/MecanicLogTable";
+import DashboardProblems from "../../issues/components/DashboardProblems";
 import DashboardDeadlines from "../components/DashboardDeadlines";
 
 type DashboardView = "deadlines" | "problems";
@@ -13,7 +13,7 @@ export default function DashboardPage() {
         <Tab value="deadlines" label="Échéances" />
         <Tab value="problems" label="Problèmes" />
       </Tabs>
-      {view === "deadlines" ? <DashboardDeadlines /> : <MecanicLogTable />}
+      {view === "deadlines" ? <DashboardDeadlines /> : <DashboardProblems />}
     </Stack>
   );
 }
