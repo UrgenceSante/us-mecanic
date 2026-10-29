@@ -19,6 +19,10 @@ internal sealed class InMemoryProblemRepository : IProblemRepository
     public Task<Problem?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         Task.FromResult(Saved.Find(p => p.Id == id));
 
+    public Task<bool> HasOpenImmobilizingAsync(Guid vehicleId, Guid exceptProblemId, CancellationToken cancellationToken) =>
+        Task.FromResult(Saved.Exists(p =>
+            p.VehicleId == vehicleId && p.Id != exceptProblemId && p.Immobilized == true && p.Status != ProblemStatus.Resolved));
+
     public void Add(Problem problem) => _pending.Add(problem);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken)

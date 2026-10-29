@@ -142,8 +142,8 @@ public sealed class Problem
 
     /// <summary>
     /// Ajoute une action de résolution à un problème analysé (« Signalé » est refusé). Les référentiels actifs et le
-    /// rattachement de l'intervention au véhicule sont contrôlés par le cas d'usage. Point d'extension de la
-    /// résolution automatique (réouverture d'un problème résolu).
+    /// rattachement de l'intervention au véhicule sont contrôlés par le cas d'usage. Sur un problème « Résolu », l'ajout
+    /// le rouvre : il repasse à « Analysé » (le statut du véhicule est géré par le cas d'usage).
     /// </summary>
     public Result<ProblemAction> AddAction(Guid actorId, Guid typeId, Guid constraintId, DateOnly? dueDate, string? comment, Guid? interventionId, DateTimeOffset now)
     {
@@ -160,6 +160,11 @@ public sealed class Problem
 
         var action = new ProblemAction(Guid.CreateVersion7(now), Id, actorId, typeId, constraintId, dueDate, cleaned, interventionId, now, null);
         _actions.Add(action);
+        if (Status == ProblemStatus.Resolved)
+        {
+            Status = ProblemStatus.Analyzed;
+        }
+
         return Result<ProblemAction>.Success(action);
     }
 
@@ -187,7 +192,10 @@ public sealed class Problem
         return Result<ProblemAction>.Success(action);
     }
 
-    /// <summary>Clôture une action ouverte. Point d'extension de la résolution automatique du problème.</summary>
+    /// <summary>
+    /// Clôture une action ouverte. Quand toutes les actions du problème analysé sont closes, il passe à « Résolu »
+    /// (le statut du véhicule est géré par le cas d'usage).
+    /// </summary>
     public Result<ProblemAction> CloseAction(Guid actionId, DateTimeOffset now)
     {
         var action = _actions.Find(a => a.Id == actionId);
@@ -202,6 +210,11 @@ public sealed class Problem
         }
 
         action.Close(now);
+        if (Status == ProblemStatus.Analyzed && _actions.TrueForAll(a => a.IsClosed))
+        {
+            Status = ProblemStatus.Resolved;
+        }
+
         return Result<ProblemAction>.Success(action);
     }
 

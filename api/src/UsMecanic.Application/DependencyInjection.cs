@@ -57,6 +57,7 @@ public static class DependencyInjection
         services.AddScoped<ProblemActionInterventionCheck>();
         services.AddScoped<AddProblemAction>();
         services.AddScoped<UpdateProblemAction>();
+        services.AddScoped<ProblemVehicleStatusSync>();
         services.AddScoped<CloseProblemAction>();
 
         services.AddScoped<ListDeadlineTypes>();

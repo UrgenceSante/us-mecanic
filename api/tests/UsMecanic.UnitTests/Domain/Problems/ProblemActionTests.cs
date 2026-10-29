@@ -128,7 +128,7 @@ public class ProblemActionTests
     }
 
     [Fact]
-    public void CloseAction_cloture_l_action_a_la_date_donnee_sans_changer_le_statut_du_probleme()
+    public void CloseAction_cloture_l_action_a_la_date_donnee()
     {
         var problem = NewProblem();
         var action = problem.AddAction(_actorId, _typeId, _constraintId, null, null, null, Now).Value;
@@ -139,7 +139,6 @@ public class ProblemActionTests
         Assert.True(result.IsSuccess);
         Assert.True(action.IsClosed);
         Assert.Equal(later, action.ClosedAt);
-        Assert.Equal(ProblemStatus.Analyzed, problem.Status);
     }
 
     [Fact]
@@ -155,5 +154,56 @@ public class ProblemActionTests
         Assert.Equal(ProblemErrors.ActionAlreadyClosed, again.Error);
         Assert.Equal(Now, action.ClosedAt);
         Assert.Equal(ProblemErrors.ActionNotFound, unknown.Error);
+    }
+
+    [Fact]
+    public void CloseAction_resout_le_probleme_quand_toutes_les_actions_sont_closes()
+    {
+        var problem = NewProblem();
+        var first = problem.AddAction(_actorId, _typeId, _constraintId, null, null, null, Now).Value;
+        var second = problem.AddAction(_actorId, _typeId, _constraintId, null, null, null, Now).Value;
+
+        problem.CloseAction(first.Id, Now);
+        Assert.Equal(ProblemStatus.Analyzed, problem.Status);
+
+        problem.CloseAction(second.Id, Now);
+        Assert.Equal(ProblemStatus.Resolved, problem.Status);
+    }
+
+    [Fact]
+    public void Un_probleme_analyse_sans_action_reste_analyse()
+    {
+        var problem = NewProblem();
+
+        Assert.Empty(problem.Actions);
+        Assert.Equal(ProblemStatus.Analyzed, problem.Status);
+    }
+
+    [Fact]
+    public void AddAction_rouvre_un_probleme_resolu()
+    {
+        var problem = NewProblem();
+        var action = problem.AddAction(_actorId, _typeId, _constraintId, null, null, null, Now).Value;
+        problem.CloseAction(action.Id, Now);
+        Assert.Equal(ProblemStatus.Resolved, problem.Status);
+
+        var result = problem.AddAction(_actorId, _typeId, _constraintId, null, null, null, Now);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(ProblemStatus.Analyzed, problem.Status);
+        Assert.Equal(2, problem.Actions.Count);
+    }
+
+    [Fact]
+    public void AddAction_refusee_ne_rouvre_pas_un_probleme_resolu()
+    {
+        var problem = NewProblem();
+        var action = problem.AddAction(_actorId, _typeId, _constraintId, null, null, null, Now).Value;
+        problem.CloseAction(action.Id, Now);
+
+        var result = problem.AddAction(_actorId, _typeId, _constraintId, null, new string('x', ProblemAction.MaxCommentLength + 1), null, Now);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ProblemStatus.Resolved, problem.Status);
     }
 }

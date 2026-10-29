@@ -30,6 +30,11 @@ public sealed class UpdateProblemAction(
             return Result<ProblemActionDto>.Failure(guardError);
         }
 
+        if (problem.Actions.FirstOrDefault(a => a.Id == actionId)?.IsClosed == true)
+        {
+            return Result<ProblemActionDto>.Failure(ProblemErrors.ActionAlreadyClosed);
+        }
+
         var interventionError = await interventionCheck.CheckAsync(problem.VehicleId, input.InterventionId, cancellationToken);
         if (interventionError is not null)
         {

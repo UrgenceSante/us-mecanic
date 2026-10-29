@@ -63,7 +63,7 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 
 - [x] Signalements de problème rattachés au véhicule
 - [x] Analyse : nature, élément concerné, immobilisation (lien avec le statut du véhicule)
-- [ ] Actions de résolution : acteur, type, contrainte, échéance, clôture
+- [x] Actions de résolution : acteur, type, contrainte, échéance, clôture
 - [x] Référentiels (natures, acteurs, actions, contraintes) administrables
 - [ ] Migration des écrans `MecanicLog` / `Analyse` vers `features/issues`
 - [ ] Liaison d'une action à une intervention du carnet ; tableau de bord trié par blocage
