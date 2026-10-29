@@ -58,6 +58,11 @@ public sealed class Problem
             ? new ProblemAnalysis(natureId, elementId, text, Immobilized == true, analyzedAt)
             : null;
 
+    private readonly List<ProblemAction> _actions = [];
+
+    /// <summary>Actions de résolution (0..n), de la plus ancienne à la plus récente ; vide tant que non analysé.</summary>
+    public IReadOnlyList<ProblemAction> Actions => _actions;
+
     /// <summary>Date de saisie du signalement.</summary>
     public DateTimeOffset RecordedAt { get; }
 
@@ -134,4 +139,71 @@ public sealed class Problem
         Status = ProblemStatus.Analyzed;
         return Result<Problem>.Success(this);
     }
+
+    /// <summary>
+    /// Ajoute une action de résolution à un problème analysé (« Signalé » est refusé). Les référentiels actifs et le
+    /// rattachement de l'intervention au véhicule sont contrôlés par le cas d'usage. Point d'extension de la
+    /// résolution automatique (réouverture d'un problème résolu).
+    /// </summary>
+    public Result<ProblemAction> AddAction(Guid actorId, Guid typeId, Guid constraintId, DateOnly? dueDate, string? comment, Guid? interventionId, DateTimeOffset now)
+    {
+        if (Status == ProblemStatus.Reported)
+        {
+            return Result<ProblemAction>.Failure(ProblemErrors.NotAnalyzed);
+        }
+
+        var cleaned = CleanComment(comment);
+        if (cleaned?.Length > ProblemAction.MaxCommentLength)
+        {
+            return Result<ProblemAction>.Failure(ProblemErrors.ActionCommentTooLong);
+        }
+
+        var action = new ProblemAction(Guid.CreateVersion7(now), Id, actorId, typeId, constraintId, dueDate, cleaned, interventionId, now, null);
+        _actions.Add(action);
+        return Result<ProblemAction>.Success(action);
+    }
+
+    /// <summary>Modifie l'échéance, le commentaire et l'intervention liée d'une action ouverte.</summary>
+    public Result<ProblemAction> UpdateAction(Guid actionId, DateOnly? dueDate, string? comment, Guid? interventionId)
+    {
+        var action = _actions.Find(a => a.Id == actionId);
+        if (action is null)
+        {
+            return Result<ProblemAction>.Failure(ProblemErrors.ActionNotFound);
+        }
+
+        if (action.IsClosed)
+        {
+            return Result<ProblemAction>.Failure(ProblemErrors.ActionAlreadyClosed);
+        }
+
+        var cleaned = CleanComment(comment);
+        if (cleaned?.Length > ProblemAction.MaxCommentLength)
+        {
+            return Result<ProblemAction>.Failure(ProblemErrors.ActionCommentTooLong);
+        }
+
+        action.Update(dueDate, cleaned, interventionId);
+        return Result<ProblemAction>.Success(action);
+    }
+
+    /// <summary>Clôture une action ouverte. Point d'extension de la résolution automatique du problème.</summary>
+    public Result<ProblemAction> CloseAction(Guid actionId, DateTimeOffset now)
+    {
+        var action = _actions.Find(a => a.Id == actionId);
+        if (action is null)
+        {
+            return Result<ProblemAction>.Failure(ProblemErrors.ActionNotFound);
+        }
+
+        if (action.IsClosed)
+        {
+            return Result<ProblemAction>.Failure(ProblemErrors.ActionAlreadyClosed);
+        }
+
+        action.Close(now);
+        return Result<ProblemAction>.Success(action);
+    }
+
+    private static string? CleanComment(string? comment) => string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
 }
