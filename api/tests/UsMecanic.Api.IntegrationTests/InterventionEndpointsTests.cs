@@ -292,6 +292,44 @@ public class InterventionEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task La_suppression_d_une_intervention_liee_a_plusieurs_echeances_reussit_sans_les_recalculer()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var first = await AddDeadlineAsync(vehicleId, new
+        {
+            deadlineTypeId = await CreateTypeAsync("Vidange"),
+            intervalMonths = 12,
+            intervalKm = 30_000,
+            lastDoneDate = Offset(-300),
+            lastDoneKm = 20_000,
+        });
+        var second = await AddDeadlineAsync(vehicleId, new
+        {
+            deadlineTypeId = await CreateTypeAsync("Freins"),
+            intervalMonths = 24,
+            intervalKm = 60_000,
+            lastDoneDate = Offset(-200),
+            lastDoneKm = 10_000,
+        });
+        var created = await _client.PostAsJsonAsync(
+            InterventionsUri(vehicleId),
+            new { date = Offset(-3), kilometers = 21_000, work = "Entretien complet", deadlineIds = new[] { first.Id, second.Id } });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var intervention = (await created.Content.ReadFromJsonAsync<InterventionDto>(Json))!;
+        Assert.Equal(2, intervention.Deadlines.Count);
+        var beforeDelete = (await ListDeadlinesAsync(vehicleId)).OrderBy(d => d.Id).ToList();
+
+        var deleted = await _client.DeleteAsync(InterventionUri(vehicleId, intervention.Id));
+        Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
+        var logbook = await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json);
+        var afterDelete = (await ListDeadlinesAsync(vehicleId)).OrderBy(d => d.Id).ToList();
+
+        Assert.Empty(logbook!);
+        Assert.Equal(2, afterDelete.Count);
+        Assert.Equal(beforeDelete, afterDelete);
+    }
+
+    [Fact]
     public async Task La_suppression_refuse_une_intervention_d_un_autre_vehicule_ou_un_vehicule_sorti_du_parc()
     {
         var vehicleId = await CreateVehicleAsync();
