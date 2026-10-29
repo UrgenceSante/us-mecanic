@@ -93,7 +93,7 @@ public class ProblemEndpointsTests : IClassFixture<ApiFactory>
         var list = await _client.GetFromJsonAsync<List<ProblemDto>>(VehicleProblemsUri(vehicleId), Json);
         var otherList = await _client.GetFromJsonAsync<List<ProblemDto>>(VehicleProblemsUri(otherId), Json);
 
-        Assert.Equal(new[] { "Récent", "Ancien" }, list!.Select(p => p.Description).ToArray());
+        Assert.Equal(["Récent", "Ancien"], list!.Select(p => p.Description));
         Assert.Equal("Autre", Assert.Single(otherList!).Description);
     }
 
