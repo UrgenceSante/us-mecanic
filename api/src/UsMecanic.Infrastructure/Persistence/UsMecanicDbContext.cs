@@ -27,6 +27,16 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
 
     public DbSet<MileageReading> MileageReadings => Set<MileageReading>();
 
+    public DbSet<ProblemNature> ProblemNatures => Set<ProblemNature>();
+
+    public DbSet<ProblemElement> ProblemElements => Set<ProblemElement>();
+
+    public DbSet<ProblemActor> ProblemActors => Set<ProblemActor>();
+
+    public DbSet<ProblemActionType> ProblemActionTypes => Set<ProblemActionType>();
+
+    public DbSet<ProblemConstraint> ProblemConstraints => Set<ProblemConstraint>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(UsMecanicDbContext).Assembly);
 }

@@ -5,6 +5,7 @@ using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
 using UsMecanic.Application.Problems;
+using UsMecanic.Application.Problems.References;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
@@ -38,6 +39,11 @@ public static class DependencyInjection
         services.AddScoped<CreateGarage>();
         services.AddScoped<RenameGarage>();
         services.AddScoped<DeactivateGarage>();
+
+        services.AddScoped(typeof(ListProblemReferences<>));
+        services.AddScoped(typeof(CreateProblemReference<>));
+        services.AddScoped(typeof(RenameProblemReference<>));
+        services.AddScoped(typeof(DeactivateProblemReference<>));
 
         services.AddScoped<InterventionDtoFactory>();
         services.AddScoped<ListInterventions>();
