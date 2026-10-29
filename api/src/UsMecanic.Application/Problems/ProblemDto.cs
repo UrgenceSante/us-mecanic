@@ -2,7 +2,10 @@ using UsMecanic.Domain.Problems;
 
 namespace UsMecanic.Application.Problems;
 
-/// <summary>Problème signalé sur un véhicule ; <see cref="Analysis"/> est renseignée à partir du statut « Analysé ».</summary>
+/// <summary>
+/// Problème signalé sur un véhicule ; <see cref="Analysis"/> est renseignée à partir du statut « Analysé » et
+/// <see cref="Actions"/> liste ses actions de résolution.
+/// </summary>
 public sealed record ProblemDto(
     Guid Id,
     Guid VehicleId,
@@ -11,7 +14,8 @@ public sealed record ProblemDto(
     string Author,
     ProblemStatus Status,
     DateTimeOffset RecordedAt,
-    ProblemAnalysisDto? Analysis = null)
+    ProblemAnalysisDto? Analysis = null,
+    IReadOnlyList<ProblemActionDto>? Actions = null)
 {
     public static ProblemDto From(Problem problem)
     {
@@ -25,6 +29,7 @@ public sealed record ProblemDto(
             problem.Author,
             problem.Status,
             problem.RecordedAt,
-            ProblemAnalysisDto.From(problem.Analysis));
+            ProblemAnalysisDto.From(problem.Analysis),
+            [.. problem.Actions.Select(ProblemActionDto.From)]);
     }
 }
