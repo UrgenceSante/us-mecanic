@@ -1,6 +1,6 @@
 # Spec technique — Déploiement continu
 
-Statut : en cours de cadrage (2026-10-29)
+Statut : validée le 2026-10-29
 
 ## Contexte et objectif
 
