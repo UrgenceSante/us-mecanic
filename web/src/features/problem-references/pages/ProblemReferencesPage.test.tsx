@@ -29,13 +29,18 @@ describe("ProblemReferencesPage", () => {
     api.listProblemReferences.mockResolvedValue([{ id: "n1", name: "Panne", isActive: true }]);
   });
 
-  it("masque les inactifs par défaut et les affiche sur option", async () => {
+  it("liste toutes les valeurs, les désactivées étant marquées et non désactivables", async () => {
+    api.listProblemReferences.mockResolvedValue([
+      { id: "n1", name: "Panne", isActive: true },
+      { id: "n2", name: "Ancienne", isActive: false },
+    ]);
     renderPage();
-    expect(await screen.findByText("Panne")).toBeInTheDocument();
-    expect(api.listProblemReferences).toHaveBeenCalledWith("api/problem-natures", false);
 
-    fireEvent.click(screen.getByRole("checkbox"));
-    await waitFor(() => expect(api.listProblemReferences).toHaveBeenCalledWith("api/problem-natures", true));
+    expect(await screen.findByText("Ancienne")).toBeInTheDocument();
+    expect(api.listProblemReferences).toHaveBeenCalledWith("api/problem-natures", true);
+    expect(screen.getByText("Désactivé")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Désactiver Panne" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Désactiver Ancienne" })).not.toBeInTheDocument();
   });
 
   it("change de référentiel via les onglets", async () => {
@@ -44,7 +49,7 @@ describe("ProblemReferencesPage", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: "Types d'action" }));
 
-    await waitFor(() => expect(api.listProblemReferences).toHaveBeenCalledWith("api/problem-action-types", false));
+    await waitFor(() => expect(api.listProblemReferences).toHaveBeenCalledWith("api/problem-action-types", true));
   });
 
   it("crée une valeur", async () => {

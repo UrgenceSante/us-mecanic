@@ -1,11 +1,10 @@
 import {
+  Box,
   Button,
   Chip,
-  FormControlLabel,
   IconButton,
   Paper,
   Stack,
-  Switch,
   Table,
   TableBody,
   TableCell,
@@ -36,9 +35,8 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
   const { kind } = config;
   const { notifySuccess, notifyError } = useNotifSnack();
   const [editing, setEditing] = useState<Editing>(undefined);
-  const [showInactive, setShowInactive] = useState(false);
 
-  const items = useProblemReferences(kind, showInactive);
+  const items = useProblemReferences(kind, true);
   const create = useCreateProblemReference(kind);
   const rename = useRenameProblemReference(kind);
   const deactivate = useDeactivateProblemReference(kind);
@@ -62,18 +60,14 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
 
   const handleDeactivate = (item: ProblemReference) =>
     deactivate.mutate(item.id, {
-      onSuccess: () => notifySuccess(`« ${item.name} » désactivé`),
+      onSuccess: () => notifySuccess(`« ${item.name} » désactivé${config.feminine ? "e" : ""}`),
       onError: (error) => notifyError(problemReferenceErrorMessage(error, config)),
     });
 
   return (
     <Stack gap={2}>
       <Stack direction="row" alignItems="center" gap={1}>
-        <FormControlLabel
-          sx={{ flexGrow: 1 }}
-          control={<Switch checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} />}
-          label="Afficher les valeurs désactivées"
-        />
+        <Box flexGrow={1} />
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setEditing(null)}>
           Ajouter
         </Button>
@@ -135,6 +129,7 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
       {editing !== undefined && (
         <ReferenceNameDialog
           singular={config.singular}
+          feminine={config.feminine}
           initialName={editing?.name}
           submitting={mutation.isPending}
           error={mutation.isError ? problemReferenceErrorMessage(mutation.error, config) : null}
