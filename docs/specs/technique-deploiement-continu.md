@@ -46,8 +46,8 @@ release publie une version figée pour la prod.
 
 ## Points à vérifier par le propriétaire
 
-- Secrets GitHub `DOCKERHUB_USERNAME` et `DOCKERHUB_TOKEN` présents dans le repo (Settings → Secrets and
-  variables → Actions) : l'agent ne peut pas les lire.
+- Secrets GitHub `DOCKERHUB_USERNAME` et `DOCKERHUB_TOKEN` : configurés en repository secrets (confirmé
+  le 2026-10-29).
 - PR sensible (touche `.github/workflows/`) : merge par le propriétaire, sans auto-merge.
 
 ## Questions ouvertes
