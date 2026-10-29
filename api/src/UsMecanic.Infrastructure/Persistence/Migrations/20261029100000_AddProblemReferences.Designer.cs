@@ -12,7 +12,7 @@ using UsMecanic.Infrastructure.Persistence;
 namespace UsMecanic.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(UsMecanicDbContext))]
-    [Migration("20261029090000_AddProblemReferences")]
+    [Migration("20261029100000_AddProblemReferences")]
     partial class AddProblemReferences
     {
         /// <inheritdoc />
