@@ -57,7 +57,7 @@ jobs:
             type=raw,value=latest-dev,enable=${{ inputs.version == '' }}
             type=sha,prefix=dev-,enable=${{ inputs.version == '' }}
 
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.context }}
           platforms: linux/amd64
