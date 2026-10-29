@@ -5,6 +5,7 @@ using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
+using UsMecanic.Application.Problems;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
@@ -12,6 +13,7 @@ using UsMecanic.Infrastructure.Deadlines;
 using UsMecanic.Infrastructure.Maintenance;
 using UsMecanic.Infrastructure.Mileage;
 using UsMecanic.Infrastructure.Persistence;
+using UsMecanic.Infrastructure.Problems;
 using UsMecanic.Infrastructure.Vehicles;
 
 namespace UsMecanic.Infrastructure;
@@ -41,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IVehicleTypeRepository, VehicleTypeRepository>();
         services.AddScoped<IGarageRepository, GarageRepository>();
         services.AddScoped<IInterventionRepository, InterventionRepository>();
+        services.AddScoped<IProblemRepository, ProblemRepository>();
         services.AddScoped<IDeadlineTypeRepository, DeadlineTypeRepository>();
         services.AddScoped<IDeadlineThresholdsRepository, DeadlineThresholdsRepository>();
         services.AddScoped<IMileageReadingRepository, MileageReadingRepository>();

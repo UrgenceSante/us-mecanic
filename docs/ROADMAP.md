@@ -61,7 +61,7 @@ Spec : `docs/specs/phase-3-carnet-entretien.md`.
 
 Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, référentiels).
 
-- [ ] Signalements de problème rattachés au véhicule
+- [x] Signalements de problème rattachés au véhicule
 - [ ] Analyse : nature, élément concerné, immobilisation (lien avec le statut du véhicule)
 - [ ] Actions de résolution : acteur, type, contrainte, échéance, clôture
 - [ ] Référentiels (natures, acteurs, actions, contraintes) administrables
