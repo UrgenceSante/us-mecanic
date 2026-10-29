@@ -4,6 +4,7 @@ using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
+using UsMecanic.Application.Problems;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
@@ -42,6 +43,9 @@ public static class DependencyInjection
         services.AddScoped<ListInterventions>();
         services.AddScoped<AddIntervention>();
         services.AddScoped<DeleteIntervention>();
+
+        services.AddScoped<ReportProblem>();
+        services.AddScoped<ListVehicleProblems>();
 
         services.AddScoped<ListDeadlineTypes>();
         services.AddScoped<CreateDeadlineType>();

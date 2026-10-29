@@ -49,6 +49,7 @@ app.MapVehicleEndpoints();
 app.MapVehicleTypeEndpoints();
 app.MapGarageEndpoints();
 app.MapInterventionEndpoints();
+app.MapProblemEndpoints();
 app.MapDeadlineTypeEndpoints();
 app.MapDeadlineThresholdsEndpoints();
 app.MapMileageReadingEndpoints();
