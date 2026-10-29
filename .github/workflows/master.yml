@@ -1,0 +1,25 @@
+name: Master
+
+# Chaque push sur master (merge de PR) valide le code puis publie les images "dev".
+# Indépendant de release.yml (release-please -> images X.Y.Z / X.Y / latest) : groupes de
+# concurrence distincts, tags distincts, aucune interférence.
+on:
+  push:
+    branches: [master]
+
+# Une publication dev obsolète est annulée au profit du dernier merge.
+concurrency:
+  group: master-dev
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: ci
+    uses: ./.github/workflows/docker-publish.yml
+    secrets: inherit

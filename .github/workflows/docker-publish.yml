@@ -2,7 +2,7 @@ name: Docker publish
 
 # Workflow réutilisable : construit et pousse les images web et api sur Docker Hub.
 #  - version renseignée (release) : tags X.Y.Z, X.Y et latest
-#  - version vide (branche dev)   : tags dev et dev-<sha>
+#  - version vide (merge sur master) : tags dev, latest-dev et dev-<sha>
 on:
   workflow_call:
     inputs:
@@ -54,6 +54,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},value=v${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=raw,value=latest,enable=${{ inputs.version != '' }}
             type=raw,value=dev,enable=${{ inputs.version == '' }}
+            type=raw,value=latest-dev,enable=${{ inputs.version == '' }}
             type=sha,prefix=dev-,enable=${{ inputs.version == '' }}
 
       - uses: docker/build-push-action@v6
