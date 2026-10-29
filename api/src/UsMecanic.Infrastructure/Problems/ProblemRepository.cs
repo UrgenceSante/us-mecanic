@@ -15,6 +15,9 @@ internal sealed class ProblemRepository(UsMecanicDbContext db) : IProblemReposit
             .ThenByDescending(p => p.RecordedAt)
             .ToListAsync(cancellationToken);
 
+    public Task<Problem?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+        db.Problems.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
     public void Add(Problem problem) => db.Problems.Add(problem);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);

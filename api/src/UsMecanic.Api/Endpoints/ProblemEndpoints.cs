@@ -21,6 +21,16 @@ internal static class ProblemEndpoints
             .WithTags("Problèmes")
             .WithSummary("Problèmes d'un véhicule, du plus récent au plus ancien");
 
+        app.MapGet("/api/problems/{problemId:guid}", async (Guid problemId, GetProblem useCase, CancellationToken ct) =>
+                (await useCase.ExecuteAsync(problemId, ct)).ToOk())
+            .WithTags("Problèmes")
+            .WithSummary("Détail d'un problème, avec son analyse s'il est analysé");
+
+        app.MapPut("/api/problems/{problemId:guid}/analysis", async (Guid problemId, AnalyzeProblemInput input, AnalyzeProblem useCase, CancellationToken ct) =>
+                (await useCase.ExecuteAsync(problemId, input, ct)).ToOk())
+            .WithTags("Problèmes")
+            .WithSummary("Analyse un problème signalé (nature, élément, texte, immobilisation) : il passe à « Analysé »");
+
         return app;
     }
 }

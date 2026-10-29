@@ -19,6 +19,16 @@ internal sealed class ProblemConfiguration : IEntityTypeConfiguration<Problem>
         builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);
         builder.Property(p => p.RecordedAt);
 
+        // Analyse (1-1) : colonnes nullables, renseignées au passage à « Analysé ».
+        builder.Property(p => p.AnalysisText).HasMaxLength(Problem.MaxAnalysisLength);
+        builder.Property(p => p.Immobilized);
+        builder.Property(p => p.AnalyzedAt);
+        builder.Ignore(p => p.Analysis);
+
+        // Les valeurs de référentiel ne sont jamais supprimées (seulement désactivées).
+        builder.HasOne<ProblemNature>().WithMany().HasForeignKey(p => p.NatureId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<ProblemElement>().WithMany().HasForeignKey(p => p.ElementId).OnDelete(DeleteBehavior.Restrict);
+
         // Les problèmes sont toujours lus par véhicule, triés par date.
         builder.HasIndex(p => new { p.VehicleId, p.Date });
 
