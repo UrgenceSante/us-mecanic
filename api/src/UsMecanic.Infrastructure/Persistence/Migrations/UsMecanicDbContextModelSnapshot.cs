@@ -271,6 +271,15 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("AnalysisText")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("analysis_text");
+
+                    b.Property<DateTimeOffset?>("AnalyzedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("analyzed_at");
+
                     b.Property<string>("Author")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -286,6 +295,18 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("description");
+
+                    b.Property<Guid?>("ElementId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("element_id");
+
+                    b.Property<bool?>("Immobilized")
+                        .HasColumnType("boolean")
+                        .HasColumnName("immobilized");
+
+                    b.Property<Guid?>("NatureId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("nature_id");
 
                     b.Property<DateTimeOffset>("RecordedAt")
                         .HasColumnType("timestamp with time zone")
@@ -303,6 +324,12 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_problems");
+
+                    b.HasIndex("ElementId")
+                        .HasDatabaseName("ix_problems_element_id");
+
+                    b.HasIndex("NatureId")
+                        .HasDatabaseName("ix_problems_nature_id");
 
                     b.HasIndex("VehicleId", "Date")
                         .HasDatabaseName("ix_problems_vehicle_id_date");
@@ -595,6 +622,18 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UsMecanic.Domain.Problems.Problem", b =>
                 {
+                    b.HasOne("UsMecanic.Domain.Problems.ProblemElement", null)
+                        .WithMany()
+                        .HasForeignKey("ElementId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_problems_problem_elements_element_id");
+
+                    b.HasOne("UsMecanic.Domain.Problems.ProblemNature", null)
+                        .WithMany()
+                        .HasForeignKey("NatureId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_problems_problem_natures_nature_id");
+
                     b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
                         .WithMany()
                         .HasForeignKey("VehicleId")

@@ -20,6 +20,27 @@ public static class ProblemErrors
     public static readonly DomainError AuthorTooLong =
         new("problem.author_too_long", $"L'auteur est limité à {Problem.MaxAuthorLength} caractères.");
 
+    public static readonly DomainError NotFound =
+        DomainError.NotFound("problem.not_found", "Problème introuvable.");
+
+    public static readonly DomainError AlreadyAnalyzed =
+        DomainError.Conflict("problem.already_analyzed", "Ce problème est déjà analysé.");
+
+    public static readonly DomainError AlreadyResolved =
+        DomainError.Conflict("problem.already_resolved", "Ce problème est résolu : il ne peut plus être analysé.");
+
+    public static readonly DomainError AnalysisRequired =
+        new("problem.analysis_required", "Le texte de l'analyse est obligatoire.");
+
+    public static readonly DomainError AnalysisTooLong =
+        new("problem.analysis_too_long", $"Le texte de l'analyse est limité à {Problem.MaxAnalysisLength} caractères.");
+
+    public static readonly DomainError NatureUnknown =
+        new("problem.nature_unknown", "La nature choisie n'existe pas.");
+
+    public static readonly DomainError ElementUnknown =
+        new("problem.element_unknown", "L'élément concerné choisi n'existe pas.");
+
     public static readonly DomainError DateInFuture =
         new("problem.date_in_future", "La date du signalement ne peut pas être dans le futur.");
 }

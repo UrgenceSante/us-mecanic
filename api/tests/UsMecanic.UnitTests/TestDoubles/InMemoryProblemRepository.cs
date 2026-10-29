@@ -16,6 +16,9 @@ internal sealed class InMemoryProblemRepository : IProblemRepository
         Task.FromResult<IReadOnlyList<Problem>>(
             [.. Saved.Where(p => p.VehicleId == vehicleId).OrderByDescending(p => p.Date).ThenByDescending(p => p.RecordedAt)]);
 
+    public Task<Problem?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+        Task.FromResult(Saved.Find(p => p.Id == id));
+
     public void Add(Problem problem) => _pending.Add(problem);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken)

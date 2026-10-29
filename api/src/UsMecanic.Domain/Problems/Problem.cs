@@ -12,6 +12,8 @@ public sealed class Problem
 
     public const int MaxAuthorLength = 200;
 
+    public const int MaxAnalysisLength = 4000;
+
     // Les paramètres portent le nom des propriétés : c'est ce qui permet à EF Core de rematérialiser l'entité.
     private Problem(Guid id, Guid vehicleId, DateOnly date, string description, string author, ProblemStatus status, DateTimeOffset recordedAt)
     {
@@ -36,7 +38,25 @@ public sealed class Problem
     /// <summary>Auteur du signalement : donnée personnelle, jamais écrite dans les logs.</summary>
     public string Author { get; }
 
-    public ProblemStatus Status { get; }
+    public ProblemStatus Status { get; private set; }
+
+    // Analyse à plat sur la table des problèmes (1-1, colonnes nullables tant que non analysé) : les actions de
+    // résolution (0..n) se rattacheront au problème. Ces propriétés sont persistées ; la lecture passe par Analysis.
+    public Guid? NatureId { get; private set; }
+
+    public Guid? ElementId { get; private set; }
+
+    public string? AnalysisText { get; private set; }
+
+    public bool? Immobilized { get; private set; }
+
+    public DateTimeOffset? AnalyzedAt { get; private set; }
+
+    /// <summary>Analyse du problème, ou <c>null</c> s'il est encore au statut « Signalé ».</summary>
+    public ProblemAnalysis? Analysis =>
+        NatureId is { } natureId && ElementId is { } elementId && AnalysisText is { } text && AnalyzedAt is { } analyzedAt
+            ? new ProblemAnalysis(natureId, elementId, text, Immobilized == true, analyzedAt)
+            : null;
 
     /// <summary>Date de saisie du signalement.</summary>
     public DateTimeOffset RecordedAt { get; }
@@ -76,5 +96,42 @@ public sealed class Problem
 
         var problem = new Problem(Guid.CreateVersion7(now), vehicleId, date, cleanedDescription, cleanedAuthor, ProblemStatus.Reported, now);
         return Result<Problem>.Success(problem);
+    }
+
+    /// <summary>
+    /// Analyse le problème : « Signalé » devient « Analysé ». Un problème déjà analysé ou résolu est refusé (la
+    /// modification d'une analyse n'est pas encore spécifiée). Référentiels, statut du véhicule et immobilisation
+    /// sont gérés par le cas d'usage.
+    /// </summary>
+    public Result<Problem> Analyze(Guid natureId, Guid elementId, string? text, bool immobilized, DateTimeOffset now)
+    {
+        if (Status == ProblemStatus.Resolved)
+        {
+            return Result<Problem>.Failure(ProblemErrors.AlreadyResolved);
+        }
+
+        if (Status == ProblemStatus.Analyzed)
+        {
+            return Result<Problem>.Failure(ProblemErrors.AlreadyAnalyzed);
+        }
+
+        var cleaned = text?.Trim();
+        if (string.IsNullOrEmpty(cleaned))
+        {
+            return Result<Problem>.Failure(ProblemErrors.AnalysisRequired);
+        }
+
+        if (cleaned.Length > MaxAnalysisLength)
+        {
+            return Result<Problem>.Failure(ProblemErrors.AnalysisTooLong);
+        }
+
+        NatureId = natureId;
+        ElementId = elementId;
+        AnalysisText = cleaned;
+        Immobilized = immobilized;
+        AnalyzedAt = now;
+        Status = ProblemStatus.Analyzed;
+        return Result<Problem>.Success(this);
     }
 }
