@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dashboardKeys } from "../../dashboard/api/dashboardQueries";
+import { mileageErrorCode } from "../../mileage/api/mileageErrors";
 import { mileageKeys } from "../../mileage/api/mileageQueries";
 import { vehicleDeadlineKeys } from "../../vehicle-deadlines/api/vehicleDeadlineKeys";
 import { vehicleKeys } from "../../vehicles/api/vehicleQueries";
@@ -43,5 +44,10 @@ export function useDeleteIntervention(vehicleId: string) {
         queryClient.invalidateQueries({ queryKey: vehicleKeys.all }),
         queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
       ]),
+    // Déjà supprimée ailleurs : le carnet affiché est périmé, on le rafraîchit sans changer l'erreur exposée.
+    onError: (error) =>
+      mileageErrorCode(error) === "intervention.not_found"
+        ? queryClient.invalidateQueries({ queryKey: interventionKeys.list(vehicleId) })
+        : undefined,
   });
 }
