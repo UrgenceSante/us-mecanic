@@ -1,15 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dashboardKeys } from "../../dashboard/api/dashboardQueries";
-import { interventionKeys } from "../../maintenance/api/interventionQueries";
+import { interventionKeys } from "../../maintenance/api/interventionKeys";
 import { mileageKeys } from "../../mileage/api/mileageQueries";
 import { vehicleKeys } from "../../vehicles/api/vehicleQueries";
 import type { DeadlineCompletionInput, VehicleDeadlineInput } from "../types/vehicleDeadline";
+import { vehicleDeadlineKeys } from "./vehicleDeadlineKeys";
 import { addVehicleDeadline, completeVehicleDeadline, listVehicleDeadlines } from "./vehicleDeadlinesApi";
-
-export const vehicleDeadlineKeys = {
-  all: ["vehicle-deadlines"] as const,
-  list: (vehicleId: string) => ["vehicle-deadlines", "list", vehicleId] as const,
-};
 
 export function useVehicleDeadlines(vehicleId: string) {
   return useQuery({

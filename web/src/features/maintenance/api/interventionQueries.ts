@@ -1,15 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dashboardKeys } from "../../dashboard/api/dashboardQueries";
 import { mileageKeys } from "../../mileage/api/mileageQueries";
-import { vehicleDeadlineKeys } from "../../vehicle-deadlines/api/vehicleDeadlineQueries";
+import { vehicleDeadlineKeys } from "../../vehicle-deadlines/api/vehicleDeadlineKeys";
 import { vehicleKeys } from "../../vehicles/api/vehicleQueries";
 import type { InterventionInput } from "../types/intervention";
+import { interventionKeys } from "./interventionKeys";
 import { addIntervention, deleteIntervention, listInterventions } from "./interventionsApi";
-
-export const interventionKeys = {
-  all: ["interventions"] as const,
-  list: (vehicleId: string) => ["interventions", "list", vehicleId] as const,
-};
 
 export function useInterventions(vehicleId: string) {
   return useQuery({
