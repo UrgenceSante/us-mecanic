@@ -24,7 +24,8 @@ En tant que chauffeur, je veux signaler un problème sur un véhicule depuis mon
 soit pris en charge.
 - [ ] Route d'API de signalement : véhicule, date, description, auteur du signalement. Le contrat sera
       affiné à l'usage.
-- [ ] L'auteur du signalement est obligatoire (identification à préciser, voir questions ouvertes).
+- [ ] L'auteur du signalement est obligatoire : identifiant texte (nom ou matricule) envoyé par l'app
+      chauffeur ; il viendra du jeton Keycloak en phase 9.
 - [ ] Route authentifiée par défaut ; toutes les applications partagent le même Keycloak (rôles en phase 9).
 - [ ] Le problème créé a le statut « Signalé ».
 
@@ -36,8 +37,10 @@ soit pris en charge.
 **US3 — Actions de résolution**
 - [ ] Une analyse porte 0..n actions : acteur, type, contrainte, échéance, commentaire, clôture.
 - [ ] Une action peut être reliée à une intervention du carnet d'entretien du même véhicule.
-- [ ] Quand toutes les actions sont closes, le problème passe automatiquement à « Résolu » ; si le
-      véhicule avait été immobilisé par ce problème, il revient en service.
+- [ ] Quand toutes les actions sont closes, le problème passe automatiquement à « Résolu ».
+- [ ] Le véhicule revient en service quand plus aucun problème immobilisant n'est ouvert.
+- [ ] Un problème résolu peut être rouvert (par exemple en ajoutant une action) : il repasse à « Analysé »
+      et, s'il est immobilisant, le véhicule repasse immobilisé.
 
 **US4 — Référentiels administrables**
 - [ ] Natures, éléments concernés, acteurs, types d'action, contraintes : créer, renommer, désactiver.
@@ -46,6 +49,9 @@ soit pris en charge.
 **US5 — Écrans**
 - [ ] Les vues « Problèmes » (tableau de bord et fiche véhicule) lisent la nouvelle API ; migration des
       écrans `MecanicLog` / `Analyse` vers `features/issues`.
+- [ ] Tableau de bord : problèmes non résolus triés du plus au moins bloquant (immobilisants, puis
+      signalés non analysés, puis actions en retard, puis les autres ; à égalité, le plus ancien d'abord).
+- [ ] Filtres : statut, véhicule, nature.
 
 ### Should
 
@@ -55,7 +61,8 @@ soit pris en charge.
 ## Règles métier
 
 - Statuts : Signalé → Analysé → Résolu (résolution automatique). Susceptible d'évoluer.
-- L'identité de l'auteur d'un signalement est une donnée personnelle : jamais dans les logs.
+- L'identité de l'auteur d'un signalement est une donnée personnelle : jamais dans les logs. Conservée
+  sans limite pour la traçabilité ; une durée de conservation pourra être fixée en phase 9 (RGPD).
 - Les champs « Rappel » et « CallBack » de l'ancienne action ne sont pas repris.
 
 ## Hors périmètre
@@ -64,13 +71,11 @@ soit pris en charge.
 
 ## Impact sur le modèle de données
 
-- **Problème** : véhicule, date, description, statut.
+- **Problème** : véhicule, date, description, auteur du signalement, statut.
 - **Analyse** : nature, élément, texte, immobilisation.
-- **Problème** porte aussi l'auteur du signalement.
 - **Action** : acteur, type, contrainte, échéance, commentaire, close, intervention liée facultative.
 - **Référentiels** : nature, élément concerné, acteur, type d'action, contrainte.
 
 ## Questions ouvertes
 
-- Identification de l'auteur du signalement (champ envoyé par l'app chauffeur ou identité Keycloak).
 - Authentification et rôles de l'application chauffeur : phase 9.
