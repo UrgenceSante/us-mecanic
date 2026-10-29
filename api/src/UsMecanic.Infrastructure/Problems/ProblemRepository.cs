@@ -10,14 +10,19 @@ internal sealed class ProblemRepository(UsMecanicDbContext db) : IProblemReposit
     public async Task<IReadOnlyList<Problem>> ListByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken) =>
         await db.Problems
             .AsNoTracking()
-            .Include(p => p.Actions)
+            .Include(p => p.Actions.OrderBy(a => a.RecordedAt).ThenBy(a => a.Id))
             .Where(p => p.VehicleId == vehicleId)
             .OrderByDescending(p => p.Date)
             .ThenByDescending(p => p.RecordedAt)
             .ToListAsync(cancellationToken);
 
     public Task<Problem?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
-        db.Problems.Include(p => p.Actions).FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        db.Problems.Include(p => p.Actions.OrderBy(a => a.RecordedAt).ThenBy(a => a.Id)).FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+    public Task<bool> HasOpenImmobilizingAsync(Guid vehicleId, Guid exceptProblemId, CancellationToken cancellationToken) =>
+        db.Problems.AnyAsync(
+            p => p.VehicleId == vehicleId && p.Id != exceptProblemId && p.Immobilized == true && p.Status != ProblemStatus.Resolved,
+            cancellationToken);
 
     public void Add(Problem problem) => db.Problems.Add(problem);
 

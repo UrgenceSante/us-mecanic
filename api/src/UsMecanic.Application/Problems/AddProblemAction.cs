@@ -8,7 +8,8 @@ namespace UsMecanic.Application.Problems;
 /// <summary>
 /// Ajoute une action de résolution à un problème analysé. Acteur, type et contrainte doivent exister et être actifs,
 /// l'intervention éventuelle doit appartenir au même véhicule. Un problème non analysé ou un véhicule sorti du parc
-/// sont refusés. Les changements de statut du problème et du véhicule ne sont pas gérés ici.
+/// sont refusés. Sur un problème « Résolu », l'ajout le rouvre (« Analysé ») et, s'il est immobilisant, remet le
+/// véhicule « immobilisé », dans la même sauvegarde.
 /// </summary>
 public sealed class AddProblemAction(
     IProblemRepository problems,
@@ -17,6 +18,7 @@ public sealed class AddProblemAction(
     IProblemReferenceRepository<ProblemActionType> types,
     IProblemReferenceRepository<ProblemConstraint> constraints,
     ProblemActionInterventionCheck interventionCheck,
+    ProblemVehicleStatusSync vehicleStatus,
     TimeProvider clock)
 {
     public async Task<Result<ProblemActionDto>> ExecuteAsync(Guid problemId, AddProblemActionInput input, CancellationToken cancellationToken)
@@ -62,10 +64,18 @@ public sealed class AddProblemAction(
             return Result<ProblemActionDto>.Failure(interventionError);
         }
 
-        var added = problem.AddAction(input.ActorId, input.TypeId, input.ConstraintId, input.DueDate, input.Comment, input.InterventionId, clock.GetUtcNow());
+        var now = clock.GetUtcNow();
+        var previous = problem.Status;
+        var added = problem.AddAction(input.ActorId, input.TypeId, input.ConstraintId, input.DueDate, input.Comment, input.InterventionId, now);
         if (added.IsFailure)
         {
             return Result<ProblemActionDto>.Failure(added.Error!);
+        }
+
+        var statusError = await vehicleStatus.ApplyAsync(problem, previous, now, cancellationToken);
+        if (statusError is not null)
+        {
+            return Result<ProblemActionDto>.Failure(statusError);
         }
 
         await problems.SaveChangesAsync(cancellationToken);

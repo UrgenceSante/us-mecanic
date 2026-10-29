@@ -261,6 +261,7 @@ public class ProblemActionEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, foreign.StatusCode);
         Assert.Equal("problem_action.intervention_invalid", await ErrorCodeAsync(foreign));
         Assert.Equal(HttpStatusCode.BadRequest, unknown.StatusCode);
+        Assert.Equal("problem_action.intervention_invalid", await ErrorCodeAsync(unknown));
         Assert.Single((await GetProblemAsync(problemId)).Actions);
     }
 
@@ -325,7 +326,7 @@ public class ProblemActionEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal("problem_action.already_closed", await ErrorCodeAsync(again));
         Assert.Equal(HttpStatusCode.Conflict, update.StatusCode);
         Assert.Equal("problem_action.already_closed", await ErrorCodeAsync(update));
-        Assert.Equal("Analyzed", (await GetProblemAsync(problemId)).Status);
+        Assert.Equal("Resolved", (await GetProblemAsync(problemId)).Status);
     }
 
     [Fact]

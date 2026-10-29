@@ -11,6 +11,11 @@ public interface IProblemRepository
     /// <summary>Problème suivi par le contexte de persistance (modifiable), ou <c>null</c> s'il n'existe pas.</summary>
     Task<Problem?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Indique si le véhicule a un autre problème immobilisant non résolu que <paramref name="exceptProblemId"/>.
+    /// </summary>
+    Task<bool> HasOpenImmobilizingAsync(Guid vehicleId, Guid exceptProblemId, CancellationToken cancellationToken);
+
     void Add(Problem problem);
 
     Task SaveChangesAsync(CancellationToken cancellationToken);

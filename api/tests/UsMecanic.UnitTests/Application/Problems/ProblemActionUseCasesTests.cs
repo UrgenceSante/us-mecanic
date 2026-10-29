@@ -36,14 +36,16 @@ public class ProblemActionUseCasesTests
 
     private ProblemActionInterventionCheck Check => new(_interventions);
 
-    private AddProblemAction AddUseCase => new(_problems, Guard, _actors, _types, _constraints, Check, _clock);
+    private ProblemVehicleStatusSync Sync => new(_problems, _vehicles);
 
-    private Problem NewProblem(Vehicle vehicle, bool analyzed)
+    private AddProblemAction AddUseCase => new(_problems, Guard, _actors, _types, _constraints, Check, Sync, _clock);
+
+    private Problem NewProblem(Vehicle vehicle, bool analyzed, bool immobilized = false)
     {
         var problem = Problem.Create(vehicle.Id, FixedClock.DefaultToday, "Voyant moteur", "D. Martin", FixedClock.DefaultToday, _clock.Now).Value;
         if (analyzed)
         {
-            problem.Analyze(Guid.NewGuid(), Guid.NewGuid(), "Injecteur HS", false, _clock.Now);
+            problem.Analyze(Guid.NewGuid(), Guid.NewGuid(), "Injecteur HS", immobilized, _clock.Now);
         }
 
         _problems.Saved.Add(problem);
@@ -125,7 +127,7 @@ public class ProblemActionUseCasesTests
         var add = await AddAsync();
         var update = await new UpdateProblemAction(_problems, Guard, Check)
             .ExecuteAsync(_problem.Id, action.Id, new UpdateProblemActionInput(null, "x", null), CancellationToken.None);
-        var close = await new CloseProblemAction(_problems, Guard, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
+        var close = await new CloseProblemAction(_problems, Guard, Sync, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
 
         Assert.Equal(VehicleErrors.Retired, add.Error);
         Assert.Equal(VehicleErrors.Retired, update.Error);
@@ -204,7 +206,7 @@ public class ProblemActionUseCasesTests
         var otherVehicle = await update.ExecuteAsync(_problem.Id, action.Id, new UpdateProblemActionInput(null, "Après", foreign.Id), CancellationToken.None);
         var unknown = await update.ExecuteAsync(_problem.Id, Guid.NewGuid(), new UpdateProblemActionInput(null, "Après", null), CancellationToken.None);
         var noProblem = await update.ExecuteAsync(Guid.NewGuid(), action.Id, new UpdateProblemActionInput(null, "Après", null), CancellationToken.None);
-        await new CloseProblemAction(_problems, Guard, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
+        await new CloseProblemAction(_problems, Guard, Sync, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
         var closed = await update.ExecuteAsync(_problem.Id, action.Id, new UpdateProblemActionInput(null, "Après", null), CancellationToken.None);
 
         Assert.Equal(ProblemErrors.ActionInterventionInvalid, otherVehicle.Error);
@@ -215,12 +217,13 @@ public class ProblemActionUseCasesTests
     }
 
     [Fact]
-    public async Task Cloturer_une_action_renseigne_la_date_de_cloture_sans_changer_le_statut_du_probleme()
+    public async Task Cloturer_une_action_renseigne_la_date_de_cloture_et_laisse_le_probleme_analyse_s_il_reste_une_action_ouverte()
     {
         var action = (await AddAsync()).Value;
+        await AddAsync();
         _clock.Now = _clock.Now.AddDays(3);
 
-        var result = await new CloseProblemAction(_problems, Guard, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
+        var result = await new CloseProblemAction(_problems, Guard, Sync, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.True(result.Value.IsClosed);
@@ -230,10 +233,115 @@ public class ProblemActionUseCasesTests
     }
 
     [Fact]
+    public async Task Cloturer_la_derniere_action_resout_le_probleme_non_immobilisant_sans_toucher_le_vehicule()
+    {
+        var action = (await AddAsync()).Value;
+        _vehicle.ChangeStatus(VehicleStatus.Immobilized, _clock.Now);
+
+        await new CloseProblemAction(_problems, Guard, Sync, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
+
+        Assert.Equal(ProblemStatus.Resolved, _problem.Status);
+        Assert.Equal(VehicleStatus.Immobilized, _vehicle.Status);
+    }
+
+    [Fact]
+    public async Task Modifier_une_action_cloturee_repond_deja_cloturee_avant_de_controler_l_intervention()
+    {
+        var action = (await AddAsync()).Value;
+        await new CloseProblemAction(_problems, Guard, Sync, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
+
+        var result = await new UpdateProblemAction(_problems, Guard, Check)
+            .ExecuteAsync(_problem.Id, action.Id, new UpdateProblemActionInput(null, "x", Guid.NewGuid()), CancellationToken.None);
+
+        Assert.Equal(ProblemErrors.ActionAlreadyClosed, result.Error);
+    }
+
+    [Fact]
+    public async Task Resoudre_le_dernier_probleme_immobilisant_remet_le_vehicule_en_service_en_une_sauvegarde()
+    {
+        var problem = NewProblem(_vehicle, analyzed: true, immobilized: true);
+        _vehicle.ChangeStatus(VehicleStatus.Immobilized, _clock.Now);
+        var action = (await AddAsync(problemId: problem.Id)).Value;
+        var saves = _problems.SaveCount;
+
+        var result = await new CloseProblemAction(_problems, Guard, Sync, _clock).ExecuteAsync(problem.Id, action.Id, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(ProblemStatus.Resolved, problem.Status);
+        Assert.Equal(VehicleStatus.Active, _vehicle.Status);
+        Assert.Equal(saves + 1, _problems.SaveCount);
+    }
+
+    [Fact]
+    public async Task Le_vehicule_reste_immobilise_tant_qu_un_autre_probleme_immobilisant_est_ouvert()
+    {
+        var first = NewProblem(_vehicle, analyzed: true, immobilized: true);
+        var second = NewProblem(_vehicle, analyzed: true, immobilized: true);
+        _vehicle.ChangeStatus(VehicleStatus.Immobilized, _clock.Now);
+        var firstAction = (await AddAsync(problemId: first.Id)).Value;
+        var secondAction = (await AddAsync(problemId: second.Id)).Value;
+        var close = new CloseProblemAction(_problems, Guard, Sync, _clock);
+
+        await close.ExecuteAsync(first.Id, firstAction.Id, CancellationToken.None);
+        Assert.Equal(ProblemStatus.Resolved, first.Status);
+        Assert.Equal(VehicleStatus.Immobilized, _vehicle.Status);
+
+        await close.ExecuteAsync(second.Id, secondAction.Id, CancellationToken.None);
+        Assert.Equal(VehicleStatus.Active, _vehicle.Status);
+    }
+
+    [Fact]
+    public async Task Ajouter_une_action_a_un_probleme_immobilisant_resolu_le_rouvre_et_immobilise_le_vehicule()
+    {
+        var problem = NewProblem(_vehicle, analyzed: true, immobilized: true);
+        _vehicle.ChangeStatus(VehicleStatus.Immobilized, _clock.Now);
+        var action = (await AddAsync(problemId: problem.Id)).Value;
+        await new CloseProblemAction(_problems, Guard, Sync, _clock).ExecuteAsync(problem.Id, action.Id, CancellationToken.None);
+        Assert.Equal(VehicleStatus.Active, _vehicle.Status);
+
+        var result = await AddAsync(problemId: problem.Id);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(ProblemStatus.Analyzed, problem.Status);
+        Assert.Equal(VehicleStatus.Immobilized, _vehicle.Status);
+    }
+
+    [Fact]
+    public async Task Rouvrir_un_probleme_non_immobilisant_ne_change_pas_le_vehicule()
+    {
+        var action = (await AddAsync()).Value;
+        await new CloseProblemAction(_problems, Guard, Sync, _clock).ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
+        Assert.Equal(ProblemStatus.Resolved, _problem.Status);
+
+        await AddAsync();
+
+        Assert.Equal(ProblemStatus.Analyzed, _problem.Status);
+        Assert.Equal(VehicleStatus.Active, _vehicle.Status);
+    }
+
+    [Fact]
+    public async Task Un_vehicule_sorti_du_parc_n_est_jamais_modifie_par_la_synchronisation()
+    {
+        var problem = NewProblem(_vehicle, analyzed: true, immobilized: true);
+        var action = (await AddAsync(problemId: problem.Id)).Value;
+        problem.CloseAction(action.Id, _clock.Now);
+        _vehicle.ChangeStatus(VehicleStatus.Retired, _clock.Now);
+        var updatedAt = _vehicle.UpdatedAt;
+
+        var resolved = await Sync.ApplyAsync(problem, ProblemStatus.Analyzed, _clock.Now, CancellationToken.None);
+        var reopened = await Sync.ApplyAsync(problem, ProblemStatus.Resolved, _clock.Now, CancellationToken.None);
+
+        Assert.Null(resolved);
+        Assert.Null(reopened);
+        Assert.Equal(VehicleStatus.Retired, _vehicle.Status);
+        Assert.Equal(updatedAt, _vehicle.UpdatedAt);
+    }
+
+    [Fact]
     public async Task Cloturer_refuse_une_action_inconnue_ou_deja_cloturee()
     {
         var action = (await AddAsync()).Value;
-        var close = new CloseProblemAction(_problems, Guard, _clock);
+        var close = new CloseProblemAction(_problems, Guard, Sync, _clock);
         await close.ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);
 
         var again = await close.ExecuteAsync(_problem.Id, action.Id, CancellationToken.None);

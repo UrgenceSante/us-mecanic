@@ -5,10 +5,11 @@ using UsMecanic.Domain.Problems;
 namespace UsMecanic.Application.Problems;
 
 /// <summary>
-/// Clôture une action de résolution. Une action déjà clôturée ou un véhicule sorti du parc sont refusés. Le passage
-/// automatique du problème à « Résolu » et le retour en service du véhicule ne sont pas gérés ici.
+/// Clôture une action de résolution. Une action déjà clôturée ou un véhicule sorti du parc sont refusés. Clôturer la
+/// dernière action ouverte passe le problème à « Résolu » et peut remettre le véhicule en service, dans la même
+/// sauvegarde.
 /// </summary>
-public sealed class CloseProblemAction(IProblemRepository problems, MileageVehicleGuard guard, TimeProvider clock)
+public sealed class CloseProblemAction(IProblemRepository problems, MileageVehicleGuard guard, ProblemVehicleStatusSync vehicleStatus, TimeProvider clock)
 {
     public async Task<Result<ProblemActionDto>> ExecuteAsync(Guid problemId, Guid actionId, CancellationToken cancellationToken)
     {
@@ -24,10 +25,18 @@ public sealed class CloseProblemAction(IProblemRepository problems, MileageVehic
             return Result<ProblemActionDto>.Failure(guardError);
         }
 
-        var closed = problem.CloseAction(actionId, clock.GetUtcNow());
+        var now = clock.GetUtcNow();
+        var previous = problem.Status;
+        var closed = problem.CloseAction(actionId, now);
         if (closed.IsFailure)
         {
             return Result<ProblemActionDto>.Failure(closed.Error!);
+        }
+
+        var statusError = await vehicleStatus.ApplyAsync(problem, previous, now, cancellationToken);
+        if (statusError is not null)
+        {
+            return Result<ProblemActionDto>.Failure(statusError);
         }
 
         await problems.SaveChangesAsync(cancellationToken);
