@@ -16,6 +16,12 @@ internal sealed class InMemoryProblemRepository : IProblemRepository
         Task.FromResult<IReadOnlyList<Problem>>(
             [.. Saved.Where(p => p.VehicleId == vehicleId).OrderByDescending(p => p.Date).ThenByDescending(p => p.RecordedAt)]);
 
+    public Task<IReadOnlyList<Problem>> ListFleetAsync(FleetProblemFilter filter, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Problem>>(
+            [.. Saved.Where(p => (filter.Status is { } status ? p.Status == status : p.Status != ProblemStatus.Resolved)
+                && (filter.VehicleId is null || p.VehicleId == filter.VehicleId)
+                && (filter.NatureId is null || p.NatureId == filter.NatureId))]);
+
     public Task<Problem?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         Task.FromResult(Saved.Find(p => p.Id == id));
 

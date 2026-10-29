@@ -52,6 +52,7 @@ public static class DependencyInjection
 
         services.AddScoped<ReportProblem>();
         services.AddScoped<ListVehicleProblems>();
+        services.AddScoped<ListFleetProblems>();
         services.AddScoped<GetProblem>();
         services.AddScoped<AnalyzeProblem>();
         services.AddScoped<ProblemActionInterventionCheck>();
