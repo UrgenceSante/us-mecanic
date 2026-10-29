@@ -17,6 +17,7 @@ import GaragesPage from "./features/garages/pages/GaragesPage";
 import ProblemReferencesPage from "./features/problem-references/pages/ProblemReferencesPage";
 import VehicleTypesPage from "./features/vehicle-types/pages/VehicleTypesPage";
 import DeadlineTypesPage from "./features/deadline-types/pages/DeadlineTypesPage";
+import ProblemDetailPage from "./features/issues/pages/ProblemDetailPage";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
               <Route path="/deadline-types" element={<DeadlineTypesPage />} />
               <Route path="/vehicles/:vehicleId" element={<VehicleDetailPage />} />
               <Route path="/analyse/:logId" element={<AnalyseDetail />} />
+              <Route path="/problems/:problemId" element={<ProblemDetailPage />} />
               <Route
                 path="/notification-subscriptions"
                 element={<SubscriptionContainer />}

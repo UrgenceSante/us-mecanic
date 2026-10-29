@@ -1,5 +1,12 @@
 import { apiClient } from "../../../api/client";
-import type { FleetProblem, FleetProblemFilter, Problem } from "../types/problem";
+import type {
+  AddProblemActionInput,
+  AnalyzeProblemInput,
+  FleetProblem,
+  FleetProblemFilter,
+  Problem,
+  UpdateProblemActionInput,
+} from "../types/problem";
 
 export async function listFleetProblems(filter: FleetProblemFilter): Promise<FleetProblem[]> {
   const { data } = await apiClient.get<FleetProblem[]>("api/problems", {
@@ -19,5 +26,29 @@ export async function listVehicleProblems(vehicleId: string): Promise<Problem[]>
 
 export async function getProblem(id: string): Promise<Problem> {
   const { data } = await apiClient.get<Problem>(`api/problems/${id}`);
+  return data;
+}
+
+export async function analyzeProblem(id: string, input: AnalyzeProblemInput): Promise<Problem> {
+  const { data } = await apiClient.put<Problem>(`api/problems/${id}/analysis`, input);
+  return data;
+}
+
+export async function addProblemAction(id: string, input: AddProblemActionInput): Promise<Problem> {
+  const { data } = await apiClient.post<Problem>(`api/problems/${id}/actions`, input);
+  return data;
+}
+
+export async function updateProblemAction(
+  id: string,
+  actionId: string,
+  input: UpdateProblemActionInput,
+): Promise<Problem> {
+  const { data } = await apiClient.put<Problem>(`api/problems/${id}/actions/${actionId}`, input);
+  return data;
+}
+
+export async function closeProblemAction(id: string, actionId: string): Promise<Problem> {
+  const { data } = await apiClient.post<Problem>(`api/problems/${id}/actions/${actionId}/close`);
   return data;
 }

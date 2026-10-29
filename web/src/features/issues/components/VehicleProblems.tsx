@@ -1,4 +1,6 @@
-import { Alert, Paper, Stack, Typography } from "@mui/material";
+import { Alert, Link as MuiLink, Paper, Stack, Typography } from "@mui/material";
+import { Link } from "react-router";
+import LogoLoader from "../../../components/Utils/LogoLoader";
 import { useProblemReferences } from "../../problem-references/api/problemReferenceQueries";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import { useVehicleProblems } from "../api/problemQueries";
@@ -15,6 +17,7 @@ export default function VehicleProblems({ vehicleId }: { vehicleId: string }) {
       <Typography variant="h6" marginBottom={1}>
         Problèmes
       </Typography>
+      {problems.isLoading && <LogoLoader />}
       {problems.isError && <Alert severity="error">Impossible de charger les problèmes.</Alert>}
       {problems.data && problems.data.length === 0 && (
         <Typography color="text.secondary">Aucun problème enregistré pour ce véhicule.</Typography>
@@ -32,7 +35,9 @@ export default function VehicleProblems({ vehicleId }: { vehicleId: string }) {
               <Typography variant="body2" minWidth={80}>
                 {problemStatusLabels[p.status]}
               </Typography>
-              <Typography flexGrow={1}>{p.description}</Typography>
+              <MuiLink component={Link} to={`/problems/${p.id}`} flexGrow={1}>
+                {p.description}
+              </MuiLink>
               <Typography variant="body2" color="text.secondary">
                 {p.author}
               </Typography>

@@ -31,7 +31,11 @@ export default function FleetProblemTable({ problems }: { problems: FleetProblem
               </MuiLink>
             </TableCell>
             <TableCell>{formatDateOnly(problem.date)}</TableCell>
-            <TableCell>{problem.description}</TableCell>
+            <TableCell>
+              <MuiLink component={Link} to={`/problems/${problem.id}`}>
+                {problem.description}
+              </MuiLink>
+            </TableCell>
             <TableCell>{problemStatusLabels[problem.status]}</TableCell>
             <TableCell>{nature?.name ?? "-"}</TableCell>
           </TableRow>
