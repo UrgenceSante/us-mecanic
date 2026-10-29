@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VehicleProblems from "./VehicleProblems";
 
@@ -20,7 +21,9 @@ function renderView() {
   });
   render(
     <QueryClientProvider client={client}>
-      <VehicleProblems vehicleId="v1" />
+      <MemoryRouter>
+        <VehicleProblems vehicleId="v1" />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -33,6 +36,15 @@ describe("VehicleProblems", () => {
 
   it("affiche les problèmes du véhicule dans l'ordre de l'API avec l'analyse résumée", async () => {
     api.listVehicleProblems.mockResolvedValue([
+      {
+        ...base,
+        id: "p1",
+        date: "2026-01-02",
+        description: "Phare",
+        author: "Marie",
+        status: "Reported",
+        analysis: null,
+      },
       {
         ...base,
         id: "p2",
@@ -48,27 +60,26 @@ describe("VehicleProblems", () => {
           analyzedAt: "2026-03-05T08:00:00Z",
         },
       },
-      {
-        ...base,
-        id: "p1",
-        date: "2026-01-02",
-        description: "Phare",
-        author: "Marie",
-        status: "Reported",
-        analysis: null,
-      },
     ]);
     renderView();
 
     expect(await screen.findByText("Freins HS")).toBeInTheDocument();
     expect(api.listVehicleProblems).toHaveBeenCalledWith("v1");
     const items = screen.getAllByRole("listitem");
-    expect(items.map((i) => within(i).getByText(/Freins HS|Phare/).textContent)).toEqual(["Freins HS", "Phare"]);
-    expect(within(items[0]).getByText("04/03/2026")).toBeInTheDocument();
-    expect(within(items[0]).getByText("Analysé")).toBeInTheDocument();
-    expect(within(items[0]).getByText("Jean")).toBeInTheDocument();
-    expect(await within(items[0]).findByText("Mécanique · Immobilisant · Plaquettes")).toBeInTheDocument();
-    expect(within(items[1]).getByText("Signalé")).toBeInTheDocument();
+    // L'API renvoie ici une date ancienne avant une récente : l'ordre reçu est conservé, sans tri côté front.
+    expect(items.map((i) => within(i).getByText(/Freins HS|Phare/).textContent)).toEqual(["Phare", "Freins HS"]);
+    expect(within(items[1]).getByText("04/03/2026")).toBeInTheDocument();
+    expect(within(items[1]).getByText("Analysé")).toBeInTheDocument();
+    expect(within(items[1]).getByText("Jean")).toBeInTheDocument();
+    expect(await within(items[1]).findByText("Mécanique · Immobilisant · Plaquettes")).toBeInTheDocument();
+    expect(within(items[0]).getByText("Signalé")).toBeInTheDocument();
+    expect(within(items[1]).getByRole("link", { name: "Freins HS" })).toHaveAttribute("href", "/problems/p2");
+  });
+
+  it("affiche un indicateur de chargement", () => {
+    api.listVehicleProblems.mockReturnValue(new Promise(() => {}));
+    renderView();
+    expect(screen.getByAltText("logo qui tourne")).toBeInTheDocument();
   });
 
   it("affiche un message sans problème", async () => {

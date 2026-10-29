@@ -25,6 +25,12 @@ const problem = (id: string, description: string, status: string) => ({
 
 const rows = [
   {
+    problem: problem("p3", "Rayure", "Analyzed"),
+    vehicle: { id: "v1", licensePlate: "AB-123-CD" },
+    nature: { id: "n1", name: "Mécanique" },
+    blockingLevel: "Other",
+  },
+  {
     problem: problem("p1", "Freins HS", "Analyzed"),
     vehicle: { id: "v1", licensePlate: "AB-123-CD" },
     nature: { id: "n1", name: "Mécanique" },
@@ -35,12 +41,6 @@ const rows = [
     vehicle: { id: "v2", licensePlate: "EF-456-GH" },
     nature: null,
     blockingLevel: "Unanalyzed",
-  },
-  {
-    problem: problem("p3", "Rayure", "Analyzed"),
-    vehicle: { id: "v1", licensePlate: "AB-123-CD" },
-    nature: { id: "n1", name: "Mécanique" },
-    blockingLevel: "Other",
   },
 ];
 
@@ -84,7 +84,19 @@ describe("DashboardProblems", () => {
       .getAllByRole("row")
       .slice(1)
       .map((r) => within(r).getAllByRole("cell")[3].textContent);
-    expect(descriptions).toEqual(["Freins HS", "Rétroviseur cassé", "Rayure"]);
+    expect(descriptions).toEqual(["Rayure", "Freins HS", "Rétroviseur cassé"]);
+  });
+
+  it("lie chaque description au détail du problème", async () => {
+    renderView();
+    expect(await screen.findByRole("link", { name: "Freins HS" })).toHaveAttribute("href", "/problems/p1");
+    expect(screen.getByRole("link", { name: "Rayure" })).toHaveAttribute("href", "/problems/p3");
+  });
+
+  it("affiche un indicateur de chargement", () => {
+    api.listFleetProblems.mockReturnValue(new Promise(() => {}));
+    renderView();
+    expect(screen.getByAltText("logo qui tourne")).toBeInTheDocument();
   });
 
   it("transmet les filtres combinés à l'API", async () => {

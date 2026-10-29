@@ -54,3 +54,26 @@ export const emptyFleetProblemFilter: FleetProblemFilter = {
   vehicleId: "",
   natureId: "",
 };
+
+export interface AnalyzeProblemInput {
+  natureId: string;
+  elementId: string;
+  analysis: string;
+  immobilized: boolean;
+}
+
+export interface AddProblemActionInput {
+  actorId: string;
+  typeId: string;
+  constraintId: string;
+  dueDate: string | null;
+  comment: string | null;
+  interventionId: string | null;
+}
+
+/** La modification remplace toujours les trois champs. */
+export interface UpdateProblemActionInput {
+  dueDate: string | null;
+  comment: string | null;
+  interventionId: string | null;
+}

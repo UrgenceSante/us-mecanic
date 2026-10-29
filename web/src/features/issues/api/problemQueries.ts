@@ -4,6 +4,7 @@ import { getProblem, listFleetProblems, listVehicleProblems } from "./problemsAp
 
 export const problemKeys = {
   all: ["problems"] as const,
+  fleetAll: ["problems", "fleet"] as const,
   fleet: (f: FleetProblemFilter) =>
     ["problems", "fleet", { status: f.status, vehicleId: f.vehicleId, natureId: f.natureId }] as const,
   vehicle: (vehicleId: string) => ["problems", "vehicle", vehicleId] as const,
