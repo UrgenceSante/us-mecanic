@@ -2,7 +2,7 @@
 
 ## Principe
 
-Tu n'interviens qu'à 3 moments : valider la spec d'une phase, valider le découpage en tâches, et merger les PR sensibles (migration de données, sécurité, déploiement, choix métier). Les autres PR sont mergées automatiquement quand la CI est verte et que `reviewer` les approuve (règle dans `CLAUDE.md`). Entre les deux, `dev` -> `tester` -> `reviewer` tournent seuls sur une issue.
+Tu n'interviens qu'à 3 moments : valider la spec d'une phase, valider le découpage en tâches, et merger les PR sensibles (migration de données, sécurité, déploiement, choix métier). Les autres PR sont mergées automatiquement quand la CI est verte et que `reviewer` les approuve (règle dans `CLAUDE.md`). Entre les deux, `dev` -> `tester` -> `reviewer` (-> `ux` pour les écrans) tournent seuls sur une issue.
 
 L'avancement vient de GitHub : milestone = phase de `docs/ROADMAP.md`, issue = tâche d'une demi-journée, pourcentage = issues fermées. Rien n'est déclaratif.
 
@@ -39,10 +39,11 @@ Règles : aucun code applicatif à ce stade. Rien d'écrit sur GitHub avant mon 
 | Quand | Commande | Ce qui se passe |
 |---|---|---|
 | Début de journée | `/statut` | `pm` calcule l'avancement depuis GitHub et te dit quoi lancer |
-| Pour avancer | `/tache 12` | dev -> tester -> reviewer -> PR ; auto-merge si éligible, sinon attend ton merge |
+| Pour avancer | `/tache 12` | dev -> tester -> reviewer -> ux (si `web/`) -> PR ; auto-merge si éligible, sinon attend ton merge |
 | Tu relis la PR sensible | sur GitHub | tu merges ou tu commentes ; au merge l'issue passe à Done |
 | Nouvelle phase ou besoin | `/spec <sujet>` puis `/planifier` | spec mise à jour, puis nouvelles issues |
 | Fin de phase | « utilise l'agent docs pour mettre à jour README et doc d'exploitation » | documentation alignée sur le code |
+| Fin de phase | « utilise l'agent ux pour une passe globale sur les écrans de la phase » | liste priorisée de corrections UX, transformée en issues par `pm` |
 
 Au début, lance `/tache` sur une seule issue à la fois pour juger la qualité. Ensuite, tu peux paralléliser les issues indépendantes dans des sessions séparées, une branche chacune.
 

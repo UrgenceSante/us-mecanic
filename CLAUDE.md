@@ -23,11 +23,11 @@ Application de suivi du parc de véhicules (maintenance, problèmes, coûts, cer
 
 ## Équipe d'agents
 Le projet est piloté avec des agents spécialisés (`.claude/agents/`) et des commandes (`.claude/commands/`). Mode d'emploi : `docs/GUIDE-agents.md`.
-- `product` spécifie (`docs/specs/`, `docs/ROADMAP.md`, `docs/decisions/`), `pm` gère milestones, issues et avancement, `dev` implémente, `tester` teste, `reviewer` relit en lecture seule, `docs` documente.
+- `product` spécifie (`docs/specs/`, `docs/ROADMAP.md`, `docs/decisions/`), `pm` gère milestones, issues et avancement, `dev` implémente, `tester` teste, `reviewer` relit en lecture seule, `ux` vérifie l'ergonomie des écrans (PR qui touchent `web/`, et passe globale en fin de phase), `docs` documente.
 - Commandes : `/spec`, `/planifier`, `/tache <n>`, `/statut`.
 - Un milestone GitHub = une phase de `docs/ROADMAP.md`. Une issue = une demi-journée de travail = une branche `feat/<n>-slug` = une PR avec `Closes #<n>`.
 - Jamais de push direct sur `master`. `dev` coche la ligne de roadmap qu'il livre, dans sa PR.
-- Merge automatique par l'orchestrateur (jamais par `dev`, `tester` ou `reviewer`), via l'auto-merge GitHub, si : CI verte, verdict `reviewer` APPROUVÉ, critères de la PR cochés et aucune question métier en attente.
+- Merge automatique par l'orchestrateur (jamais par `dev`, `tester` ou `reviewer`), via l'auto-merge GitHub, si : CI verte, verdict `reviewer` APPROUVÉ (et `ux` APPROUVÉ pour une PR qui touche `web/`), critères de la PR cochés et aucune question métier en attente.
 - Accord explicite du propriétaire requis, sans auto-merge, pour une PR qui : modifie ou supprime des données par migration (une création de table reste automatique) ; touche à l'authentification ou à la sécurité ; touche au déploiement (Dockerfile, `deploy/`, `.github/workflows/`) ; ou porte un choix métier signalé en relecture.
 - Points de reprise (une coupure de session ne doit rien perdre) : chaque branche est poussée dès que `dev` a fini et sa PR ouverte aussitôt (en brouillon si besoin) ; aucun travail ne reste uniquement en local ; au plus 3 tâches en parallèle. L'état d'une tâche se lit sur GitHub (issue, branche, PR), pas dans la conversation. À la reprise (« reprends ») : lancer `/statut`, terminer les branches et PR en cours avant d'en lancer de nouvelles, et ne lancer aucune nouvelle tâche sans accord du propriétaire.
 - Un agent ne sort pas du périmètre de l'issue : toute découverte hors sujet est signalée, `pm` crée l'issue.
