@@ -26,7 +26,7 @@ public class ExpenseCategoryUseCasesTests
         var useCase = new CreateExpenseCategory(_expenseCategories);
 
         var empty = await useCase.ExecuteAsync("  ", CancellationToken.None);
-        var duplicate = await useCase.ExecuteAsync("expenseCategory MARTIN", CancellationToken.None);
+        var duplicate = await useCase.ExecuteAsync("NETTOYAGE", CancellationToken.None);
 
         Assert.Equal(ExpenseCategoryErrors.NameRequired, empty.Error);
         Assert.Equal(ExpenseCategoryErrors.NameAlreadyExists, duplicate.Error);
@@ -46,7 +46,7 @@ public class ExpenseCategoryUseCasesTests
     [Fact]
     public async Task Renomme_une_categorie_y_compris_pour_changer_la_casse()
     {
-        var expenseCategory = _expenseCategories.Seed("expenseCategory martin");
+        var expenseCategory = _expenseCategories.Seed("nettoyage");
 
         var result = await new RenameExpenseCategory(_expenseCategories).ExecuteAsync(expenseCategory.Id, "Nettoyage", CancellationToken.None);
 
@@ -61,8 +61,8 @@ public class ExpenseCategoryUseCasesTests
         var other = _expenseCategories.Seed("Équipement");
         var useCase = new RenameExpenseCategory(_expenseCategories);
 
-        var duplicate = await useCase.ExecuteAsync(other.Id, "expenseCategory martin", CancellationToken.None);
-        var unknown = await useCase.ExecuteAsync(Guid.NewGuid(), "ExpenseCategory Leroy", CancellationToken.None);
+        var duplicate = await useCase.ExecuteAsync(other.Id, "nettoyage", CancellationToken.None);
+        var unknown = await useCase.ExecuteAsync(Guid.NewGuid(), "Divers", CancellationToken.None);
         var empty = await useCase.ExecuteAsync(other.Id, " ", CancellationToken.None);
 
         Assert.Equal(ExpenseCategoryErrors.NameAlreadyExists, duplicate.Error);

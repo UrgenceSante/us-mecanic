@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using UsMecanic.Application.Dashboard;
 using UsMecanic.Application.Costs.ExpenseCategories;
+using UsMecanic.Application.Dashboard;
 using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Application.Maintenance.Interventions;

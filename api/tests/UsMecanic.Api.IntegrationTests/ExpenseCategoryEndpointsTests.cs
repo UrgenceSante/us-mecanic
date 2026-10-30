@@ -64,7 +64,7 @@ public class ExpenseCategoryEndpointsTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task Un_nom_vide_ou_en_double_renvoie_un_ProblemDetails()
     {
-        var name = NewName("ExpenseCategory Vidal");
+        var name = NewName("Catégorie");
         await CreateExpenseCategoryAsync(name);
 
         var empty = await _client.PostAsJsonAsync(ExpenseCategories, new { name = " " });
