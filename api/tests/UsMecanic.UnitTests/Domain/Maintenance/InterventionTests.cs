@@ -117,4 +117,11 @@ public class InterventionTests
 
         Assert.Equal(InterventionErrors.AmountTooPrecise, result.Error);
     }
+
+    [Fact]
+    public void Create_refuse_un_montant_au_dela_du_maximum_stockable()
+    {
+        Assert.True(Create(amount: Intervention.MaxAmount).IsSuccess);
+        Assert.Equal(InterventionErrors.AmountTooLarge, Create(amount: Intervention.MaxAmount + 0.01m).Error);
+    }
 }

@@ -13,6 +13,9 @@ public sealed class Intervention
     /// <summary>Nombre de décimales d'un montant (centimes).</summary>
     public const int AmountScale = 2;
 
+    /// <summary>Plus grand montant stockable en numeric(12,2).</summary>
+    public const decimal MaxAmount = 9_999_999_999.99m;
+
     private readonly List<InterventionDeadline> _deadlines = [];
 
     // Les paramètres portent le nom des propriétés : c'est ce qui permet à EF Core de rematérialiser l'entité.
@@ -84,6 +87,11 @@ public sealed class Intervention
         if (amount < 0)
         {
             return Result<Intervention>.Failure(InterventionErrors.AmountNegative);
+        }
+
+        if (amount > MaxAmount)
+        {
+            return Result<Intervention>.Failure(InterventionErrors.AmountTooLarge);
         }
 
         if (amount is { } value && decimal.Round(value, AmountScale) != value)
