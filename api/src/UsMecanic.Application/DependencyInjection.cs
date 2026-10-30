@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using UsMecanic.Application.Costs.ExpenseCategories;
 using UsMecanic.Application.Dashboard;
 using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Maintenance.Garages;
@@ -39,6 +40,10 @@ public static class DependencyInjection
         services.AddScoped<CreateGarage>();
         services.AddScoped<RenameGarage>();
         services.AddScoped<DeactivateGarage>();
+        services.AddScoped<ListExpenseCategories>();
+        services.AddScoped<CreateExpenseCategory>();
+        services.AddScoped<RenameExpenseCategory>();
+        services.AddScoped<DeactivateExpenseCategory>();
 
         services.AddScoped(typeof(ListProblemReferences<>));
         services.AddScoped(typeof(CreateProblemReference<>));
