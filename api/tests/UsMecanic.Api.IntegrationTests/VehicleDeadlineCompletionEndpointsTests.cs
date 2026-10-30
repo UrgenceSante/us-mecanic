@@ -36,7 +36,7 @@ public class VehicleDeadlineCompletionEndpointsTests : IClassFixture<ApiFactory>
     private sealed record LinkedDeadlineDto(Guid Id);
 
     private sealed record InterventionDto(
-        Guid Id, DateOnly Date, int? Kilometers, GarageDto? Garage, string Work, List<LinkedDeadlineDto> Deadlines);
+        Guid Id, DateOnly Date, int? Kilometers, GarageDto? Garage, string Work, decimal? Amount, List<LinkedDeadlineDto> Deadlines);
 
     /// <summary>Jour décalé par rapport à aujourd'hui (jamais 0, pour rester stable autour de minuit UTC).</summary>
     private static DateOnly Offset(int days) => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(days);
@@ -234,5 +234,22 @@ public class VehicleDeadlineCompletionEndpointsTests : IClassFixture<ApiFactory>
         var intervention = Assert.Single(interventions!);
         Assert.Equal(name, intervention.Work);
         Assert.Equal(garage.Id, intervention.Garage?.Id);
+    }
+
+    [Fact]
+    public async Task Le_montant_de_la_realisation_est_porte_par_l_intervention_creee_et_un_montant_negatif_est_refuse()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var typeId = await CreateTypeAsync();
+        var deadline = await AddDeadlineAsync(vehicleId, new { deadlineTypeId = typeId, dueDate = Offset(10) });
+
+        var negative = await _client.PostAsJsonAsync(CompletionsUri(vehicleId, deadline.Id), new { date = Offset(-1), amount = -10 });
+        var ok = await _client.PostAsJsonAsync(CompletionsUri(vehicleId, deadline.Id), new { date = Offset(-1), amount = 89.90m });
+
+        Assert.Equal(HttpStatusCode.BadRequest, negative.StatusCode);
+        Assert.Equal("intervention.amount_negative", await ErrorCodeAsync(negative));
+        Assert.Equal(HttpStatusCode.OK, ok.StatusCode);
+        var logbook = await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json);
+        Assert.Equal(89.90m, Assert.Single(logbook!).Amount);
     }
 }

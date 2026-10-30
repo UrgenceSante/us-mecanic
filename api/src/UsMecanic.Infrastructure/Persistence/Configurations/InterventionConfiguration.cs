@@ -17,6 +17,7 @@ internal sealed class InterventionConfiguration : IEntityTypeConfiguration<Inter
         builder.Property(i => i.Kilometers);
         builder.Property(i => i.Work).HasMaxLength(Intervention.MaxWorkLength).IsRequired();
         builder.Property(i => i.RecordedAt);
+        builder.Property(i => i.Amount).HasPrecision(12, 2);
 
         builder.HasIndex(i => new { i.VehicleId, i.Date });
 

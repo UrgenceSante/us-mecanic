@@ -200,4 +200,17 @@ public class CompleteVehicleDeadlineTests
         Assert.Equal(VehicleErrors.Retired, retired.Error);
         Assert.Empty(_interventions.Saved);
     }
+
+    [Fact]
+    public async Task Le_montant_est_transmis_a_l_intervention_creee_et_un_montant_negatif_est_refuse()
+    {
+        var deadline = await AddOneOffAsync();
+
+        var negative = await Complete.ExecuteAsync(_vehicle.Id, deadline.Id, new DeadlineCompletionInput(Today, Amount: -5m), CancellationToken.None);
+        var ok = await Complete.ExecuteAsync(_vehicle.Id, deadline.Id, new DeadlineCompletionInput(Today, Amount: 89.9m), CancellationToken.None);
+
+        Assert.Equal(InterventionErrors.AmountNegative, negative.Error);
+        Assert.True(ok.IsSuccess);
+        Assert.Equal(89.9m, Assert.Single(_interventions.Saved).Amount);
+    }
 }
