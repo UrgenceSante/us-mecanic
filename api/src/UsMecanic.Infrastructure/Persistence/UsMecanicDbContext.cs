@@ -32,6 +32,8 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
 
     public DbSet<MileageReading> MileageReadings => Set<MileageReading>();
 
+    public DbSet<Loan> Loans => Set<Loan>();
+
     public DbSet<ProblemNature> ProblemNatures => Set<ProblemNature>();
 
     public DbSet<ProblemElement> ProblemElements => Set<ProblemElement>();

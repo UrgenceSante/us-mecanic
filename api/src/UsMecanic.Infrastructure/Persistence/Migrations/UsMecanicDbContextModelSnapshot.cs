@@ -104,6 +104,53 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.ToTable("expense_categories", (string)null);
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Costs.Loan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("BorrowedAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("borrowed_amount");
+
+                    b.Property<int>("DurationMonths")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_months");
+
+                    b.Property<string>("Lender")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("lender");
+
+                    b.Property<decimal>("MonthlyPayment")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("monthly_payment");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_loans");
+
+                    b.HasIndex("VehicleId", "StartDate")
+                        .HasDatabaseName("ix_loans_vehicle_id_start_date");
+
+                    b.ToTable("loans", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Deadlines.DeadlineThresholds", b =>
                 {
                     b.Property<Guid>("Id")
@@ -725,6 +772,16 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_expenses_vehicles_vehicle_id");
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Costs.Loan", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_loans_vehicles_vehicle_id");
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Deadlines.VehicleDeadline", b =>
