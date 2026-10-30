@@ -1,5 +1,7 @@
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { useState, type FormEvent } from "react";
+import AmountField from "../../../shared/components/AmountField";
+import { parseAmount } from "../../../shared/format/parseAmount";
 import GarageSelect from "../../garages/components/GarageSelect";
 import { todayLocalIso } from "../../mileage/types/date";
 import type { DeadlineCompletionInput, VehicleDeadline } from "../types/vehicleDeadline";
@@ -35,11 +37,14 @@ export default function CompleteDeadlineDialog({
   const [garageId, setGarageId] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [reason, setReason] = useState("");
+  const [amount, setAmount] = useState("");
   const [reasonTouched, setReasonTouched] = useState(false);
 
   const kmRequired = deadline.intervalKm !== null || deadline.dueKm !== null;
   const trimmedReason = reason.trim();
   const reasonMissing = reasonRequired && trimmedReason === "";
+  const parsedAmount = parseAmount(amount);
+  const amountInvalid = parsedAmount.error !== null;
 
   const invalidateConfirmation = () => {
     if (confirmationRequired) onConfirmationInvalidated();
@@ -50,6 +55,7 @@ export default function CompleteDeadlineDialog({
       date,
       kilometers: kilometers.trim() === "" ? null : Number(kilometers),
       garageId,
+      amount: parsedAmount.value,
       comment: comment.trim() === "" ? null : comment.trim(),
       reason: trimmedReason === "" ? null : trimmedReason,
       confirmHighMileage,
@@ -58,7 +64,7 @@ export default function CompleteDeadlineDialog({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setReasonTouched(true);
-    if (reasonMissing) return;
+    if (reasonMissing || amountInvalid) return;
     send(false);
   };
 
@@ -115,6 +121,7 @@ export default function CompleteDeadlineDialog({
           <div style={{ marginTop: 8, marginBottom: 4 }}>
             <GarageSelect value={garageId} onChange={setGarageId} />
           </div>
+          <AmountField value={amount} onChange={setAmount} />
           <TextField
             label="Commentaire"
             fullWidth
@@ -145,13 +152,13 @@ export default function CompleteDeadlineDialog({
             <Button
               variant="contained"
               color="warning"
-              disabled={submitting || reasonMissing}
+              disabled={submitting || reasonMissing || amountInvalid}
               onClick={() => send(true)}
             >
               Confirmer et enregistrer
             </Button>
           ) : (
-            <Button type="submit" variant="contained" disabled={submitting}>
+            <Button type="submit" variant="contained" disabled={submitting || amountInvalid}>
               Enregistrer
             </Button>
           )}

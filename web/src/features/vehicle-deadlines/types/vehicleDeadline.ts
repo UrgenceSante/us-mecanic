@@ -33,6 +33,7 @@ export interface DeadlineCompletionInput {
   date: string;
   kilometers: number | null;
   garageId: string | null;
+  amount: number | null;
   comment: string | null;
   reason: string | null;
   confirmHighMileage: boolean;

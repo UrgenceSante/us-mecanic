@@ -1,5 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { useState, type FormEvent } from "react";
+import AmountField from "../../../shared/components/AmountField";
+import { parseAmount } from "../../../shared/format/parseAmount";
 import GarageSelect from "../../garages/components/GarageSelect";
 import { todayLocalIso } from "../../mileage/types/date";
 import type { VehicleDeadline } from "../../vehicle-deadlines/types/vehicleDeadline";
@@ -30,6 +32,7 @@ export default function AddInterventionDialog(props: AddInterventionDialogProps)
   const [work, setWork] = useState("");
   const [checked, setChecked] = useState<string[]>([]);
   const [reason, setReason] = useState("");
+  const [amount, setAmount] = useState("");
 
   const trimmedReason = reason.trim();
   const reasonMissing = reasonRequired && trimmedReason === "";
@@ -37,7 +40,8 @@ export default function AddInterventionDialog(props: AddInterventionDialogProps)
     (d) => checked.includes(d.id) && (d.intervalKm != null || d.dueKm != null),
   );
   const kilometersMissing = kilometersRequired && kilometers.trim() === "";
-  const invalid = work.trim() === "" || kilometersMissing || reasonMissing;
+  const parsedAmount = parseAmount(amount);
+  const invalid = work.trim() === "" || kilometersMissing || reasonMissing || parsedAmount.error !== null;
 
   const invalidateConfirmation = () => {
     if (confirmationRequired) props.onConfirmationInvalidated();
@@ -49,6 +53,7 @@ export default function AddInterventionDialog(props: AddInterventionDialogProps)
       kilometers: kilometers.trim() === "" ? null : Number(kilometers),
       garageId,
       work: work.trim(),
+      amount: parsedAmount.value,
       deadlineIds: checked,
       reason: trimmedReason === "" ? null : trimmedReason,
       confirmHighMileage,
@@ -100,6 +105,7 @@ export default function AddInterventionDialog(props: AddInterventionDialogProps)
           <div style={{ marginTop: 8, marginBottom: 4 }}>
             <GarageSelect value={garageId} onChange={setGarageId} />
           </div>
+          <AmountField value={amount} onChange={setAmount} />
           <TextField
             label="Travaux réalisés"
             required

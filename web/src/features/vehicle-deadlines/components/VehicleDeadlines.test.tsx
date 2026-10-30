@@ -127,11 +127,29 @@ describe("VehicleDeadlines", () => {
         date: todayLocalIso(),
         kilometers: 75000,
         garageId: null,
+        amount: null,
         comment: "RAS",
         reason: null,
         confirmHighMileage: false,
       }),
     );
+  });
+
+  it("envoie le montant saisi avec une virgule, et bloque un montant invalide", async () => {
+    api.completeVehicleDeadline.mockResolvedValue(deadlines[1]);
+    renderBlock();
+
+    await complete("Vidange");
+    const amount = screen.getByLabelText(/Montant/);
+    expect(amount).toHaveAttribute("inputmode", "decimal");
+    fireEvent.change(amount, { target: { value: "12,345" } });
+    expect(screen.getByText("Le montant est limité à 2 décimales.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    fireEvent.change(amount, { target: { value: "0" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+    await waitFor(() => expect(api.completeVehicleDeadline).toHaveBeenCalled());
+    expect(api.completeVehicleDeadline.mock.calls[0][2]).toMatchObject({ amount: 0 });
   });
 
   it("km facultatif sans critère km", async () => {

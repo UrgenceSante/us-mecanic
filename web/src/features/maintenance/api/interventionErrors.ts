@@ -10,6 +10,9 @@ const messages: Record<string, string> = {
   "intervention.deadline_duplicated": "Une échéance ne peut être cochée qu'une seule fois.",
   "intervention.deadline_unknown": "Une des échéances cochées n'existe plus pour ce véhicule.",
   "intervention.deadline_closed": "Une des échéances cochées est déjà close.",
+  "intervention.amount_negative": "Le montant ne peut pas être négatif.",
+  "intervention.amount_too_precise": "Le montant est limité à 2 décimales.",
+  "intervention.amount_too_large": "Le montant dépasse la valeur maximale autorisée.",
   "intervention.garage_unknown": "Ce garage n'existe plus.",
   "intervention.garage_inactive": "Ce garage est désactivé : choisissez-en un autre.",
 };
