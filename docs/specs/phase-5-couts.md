@@ -62,6 +62,14 @@ En tant que service financier, je veux enregistrer l'emprunt qui finance un véh
 
 - Montant unique par dépense, sans détail ni distinction HT / TTC (à affiner plus tard).
 - Pas de répartition des coûts récurrents : chaque dépense est enregistrée à sa date.
+- Montants en euros, deux décimales, zéro autorisé, négatif refusé.
+- Catégories administrables pour les dépenses ponctuelles seulement ; carburant et péage sont des catégories
+  fixes de l'utilisation courante, alimentées par les connecteurs (phase 8).
+- Une intervention compte dans la synthèse à sa date.
+- Mensualités d'un emprunt : une par mois, de la date de début jusqu'à la fin de la durée, mois futurs compris ;
+  remboursement anticipé ou vente : on modifie la durée.
+- Coût au km sur une période : toutes les dépenses (emprunts compris) ÷ km parcourus d'après les relevés ;
+  « non calculable » s'il y a moins de deux relevés sur la période.
 
 ## Hors périmètre
 
