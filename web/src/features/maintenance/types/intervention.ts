@@ -11,6 +11,8 @@ export interface Intervention {
   kilometers: number | null;
   garage: { id: string; name: string } | null;
   work: string;
+  /** Montant en euros, null si non renseigné. */
+  amount: number | null;
   recordedAt: string;
   deadlines: InterventionDeadline[];
 }
@@ -20,6 +22,7 @@ export interface InterventionInput {
   kilometers: number | null;
   garageId: string | null;
   work: string;
+  amount: number | null;
   deadlineIds: string[];
   reason: string | null;
   confirmHighMileage: boolean;

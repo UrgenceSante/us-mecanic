@@ -32,7 +32,7 @@ const deadlines = [
 const interventions = [
   {
     id: "i1", vehicleId: "v1", date: "2026-05-01", kilometers: 70000, garage: { id: "g1", name: "Garage Dupont" },
-    work: "Vidange complète", recordedAt: "2026-05-01T10:00:00Z", deadlines: [{ id: "d2", typeName: "Vidange" }],
+    work: "Vidange complète", amount: 1234.5, recordedAt: "2026-05-01T10:00:00Z", deadlines: [{ id: "d2", typeName: "Vidange" }],
   },
 ];
 
@@ -65,6 +65,7 @@ describe("VehicleMaintenanceLog", () => {
     expect(await screen.findByText("Vidange complète")).toBeInTheDocument();
     expect(screen.getByText(/Garage Dupont/)).toBeInTheDocument();
     expect(screen.getByText(/70\D000 km/)).toBeInTheDocument();
+    expect(screen.getByText(/1\D234,50\D€/)).toBeInTheDocument();
     expect(screen.getByText("Vidange")).toBeInTheDocument();
   });
 
@@ -88,9 +89,25 @@ describe("VehicleMaintenanceLog", () => {
 
     await waitFor(() => expect(api.addIntervention).toHaveBeenCalled());
     expect(api.addIntervention).toHaveBeenCalledWith("v1", {
-      date: todayLocalIso(), kilometers: 75000, garageId: null, work: "Freins",
+      date: todayLocalIso(), kilometers: 75000, garageId: null, work: "Freins", amount: null,
       deadlineIds: ["d1"], reason: null, confirmHighMileage: false,
     });
+  });
+
+  it("envoie le montant saisi avec une virgule, et bloque un montant invalide", async () => {
+    api.addIntervention.mockResolvedValue(interventions[0]);
+    renderLog();
+    await openDialog();
+    fillWork();
+    const amount = screen.getByLabelText(/Montant/);
+    expect(amount).toHaveAttribute("inputmode", "decimal");
+    fireEvent.change(amount, { target: { value: "-3" } });
+    expect(screen.getByText("Le montant ne peut pas être négatif.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Enregistrer/ })).toBeDisabled();
+    fireEvent.change(amount, { target: { value: "89,9" } });
+    save();
+    await waitFor(() => expect(api.addIntervention).toHaveBeenCalled());
+    expect(api.addIntervention.mock.calls[0][1]).toMatchObject({ amount: 89.9 });
   });
 
   it("exige les travaux et le km si une échéance cochée a un critère km", async () => {

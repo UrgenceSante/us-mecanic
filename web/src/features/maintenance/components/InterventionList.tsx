@@ -1,6 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Chip, Divider, IconButton, Stack, Typography } from "@mui/material";
 import { Fragment } from "react";
+import { formatEuro } from "../../../shared/format/formatEuro";
 import { formatKm } from "../../mileage/types/format";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import type { Intervention } from "../types/intervention";
@@ -24,6 +25,7 @@ export default function InterventionList({ interventions, onDelete }: Interventi
                 {formatDateOnly(i.date)}
                 {i.kilometers != null && ` · ${formatKm(i.kilometers)}`}
                 {i.garage && ` · ${i.garage.name}`}
+                {i.amount != null && ` · ${formatEuro(i.amount)}`}
               </Typography>
               {onDelete && (
                 <IconButton aria-label={`Supprimer l'intervention du ${formatDateOnly(i.date)}`} onClick={() => onDelete(i)}>
