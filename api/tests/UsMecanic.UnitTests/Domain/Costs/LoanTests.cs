@@ -8,8 +8,8 @@ public class LoanTests
 
     private static LoanEntry Entry(
         string? lender = "Banque Fictive",
-        decimal borrowed = 20_000m,
-        decimal monthly = 350.50m,
+        decimal? borrowed = 20_000m,
+        decimal? monthly = 350.50m,
         DateOnly? start = null,
         int months = 60) =>
         new(lender, borrowed, monthly, start ?? new DateOnly(2026, 3, 15), months);
@@ -55,6 +55,16 @@ public class LoanTests
         var result = Loan.Create(Guid.NewGuid(), Entry(lender: new string('a', Loan.MaxLenderLength + 1)), Now);
 
         Assert.Equal("loan.lender_too_long", result.Error!.Code);
+    }
+
+    [Fact]
+    public void Refuse_un_montant_emprunte_ou_une_mensualite_absents()
+    {
+        var borrowed = Loan.Create(Guid.NewGuid(), Entry(borrowed: null), Now);
+        var monthly = Loan.Create(Guid.NewGuid(), Entry(monthly: null), Now);
+
+        Assert.Equal("loan.borrowed_amount_required", borrowed.Error!.Code);
+        Assert.Equal("loan.monthly_payment_required", monthly.Error!.Code);
     }
 
     [Fact]

@@ -16,13 +16,24 @@ public sealed class Loan
     /// <summary>Plafond d'un montant, cohérent avec la colonne numeric(12,2).</summary>
     public const decimal MaxAmount = 9_999_999_999.99m;
 
-    private Loan(Guid id, Guid vehicleId, LoanEntry entry, DateTimeOffset recordedAt)
+    private Loan(
+        Guid id,
+        Guid vehicleId,
+        string lender,
+        decimal borrowedAmount,
+        decimal monthlyPayment,
+        DateOnly startDate,
+        int durationMonths,
+        DateTimeOffset recordedAt)
     {
         Id = id;
         VehicleId = vehicleId;
+        Lender = lender;
+        BorrowedAmount = borrowedAmount;
+        MonthlyPayment = monthlyPayment;
+        StartDate = startDate;
+        DurationMonths = durationMonths;
         RecordedAt = recordedAt;
-        Lender = entry.Lender!;
-        Apply(entry);
     }
 
     public Guid Id { get; }
@@ -45,9 +56,14 @@ public sealed class Loan
     public static Result<Loan> Create(Guid vehicleId, LoanEntry entry, DateTimeOffset now)
     {
         var validated = Validate(entry);
-        return validated.IsSuccess
-            ? Result<Loan>.Success(new Loan(Guid.CreateVersion7(now), vehicleId, validated.Value, now))
-            : Result<Loan>.Failure(validated.Error!);
+        if (validated.IsFailure)
+        {
+            return Result<Loan>.Failure(validated.Error!);
+        }
+
+        var v = validated.Value;
+        return Result<Loan>.Success(new Loan(
+            Guid.CreateVersion7(now), vehicleId, v.Lender!, v.BorrowedAmount!.Value, v.MonthlyPayment!.Value, v.StartDate, v.DurationMonths, now));
     }
 
     public Result<Loan> Update(LoanEntry entry)
@@ -78,8 +94,8 @@ public sealed class Loan
 
         var lender = entry.Lender?.Trim();
         var error = CheckLender(lender)
-            ?? CheckAmount(entry.BorrowedAmount, LoanErrors.BorrowedAmountNegative)
-            ?? CheckAmount(entry.MonthlyPayment, LoanErrors.MonthlyPaymentNegative)
+            ?? CheckAmount(entry.BorrowedAmount, LoanErrors.BorrowedAmountRequired, LoanErrors.BorrowedAmountNegative)
+            ?? CheckAmount(entry.MonthlyPayment, LoanErrors.MonthlyPaymentRequired, LoanErrors.MonthlyPaymentNegative)
             ?? CheckSchedule(entry);
 
         return error is null
@@ -97,8 +113,13 @@ public sealed class Loan
         return lender.Length > MaxLenderLength ? LoanErrors.LenderTooLong : null;
     }
 
-    private static DomainError? CheckAmount(decimal amount, DomainError negative)
+    private static DomainError? CheckAmount(decimal? value, DomainError required, DomainError negative)
     {
+        if (value is not { } amount)
+        {
+            return required;
+        }
+
         if (amount < 0)
         {
             return negative;
@@ -130,8 +151,8 @@ public sealed class Loan
     private void Apply(LoanEntry entry)
     {
         Lender = entry.Lender!;
-        BorrowedAmount = entry.BorrowedAmount;
-        MonthlyPayment = entry.MonthlyPayment;
+        BorrowedAmount = entry.BorrowedAmount!.Value;
+        MonthlyPayment = entry.MonthlyPayment!.Value;
         StartDate = entry.StartDate;
         DurationMonths = entry.DurationMonths;
     }

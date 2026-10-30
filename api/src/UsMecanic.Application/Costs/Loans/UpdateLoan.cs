@@ -11,7 +11,7 @@ public sealed class UpdateLoan(MileageVehicleGuard guard, ILoanRepository loans)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var error = await guard.CheckAsync(vehicleId, forWrite: true, cancellationToken);
+        var error = await guard.CheckAsync(vehicleId, forWrite: false, cancellationToken);
         if (error is not null)
         {
             return Result<LoanDto>.Failure(error);

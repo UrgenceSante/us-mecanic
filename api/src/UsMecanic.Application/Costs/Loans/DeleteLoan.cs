@@ -9,7 +9,7 @@ public sealed class DeleteLoan(MileageVehicleGuard guard, ILoanRepository loans)
 {
     public async Task<Result<LoanDto>> ExecuteAsync(Guid vehicleId, Guid loanId, CancellationToken cancellationToken)
     {
-        var error = await guard.CheckAsync(vehicleId, forWrite: true, cancellationToken);
+        var error = await guard.CheckAsync(vehicleId, forWrite: false, cancellationToken);
         if (error is not null)
         {
             return Result<LoanDto>.Failure(error);

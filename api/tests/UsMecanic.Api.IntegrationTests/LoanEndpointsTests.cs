@@ -237,7 +237,7 @@ public class LoanEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Un_vehicule_sorti_du_parc_refuse_l_ecriture_mais_reste_consultable()
+    public async Task Un_vehicule_sorti_du_parc_refuse_la_creation_mais_autorise_modification_et_suppression()
     {
         var vehicleId = await CreateVehicleAsync();
         var loan = await AddAsync(vehicleId);
@@ -246,13 +246,27 @@ public class LoanEndpointsTests : IClassFixture<ApiFactory>
 
         var add = await _client.PostAsJsonAsync(LoansUri(vehicleId), Body());
         var put = await _client.PutAsJsonAsync(LoanUri(vehicleId, loan.Id), Body(months: 6));
+        var list = await _client.GetFromJsonAsync<List<LoanDto>>(LoansUri(vehicleId), Json);
         var delete = await _client.DeleteAsync(LoanUri(vehicleId, loan.Id));
-        var list = await _client.GetAsync(LoansUri(vehicleId));
 
         Assert.Equal(HttpStatusCode.Conflict, add.StatusCode);
         Assert.Equal("vehicle.retired", await ErrorCodeAsync(add));
-        Assert.Equal(HttpStatusCode.Conflict, put.StatusCode);
-        Assert.Equal(HttpStatusCode.Conflict, delete.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, list.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, put.StatusCode);
+        Assert.Equal(6, Assert.Single(list!).DurationMonths);
+        Assert.Equal(HttpStatusCode.NoContent, delete.StatusCode);
+    }
+
+    [Fact]
+    public async Task Un_montant_ou_une_mensualite_absents_sont_refuses()
+    {
+        var vehicleId = await CreateVehicleAsync();
+
+        var borrowed = await _client.PostAsJsonAsync(LoansUri(vehicleId), new { lender = "Banque Fictive", monthlyPayment = 1m, startDate = "2026-06-15", durationMonths = 12 });
+        var monthly = await _client.PostAsJsonAsync(LoansUri(vehicleId), new { lender = "Banque Fictive", borrowedAmount = 1m, startDate = "2026-06-15", durationMonths = 12 });
+
+        Assert.Equal(HttpStatusCode.BadRequest, borrowed.StatusCode);
+        Assert.Equal("loan.borrowed_amount_required", await ErrorCodeAsync(borrowed));
+        Assert.Equal(HttpStatusCode.BadRequest, monthly.StatusCode);
+        Assert.Equal("loan.monthly_payment_required", await ErrorCodeAsync(monthly));
     }
 }

@@ -63,20 +63,21 @@ public class LoanUseCasesTests
     }
 
     [Fact]
-    public async Task Refuse_l_ecriture_pour_un_vehicule_sorti_du_parc_mais_autorise_la_lecture()
+    public async Task Hors_parc_refuse_la_creation_mais_autorise_lecture_modification_et_suppression()
     {
         var created = (await Add.ExecuteAsync(_vehicle.Id, Valid, CancellationToken.None)).Value;
         Retire();
 
         var add = await Add.ExecuteAsync(_vehicle.Id, Valid, CancellationToken.None);
-        var update = await Update.ExecuteAsync(_vehicle.Id, created.Id, Valid, CancellationToken.None);
-        var delete = await Delete.ExecuteAsync(_vehicle.Id, created.Id, CancellationToken.None);
         var list = await List.ExecuteAsync(_vehicle.Id, CancellationToken.None);
+        var update = await Update.ExecuteAsync(_vehicle.Id, created.Id, Valid with { DurationMonths = 10 }, CancellationToken.None);
+        var delete = await Delete.ExecuteAsync(_vehicle.Id, created.Id, CancellationToken.None);
 
         Assert.Equal(VehicleErrors.Retired, add.Error);
-        Assert.Equal(VehicleErrors.Retired, update.Error);
-        Assert.Equal(VehicleErrors.Retired, delete.Error);
         Assert.Single(list.Value);
+        Assert.Equal(10, update.Value.DurationMonths);
+        Assert.True(delete.IsSuccess);
+        Assert.Empty(_loans.Saved);
     }
 
     [Fact]

@@ -13,6 +13,12 @@ public static class LoanErrors
     public static readonly DomainError LenderTooLong =
         new("loan.lender_too_long", $"L'organisme est limité à {Loan.MaxLenderLength} caractères.");
 
+    public static readonly DomainError BorrowedAmountRequired =
+        new("loan.borrowed_amount_required", "Le montant emprunté est obligatoire.");
+
+    public static readonly DomainError MonthlyPaymentRequired =
+        new("loan.monthly_payment_required", "La mensualité est obligatoire.");
+
     public static readonly DomainError BorrowedAmountNegative =
         new("loan.borrowed_amount_negative", "Le montant emprunté ne peut pas être négatif.");
 
