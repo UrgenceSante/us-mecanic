@@ -178,7 +178,8 @@ public class LoanEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var updated = (await response.Content.ReadFromJsonAsync<LoanDto>(Json))!;
         Assert.Equal(18, updated.DurationMonths);
-        Assert.Equal(loan.RecordedAt, updated.RecordedAt);
+        // PostgreSQL stocke les horodatages à la microseconde : la réponse de création est plus précise.
+        Assert.Equal(loan.RecordedAt, updated.RecordedAt, TimeSpan.FromMilliseconds(1));
         var list = await _client.GetFromJsonAsync<List<LoanDto>>(LoansUri(vehicleId), Json);
         Assert.Equal(18, Assert.Single(list!).DurationMonths);
     }
