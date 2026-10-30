@@ -48,7 +48,7 @@ public sealed class Intervention
     public DateTimeOffset RecordedAt { get; }
 
     /// <summary>Montant en euros, facultatif : positif ou nul, 2 décimales au plus.</summary>
-    public decimal? Amount { get; }
+    public decimal? Amount { get; private set; }
 
     /// <summary>Échéances du véhicule réalisées par cette intervention.</summary>
     public IReadOnlyCollection<InterventionDeadline> Deadlines => _deadlines;
@@ -84,24 +84,44 @@ public sealed class Intervention
             return Result<Intervention>.Failure(InterventionErrors.DeadlineDuplicated);
         }
 
-        if (amount < 0)
+        var amountError = ValidateAmount(amount);
+        if (amountError is not null)
         {
-            return Result<Intervention>.Failure(InterventionErrors.AmountNegative);
-        }
-
-        if (amount > MaxAmount)
-        {
-            return Result<Intervention>.Failure(InterventionErrors.AmountTooLarge);
-        }
-
-        if (amount is { } value && decimal.Round(value, AmountScale) != value)
-        {
-            return Result<Intervention>.Failure(InterventionErrors.AmountTooPrecise);
+            return Result<Intervention>.Failure(amountError);
         }
 
         var id = Guid.CreateVersion7(now);
         var intervention = new Intervention(id, vehicleId, date, kilometers, garageId, cleaned, now, amount);
         intervention._deadlines.AddRange(deadlineIds.Select(deadlineId => new InterventionDeadline(id, deadlineId)));
         return Result<Intervention>.Success(intervention);
+    }
+
+    /// <summary>Remplace le montant (null = le vider) avec exactement les validations de la création.</summary>
+    public Result<Intervention> ChangeAmount(decimal? amount)
+    {
+        var error = ValidateAmount(amount);
+        if (error is not null)
+        {
+            return Result<Intervention>.Failure(error);
+        }
+
+        Amount = amount;
+        return Result<Intervention>.Success(this);
+    }
+
+    /// <summary>Règles d'un montant, communes à la création et à la modification.</summary>
+    private static DomainError? ValidateAmount(decimal? amount)
+    {
+        if (amount < 0)
+        {
+            return InterventionErrors.AmountNegative;
+        }
+
+        if (amount > MaxAmount)
+        {
+            return InterventionErrors.AmountTooLarge;
+        }
+
+        return amount is { } value && decimal.Round(value, AmountScale) != value ? InterventionErrors.AmountTooPrecise : null;
     }
 }

@@ -55,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<ListInterventions>();
         services.AddScoped<AddIntervention>();
         services.AddScoped<DeleteIntervention>();
+        services.AddScoped<ChangeInterventionAmount>();
 
         services.AddScoped<ReportProblem>();
         services.AddScoped<ListVehicleProblems>();

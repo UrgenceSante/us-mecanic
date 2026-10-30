@@ -124,4 +124,41 @@ public class InterventionTests
         Assert.True(Create(amount: Intervention.MaxAmount).IsSuccess);
         Assert.Equal(InterventionErrors.AmountTooLarge, Create(amount: Intervention.MaxAmount + 0.01m).Error);
     }
+
+    [Fact]
+    public void ChangeAmount_remplace_puis_vide_le_montant()
+    {
+        var intervention = Create(amount: 10m).Value;
+
+        var changed = intervention.ChangeAmount(99.90m);
+        var cleared = intervention.ChangeAmount(null);
+
+        Assert.True(changed.IsSuccess);
+        Assert.True(cleared.IsSuccess);
+        Assert.Null(intervention.Amount);
+    }
+
+    [Theory]
+    [InlineData("-0.01", "intervention.amount_negative")]
+    [InlineData("1.234", "intervention.amount_too_precise")]
+    [InlineData("10000000000", "intervention.amount_too_large")]
+    public void ChangeAmount_applique_les_validations_de_la_creation_sans_toucher_au_montant(string amount, string code)
+    {
+        var intervention = Create(amount: 10m).Value;
+
+        var result = intervention.ChangeAmount(decimal.Parse(amount, CultureInfo.InvariantCulture));
+
+        Assert.Equal(code, result.Error!.Code);
+        Assert.Equal(10m, intervention.Amount);
+    }
+
+    [Fact]
+    public void ChangeAmount_accepte_zero_et_le_maximum()
+    {
+        var intervention = Create().Value;
+
+        Assert.True(intervention.ChangeAmount(0m).IsSuccess);
+        Assert.Equal(0m, intervention.Amount);
+        Assert.True(intervention.ChangeAmount(Intervention.MaxAmount).IsSuccess);
+    }
 }

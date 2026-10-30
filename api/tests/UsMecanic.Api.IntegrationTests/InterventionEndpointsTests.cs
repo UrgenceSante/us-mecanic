@@ -405,4 +405,75 @@ public class InterventionEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("intervention.amount_too_precise", await ErrorCodeAsync(response));
     }
+
+    private static Uri AmountUri(Guid vehicleId, Guid interventionId) =>
+        new($"/api/vehicles/{vehicleId}/interventions/{interventionId}/amount", UriKind.Relative);
+
+    private async Task<InterventionDto> CreateInterventionAsync(Guid vehicleId, decimal? amount = null)
+    {
+        var created = await _client.PostAsJsonAsync(InterventionsUri(vehicleId), new { date = Offset(-1), work = "Vidange", amount });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        return (await created.Content.ReadFromJsonAsync<InterventionDto>(Json))!;
+    }
+
+    [Fact]
+    public async Task Le_montant_est_modifie_puis_vide_et_le_carnet_le_reflete()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var intervention = await CreateInterventionAsync(vehicleId, 10m);
+
+        var changed = await _client.PutAsJsonAsync(AmountUri(vehicleId, intervention.Id), new { amount = 99.90m });
+        Assert.Equal(HttpStatusCode.OK, changed.StatusCode);
+        Assert.Equal(99.90m, (await changed.Content.ReadFromJsonAsync<InterventionDto>(Json))!.Amount);
+        Assert.Equal(99.90m, Assert.Single((await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json))!).Amount);
+
+        var cleared = await _client.PutAsJsonAsync(AmountUri(vehicleId, intervention.Id), new { amount = (decimal?)null });
+        Assert.Equal(HttpStatusCode.OK, cleared.StatusCode);
+        Assert.Null((await cleared.Content.ReadFromJsonAsync<InterventionDto>(Json))!.Amount);
+        Assert.Null(Assert.Single((await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json))!).Amount);
+    }
+
+    [Fact]
+    public async Task Un_montant_invalide_est_refuse_en_problem_details_et_ne_change_rien()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var intervention = await CreateInterventionAsync(vehicleId, 10m);
+
+        var negative = await _client.PutAsJsonAsync(AmountUri(vehicleId, intervention.Id), new { amount = -1m });
+        var precise = await _client.PutAsJsonAsync(AmountUri(vehicleId, intervention.Id), new { amount = 1.234m });
+        var large = await _client.PutAsJsonAsync(AmountUri(vehicleId, intervention.Id), new { amount = 10_000_000_000m });
+
+        Assert.Equal(HttpStatusCode.BadRequest, negative.StatusCode);
+        Assert.Equal("intervention.amount_negative", await ErrorCodeAsync(negative));
+        Assert.Equal(HttpStatusCode.BadRequest, precise.StatusCode);
+        Assert.Equal("intervention.amount_too_precise", await ErrorCodeAsync(precise));
+        Assert.Equal(HttpStatusCode.BadRequest, large.StatusCode);
+        Assert.Equal("intervention.amount_too_large", await ErrorCodeAsync(large));
+        Assert.Equal(10m, Assert.Single((await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json))!).Amount);
+    }
+
+    [Fact]
+    public async Task La_modification_du_montant_refuse_l_inconnu_et_l_anonyme_mais_accepte_un_vehicule_sorti_du_parc()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var otherId = await CreateVehicleAsync();
+        var intervention = await CreateInterventionAsync(vehicleId);
+
+        var unknown = await _client.PutAsJsonAsync(AmountUri(vehicleId, Guid.NewGuid()), new { amount = 1m });
+        var otherVehicle = await _client.PutAsJsonAsync(AmountUri(otherId, intervention.Id), new { amount = 1m });
+        var unknownVehicle = await _client.PutAsJsonAsync(AmountUri(Guid.NewGuid(), intervention.Id), new { amount = 1m });
+        var anonymous = await _anonymous.PutAsJsonAsync(AmountUri(vehicleId, intervention.Id), new { amount = 1m });
+        var retired = await _client.PutAsJsonAsync(new Uri($"/api/vehicles/{vehicleId}/status", UriKind.Relative), new { status = "Retired" });
+        Assert.Equal(HttpStatusCode.OK, retired.StatusCode);
+        var afterRetired = await _client.PutAsJsonAsync(AmountUri(vehicleId, intervention.Id), new { amount = 42m });
+
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+        Assert.Equal("intervention.not_found", await ErrorCodeAsync(unknown));
+        Assert.Equal(HttpStatusCode.NotFound, otherVehicle.StatusCode);
+        Assert.Equal("intervention.not_found", await ErrorCodeAsync(otherVehicle));
+        Assert.Equal(HttpStatusCode.NotFound, unknownVehicle.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, anonymous.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, afterRetired.StatusCode);
+        Assert.Equal(42m, (await afterRetired.Content.ReadFromJsonAsync<InterventionDto>(Json))!.Amount);
+    }
 }

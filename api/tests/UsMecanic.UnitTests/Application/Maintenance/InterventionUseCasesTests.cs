@@ -336,4 +336,61 @@ public class InterventionUseCasesTests
         Assert.Equal(InterventionErrors.AmountTooPrecise, tooPrecise.Error);
         Assert.Empty(_interventions.Saved);
     }
+
+    private ChangeInterventionAmount ChangeAmount => new(new MileageVehicleGuard(_vehicles), _interventions, DtoFactory);
+
+    [Fact]
+    public async Task Le_montant_d_une_intervention_est_modifie_puis_vide()
+    {
+        var added = await ExecuteAsync(new InterventionInput(Today, Work: "Vidange", Amount: 10m));
+
+        var changed = await ChangeAmount.ExecuteAsync(_vehicle.Id, added.Value.Id, 99.90m, CancellationToken.None);
+        var cleared = await ChangeAmount.ExecuteAsync(_vehicle.Id, added.Value.Id, null, CancellationToken.None);
+
+        Assert.Equal(99.90m, changed.Value.Amount);
+        Assert.Equal(added.Value.Id, changed.Value.Id);
+        Assert.Null(cleared.Value.Amount);
+        Assert.Null(Assert.Single(_interventions.Saved).Amount);
+    }
+
+    [Fact]
+    public async Task Un_montant_invalide_est_refuse_sans_rien_enregistrer()
+    {
+        var added = await ExecuteAsync(new InterventionInput(Today, Work: "Vidange", Amount: 10m));
+        var saves = _interventions.SaveCount;
+
+        var result = await ChangeAmount.ExecuteAsync(_vehicle.Id, added.Value.Id, -1m, CancellationToken.None);
+
+        Assert.Equal(InterventionErrors.AmountNegative, result.Error);
+        Assert.Equal(saves, _interventions.SaveCount);
+        Assert.Equal(10m, Assert.Single(_interventions.Saved).Amount);
+    }
+
+    [Fact]
+    public async Task La_modification_du_montant_d_une_intervention_inconnue_ou_d_un_autre_vehicule_est_refusee()
+    {
+        var other = _vehicles.Seed("ZZ-999-ZZ");
+        var added = await ExecuteAsync(new InterventionInput(Today, Work: "Vidange"));
+
+        var unknown = await ChangeAmount.ExecuteAsync(_vehicle.Id, Guid.NewGuid(), 1m, CancellationToken.None);
+        var otherVehicle = await ChangeAmount.ExecuteAsync(other.Id, added.Value.Id, 1m, CancellationToken.None);
+        var unknownVehicle = await ChangeAmount.ExecuteAsync(Guid.NewGuid(), added.Value.Id, 1m, CancellationToken.None);
+
+        Assert.Equal(InterventionErrors.NotFound, unknown.Error);
+        Assert.Equal(InterventionErrors.NotFound, otherVehicle.Error);
+        Assert.Equal(VehicleErrors.NotFound, unknownVehicle.Error);
+        Assert.Null(Assert.Single(_interventions.Saved).Amount);
+    }
+
+    [Fact]
+    public async Task Le_montant_reste_modifiable_pour_un_vehicule_sorti_du_parc()
+    {
+        var added = await ExecuteAsync(new InterventionInput(Today, Work: "Vidange"));
+        _vehicle.ChangeStatus(VehicleStatus.Retired, _clock.Now);
+
+        var result = await ChangeAmount.ExecuteAsync(_vehicle.Id, added.Value.Id, 42m, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(42m, Assert.Single(_interventions.Saved).Amount);
+    }
 }
