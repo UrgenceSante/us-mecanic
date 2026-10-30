@@ -1,6 +1,6 @@
 # Phase 5 — Coûts
 
-Statut : en cours de cadrage (2026-10-30)
+Statut : validée le 2026-10-30
 
 ## Contexte et objectif
 
