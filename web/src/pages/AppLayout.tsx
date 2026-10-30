@@ -18,6 +18,9 @@ export default function AppLayout() {
           <Button color="inherit" component={Link} to="/garages">
             Garages
           </Button>
+          <Button color="inherit" component={Link} to="/expense-categories">
+            Catégories de dépense
+          </Button>
           <Button color="inherit" component={Link} to="/problem-references">
             Référentiels problèmes
           </Button>
