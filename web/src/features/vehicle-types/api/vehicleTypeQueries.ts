@@ -31,7 +31,7 @@ function useInvalidateTypes() {
 
 export function useCreateVehicleType() {
   const onSuccess = useInvalidateTypes();
-  return useMutation({ mutationFn: createVehicleType, onSuccess });
+  return useMutation({ mutationFn: (name: string) => createVehicleType(name), onSuccess });
 }
 
 export function useRenameVehicleType() {
@@ -44,5 +44,5 @@ export function useRenameVehicleType() {
 
 export function useDeactivateVehicleType() {
   const onSuccess = useInvalidateTypes();
-  return useMutation({ mutationFn: deactivateVehicleType, onSuccess });
+  return useMutation({ mutationFn: (id: string) => deactivateVehicleType(id), onSuccess });
 }

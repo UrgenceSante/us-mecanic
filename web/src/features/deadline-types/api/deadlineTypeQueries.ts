@@ -10,7 +10,7 @@ import {
   updateDeadlineThresholds,
   updateDeadlineType,
 } from "./deadlineTypesApi";
-import type { AssignDeadlineTypeInput, DeadlineTypeInput } from "../types/deadlineType";
+import type { AssignDeadlineTypeInput, DeadlineThresholds, DeadlineTypeInput } from "../types/deadlineType";
 
 export const deadlineTypeKeys = {
   all: ["deadline-types"] as const,
@@ -42,7 +42,7 @@ function useInvalidateTypes() {
 
 export function useCreateDeadlineType() {
   const onSuccess = useInvalidateTypes();
-  return useMutation({ mutationFn: createDeadlineType, onSuccess });
+  return useMutation({ mutationFn: (input: DeadlineTypeInput) => createDeadlineType(input), onSuccess });
 }
 
 export function useUpdateDeadlineType() {
@@ -55,7 +55,7 @@ export function useUpdateDeadlineType() {
 
 export function useDeactivateDeadlineType() {
   const onSuccess = useInvalidateTypes();
-  return useMutation({ mutationFn: deactivateDeadlineType, onSuccess });
+  return useMutation({ mutationFn: (id: string) => deactivateDeadlineType(id), onSuccess });
 }
 
 /** L'ajout en lot crée des échéances : on invalide celles des véhicules et le tableau de bord. */
@@ -75,7 +75,7 @@ export function useAssignDeadlineType(id: string) {
 export function useUpdateDeadlineThresholds() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateDeadlineThresholds,
+    mutationFn: (thresholds: DeadlineThresholds) => updateDeadlineThresholds(thresholds),
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: deadlineThresholdKeys.all }),

@@ -20,7 +20,7 @@ function useInvalidateGarages() {
 
 export function useCreateGarage() {
   const onSuccess = useInvalidateGarages();
-  return useMutation({ mutationFn: createGarage, onSuccess });
+  return useMutation({ mutationFn: (name: string) => createGarage(name), onSuccess });
 }
 
 export function useRenameGarage() {
@@ -33,5 +33,5 @@ export function useRenameGarage() {
 
 export function useDeactivateGarage() {
   const onSuccess = useInvalidateGarages();
-  return useMutation({ mutationFn: deactivateGarage, onSuccess });
+  return useMutation({ mutationFn: (id: string) => deactivateGarage(id), onSuccess });
 }
