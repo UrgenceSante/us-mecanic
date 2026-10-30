@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { VehicleDetailsInput, VehicleFilter, VehicleStatus } from "../types/vehicle";
+import type { RegisterVehicleCommand, VehicleDetailsInput, VehicleFilter, VehicleStatus } from "../types/vehicle";
 import {
   changeVehicleStatus,
   getVehicle,
@@ -31,7 +31,7 @@ function useInvalidateVehicles() {
 
 export function useRegisterVehicle() {
   const onSuccess = useInvalidateVehicles();
-  return useMutation({ mutationFn: registerVehicle, onSuccess });
+  return useMutation({ mutationFn: (command: RegisterVehicleCommand) => registerVehicle(command), onSuccess });
 }
 
 export function useUpdateVehicle(id: string) {
