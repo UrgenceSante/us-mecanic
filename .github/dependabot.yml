@@ -28,4 +28,8 @@ updates:
     directories: [/web, /api]
     target-branch: master
     schedule: { interval: monthly }
+    # On reste sur une version LTS de Node : les montées de version majeure se font à la main, vers la LTS suivante.
+    ignore:
+      - dependency-name: node
+        update-types: [version-update:semver-major]
     commit-message: { prefix: chore, include: scope }
