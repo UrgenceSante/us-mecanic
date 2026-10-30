@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UsMecanic.Domain.Costs;
 using UsMecanic.Domain.Deadlines;
 using UsMecanic.Domain.Maintenance;
 using UsMecanic.Domain.Mileage;
@@ -26,6 +27,8 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
     public DbSet<VehicleDeadline> VehicleDeadlines => Set<VehicleDeadline>();
 
     public DbSet<MileageReading> MileageReadings => Set<MileageReading>();
+
+    public DbSet<Loan> Loans => Set<Loan>();
 
     public DbSet<ProblemNature> ProblemNatures => Set<ProblemNature>();
 
