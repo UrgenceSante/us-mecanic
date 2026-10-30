@@ -72,12 +72,15 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 
 ## Phase 5 — Coûts
 
-- [ ] Dépenses rattachées au véhicule (entretien, réparation, assurance…), liées aux interventions et actions
+Spec : `docs/specs/phase-5-couts.md`
+
+- [ ] Montant d'une intervention ; dépenses ponctuelles et catégories administrables
+- [ ] Emprunts des véhicules (mensualités)
 - [ ] Synthèse par véhicule et par période, coût au kilomètre
 
 ## Phase 6 — Documents
 
-- [ ] Pièces jointes du véhicule (carte grise, attestation d'assurance…)
+- [ ] Pièces jointes du véhicule (carte grise, attestation d'assurance…) et factures des interventions et dépenses
 
 ## Phase 7 — Notifications
 
@@ -89,10 +92,11 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 - [ ] Import de l'historique (km, échéances) sur le modèle de l'import véhicules
 - [ ] Import des problèmes, analyses et actions de l'ancienne API
 - [ ] Port « source de kilométrage » pour une source externe (géoloc, télématique…)
+- [ ] Dépenses d'utilisation courante : connecteurs cartes carburant Total et télépéage Ulys
 
 ## Phase 9 — Authentification et nettoyage
 
-- [ ] Rôles Keycloak (lecture seule / gestionnaire)
+- [ ] Rôles Keycloak (lecture seule / gestionnaire / service financier pour les emprunts)
 - [ ] Réactivation et vérification de l'authentification sur tous les environnements
 - [ ] Suppression du code front historique (`components/`, `services/`, `hooks/`)
 - [ ] Retrait de `APP_LEGACY_API_URL` et arrêt de l'ancienne API
