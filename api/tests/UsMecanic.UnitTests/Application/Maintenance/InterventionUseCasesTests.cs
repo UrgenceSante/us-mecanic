@@ -1,3 +1,4 @@
+using System.Globalization;
 using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
@@ -308,5 +309,31 @@ public class InterventionUseCasesTests
 
         Assert.Equal(VehicleErrors.Retired, result.Error);
         Assert.Single(_interventions.Saved);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("0")]
+    [InlineData("120.50")]
+    public async Task Le_montant_facultatif_est_enregistre_et_renvoye_a_l_identique(string? amount)
+    {
+        decimal? expected = amount is null ? null : decimal.Parse(amount, CultureInfo.InvariantCulture);
+
+        var result = await ExecuteAsync(new InterventionInput(Today, Work: "Vidange", Amount: expected));
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(expected, result.Value.Amount);
+        Assert.Equal(expected, Assert.Single(_interventions.Saved).Amount);
+    }
+
+    [Fact]
+    public async Task Un_montant_negatif_ou_trop_precis_est_refuse_sans_rien_enregistrer()
+    {
+        var negative = await ExecuteAsync(new InterventionInput(Today, Work: "Vidange", Amount: -1m));
+        var tooPrecise = await ExecuteAsync(new InterventionInput(Today, Work: "Vidange", Amount: 1.234m));
+
+        Assert.Equal(InterventionErrors.AmountNegative, negative.Error);
+        Assert.Equal(InterventionErrors.AmountTooPrecise, tooPrecise.Error);
+        Assert.Empty(_interventions.Saved);
     }
 }
