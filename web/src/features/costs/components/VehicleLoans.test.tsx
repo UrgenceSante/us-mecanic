@@ -38,6 +38,28 @@ describe("loanEndMonth", () => {
   });
 });
 
+describe("rendu mobile", () => {
+  it("affiche des cartes empilées sous le breakpoint sm", async () => {
+    vi.resetAllMocks();
+    api.listLoans.mockResolvedValue([loan]);
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn(),
+      addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: vi.fn(), onchange: null,
+    }));
+    try {
+      renderLoans();
+      expect(await screen.findByTestId("loan-card")).toBeInTheDocument();
+      expect(screen.queryByRole("table")).toBeNull();
+      expect(screen.getByText(/350,50\s€\/mois/)).toBeInTheDocument();
+      expect(screen.getByText(/15\/11\/2026 → 01\/2027 \(3 mois\)/)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Modifier l'emprunt/ })).toBeInTheDocument();
+    } finally {
+      // @ts-expect-error nettoyage du mock jsdom
+      delete window.matchMedia;
+    }
+  });
+});
+
 describe("VehicleLoans", () => {
   beforeEach(() => {
     vi.resetAllMocks();
@@ -52,12 +74,13 @@ describe("VehicleLoans", () => {
     expect(screen.getByText("15/11/2026")).toBeInTheDocument();
     expect(screen.getByText("3 mois")).toBeInTheDocument();
     expect(screen.getByText("01/2027")).toBeInTheDocument();
+    expect(screen.getByRole("table")).toBeInTheDocument();
   });
 
   it("affiche l'état vide", async () => {
     api.listLoans.mockResolvedValue([]);
     renderLoans();
-    expect(await screen.findByText("Aucun emprunt.")).toBeInTheDocument();
+    expect(await screen.findByText("Aucun emprunt enregistré pour ce véhicule.")).toBeInTheDocument();
   });
 
   it("masque l'ajout pour un véhicule sorti du parc mais garde modifier et supprimer", async () => {

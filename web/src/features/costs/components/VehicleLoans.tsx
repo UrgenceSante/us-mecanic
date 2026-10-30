@@ -56,7 +56,11 @@ export default function VehicleLoans({ vehicleId, status }: VehicleLoansProps) {
         <Stack direction="row" alignItems="center" gap={2} flexWrap="wrap">
           <Typography variant="h6">Emprunts</Typography>
           <Stack flexGrow={1} />
-          {status !== "Retired" && (
+          {status === "Retired" ? (
+            <Typography variant="body2" color="text.secondary">
+              Véhicule sorti du parc : ajout impossible.
+            </Typography>
+          ) : (
             <Button startIcon={<AddIcon />} onClick={() => setAdding(true)}>
               Ajouter un emprunt
             </Button>
@@ -64,7 +68,7 @@ export default function VehicleLoans({ vehicleId, status }: VehicleLoansProps) {
         </Stack>
         {loans.isLoading && <CircularProgress size={24} aria-label="Chargement des emprunts" />}
         {loans.isError && <Alert severity="error">{loanErrorMessage(loans.error)}</Alert>}
-        {loans.data?.length === 0 && <Typography color="text.secondary">Aucun emprunt.</Typography>}
+        {loans.data?.length === 0 && <Typography color="text.secondary">Aucun emprunt enregistré pour ce véhicule.</Typography>}
         {loans.data && loans.data.length > 0 && <LoanList loans={loans.data} onEdit={setEditing} onDelete={setDeleting} />}
       </Stack>
       {(adding || editing) && (

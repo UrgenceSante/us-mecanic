@@ -1,7 +1,7 @@
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { useState, type FormEvent } from "react";
 import AmountField from "../../../shared/components/AmountField";
-import type { LoanInput } from "../types/loan";
+import { loanEndMonth, type LoanInput } from "../types/loan";
 import { emptyLoanForm, isLoanFormValid, isValidDuration, toLoanInput, type LoanFormValues } from "./loanForm";
 
 interface LoanFormDialogProps {
@@ -17,6 +17,12 @@ export default function LoanFormDialog({ initialValues, submitting, error, onSub
   const [values, setValues] = useState<LoanFormValues>(initialValues ?? emptyLoanForm);
   const set = (patch: Partial<LoanFormValues>) => setValues((v) => ({ ...v, ...patch }));
   const durationInvalid = values.durationMonths !== "" && !isValidDuration(values.durationMonths);
+
+  const durationHelp = durationInvalid
+    ? "Nombre entier de mois, au moins 1."
+    : values.startDate !== "" && isValidDuration(values.durationMonths)
+      ? `Dernière mensualité : ${loanEndMonth(values.startDate, Number(values.durationMonths))}`
+      : "Raccourcissable en cas de remboursement anticipé ou de vente";
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -42,8 +48,8 @@ export default function LoanFormDialog({ initialValues, submitting, error, onSub
             slotProps={{ htmlInput: { maxLength: 200 } }}
             onChange={(e) => set({ lender: e.target.value })}
           />
-          <AmountField label="Montant emprunté (€)" hint="Obligatoire" value={values.borrowedAmount} onChange={(v) => set({ borrowedAmount: v })} />
-          <AmountField label="Mensualité (€)" hint="Obligatoire" value={values.monthlyPayment} onChange={(v) => set({ monthlyPayment: v })} />
+          <AmountField label="Montant emprunté (€)" required value={values.borrowedAmount} onChange={(v) => set({ borrowedAmount: v })} />
+          <AmountField label="Mensualité (€)" required value={values.monthlyPayment} onChange={(v) => set({ monthlyPayment: v })} />
           <TextField
             label="Date de début"
             type="date"
@@ -61,7 +67,7 @@ export default function LoanFormDialog({ initialValues, submitting, error, onSub
             margin="dense"
             value={values.durationMonths}
             error={durationInvalid}
-            helperText={durationInvalid ? "Nombre entier de mois, au moins 1." : "Raccourcissable en cas de remboursement anticipé ou de vente"}
+            helperText={durationHelp}
             slotProps={{ htmlInput: { inputMode: "numeric", maxLength: 4 } }}
             onChange={(e) => set({ durationMonths: e.target.value })}
           />

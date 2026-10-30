@@ -94,11 +94,11 @@ export default function VehicleDetailPage() {
 
       <VehicleMaintenanceLog vehicleId={data.id} status={data.status} currentMileage={data.currentMileage} />
 
-      <VehicleLoans vehicleId={data.id} status={data.status} />
-
       <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
 
       <VehicleProblems vehicleId={data.id} />
+
+      <VehicleLoans vehicleId={data.id} status={data.status} />
 
       {editing && (
         <VehicleFormDialog

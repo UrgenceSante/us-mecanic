@@ -1,8 +1,9 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, useMediaQuery, useTheme } from "@mui/material";
 import { formatEuro } from "../../../shared/format/formatEuro";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
+import LoanCards from "./LoanCards";
 import { loanEndMonth, type Loan } from "../types/loan";
 
 interface LoanListProps {
@@ -12,6 +13,8 @@ interface LoanListProps {
 }
 
 export default function LoanList({ loans, onEdit, onDelete }: LoanListProps) {
+  const compact = useMediaQuery(useTheme().breakpoints.down("sm"));
+  if (compact) return <LoanCards loans={loans} onEdit={onEdit} onDelete={onDelete} />;
   return (
     <TableContainer>
       <Table size="small">
@@ -22,7 +25,11 @@ export default function LoanList({ loans, onEdit, onDelete }: LoanListProps) {
             <TableCell align="right">Mensualité</TableCell>
             <TableCell>Début</TableCell>
             <TableCell align="right">Durée</TableCell>
-            <TableCell>Fin (dernière mensualité)</TableCell>
+            <TableCell>
+              <Tooltip title="Dernière mensualité">
+                <span>Fin</span>
+              </Tooltip>
+            </TableCell>
             <TableCell />
           </TableRow>
         </TableHead>
