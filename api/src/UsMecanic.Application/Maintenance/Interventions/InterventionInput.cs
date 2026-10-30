@@ -8,6 +8,7 @@ namespace UsMecanic.Application.Maintenance.Interventions;
 /// <param name="DeadlineIds">Échéances en cours du véhicule réalisées par l'intervention (aucune = imprévue).</param>
 /// <param name="Reason">Motif du relevé, obligatoire si le km est incohérent avec les relevés voisins.</param>
 /// <param name="ConfirmHighMileage">À <c>true</c> pour confirmer un kilométrage moyen supérieur à 1 000 km/jour.</param>
+/// <param name="Amount">Montant en euros, facultatif : positif ou nul, 2 décimales au plus.</param>
 public sealed record InterventionInput(
     DateOnly Date,
     int? Kilometers = null,
@@ -15,4 +16,5 @@ public sealed record InterventionInput(
     string? Work = null,
     IReadOnlyList<Guid>? DeadlineIds = null,
     string? Reason = null,
-    bool ConfirmHighMileage = false);
+    bool ConfirmHighMileage = false,
+    decimal? Amount = null);

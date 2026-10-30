@@ -48,6 +48,7 @@ app.MapSystemEndpoints();
 app.MapVehicleEndpoints();
 app.MapVehicleTypeEndpoints();
 app.MapGarageEndpoints();
+app.MapExpenseCategoryEndpoints();
 app.MapProblemReferenceEndpoints();
 app.MapInterventionEndpoints();
 app.MapProblemEndpoints();

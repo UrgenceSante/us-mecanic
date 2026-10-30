@@ -27,6 +27,15 @@ public static class InterventionErrors
     public static readonly DomainError DeadlineClosed =
         DomainError.Conflict("intervention.deadline_closed", "Une échéance close ne peut pas être réalisée par une intervention.");
 
+    public static readonly DomainError AmountNegative =
+        new("intervention.amount_negative", "Le montant ne peut pas être négatif.");
+
+    public static readonly DomainError AmountTooPrecise =
+        new("intervention.amount_too_precise", "Le montant est limité à 2 décimales.");
+
+    public static readonly DomainError AmountTooLarge =
+        new("intervention.amount_too_large", "Le montant dépasse la valeur maximale autorisée.");
+
     public static readonly DomainError GarageUnknown =
         new("intervention.garage_unknown", "Garage inconnu.");
 

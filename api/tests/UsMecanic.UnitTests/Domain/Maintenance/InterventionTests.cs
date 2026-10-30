@@ -1,3 +1,4 @@
+using System.Globalization;
 using UsMecanic.Domain.Common;
 using UsMecanic.Domain.Maintenance;
 using UsMecanic.UnitTests.TestDoubles;
@@ -10,8 +11,9 @@ public class InterventionTests
     private static readonly DateTimeOffset Now = FixedClock.Default;
 
     private static Result<Intervention> Create(
-        string? work = "Vidange", DateOnly? date = null, IReadOnlyCollection<Guid>? deadlineIds = null, int? kilometers = null, Guid? garageId = null) =>
-        Intervention.Create(Guid.NewGuid(), date ?? Today, kilometers, garageId, work, deadlineIds ?? [], Today, Now);
+        string? work = "Vidange", DateOnly? date = null, IReadOnlyCollection<Guid>? deadlineIds = null, int? kilometers = null, Guid? garageId = null,
+        decimal? amount = null) =>
+        Intervention.Create(Guid.NewGuid(), date ?? Today, kilometers, garageId, work, deadlineIds ?? [], Today, Now, amount);
 
     [Fact]
     public void Create_nettoie_les_travaux_et_conserve_les_echeances()
@@ -72,5 +74,54 @@ public class InterventionTests
         var id = Guid.NewGuid();
 
         Assert.Equal(InterventionErrors.DeadlineDuplicated, Create(deadlineIds: [id, Guid.NewGuid(), id]).Error);
+    }
+
+    [Fact]
+    public void Create_sans_montant_laisse_le_montant_absent()
+    {
+        Assert.Null(Create().Value.Amount);
+    }
+
+    [Theory]
+    [InlineData("0")]
+    [InlineData("120.5")]
+    [InlineData("120.50")]
+    [InlineData("0.01")]
+    [InlineData("120.500")]
+    public void Create_accepte_un_montant_positif_ou_nul_a_deux_decimales_au_plus(string amount)
+    {
+        var expected = decimal.Parse(amount, CultureInfo.InvariantCulture);
+
+        var result = Create(amount: expected);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(expected, result.Value.Amount);
+    }
+
+    [Theory]
+    [InlineData("-0.01")]
+    [InlineData("-120")]
+    public void Create_refuse_un_montant_negatif(string amount)
+    {
+        var result = Create(amount: decimal.Parse(amount, CultureInfo.InvariantCulture));
+
+        Assert.Equal(InterventionErrors.AmountNegative, result.Error);
+    }
+
+    [Theory]
+    [InlineData("0.001")]
+    [InlineData("120.505")]
+    public void Create_refuse_un_montant_a_plus_de_deux_decimales(string amount)
+    {
+        var result = Create(amount: decimal.Parse(amount, CultureInfo.InvariantCulture));
+
+        Assert.Equal(InterventionErrors.AmountTooPrecise, result.Error);
+    }
+
+    [Fact]
+    public void Create_refuse_un_montant_au_dela_du_maximum_stockable()
+    {
+        Assert.True(Create(amount: Intervention.MaxAmount).IsSuccess);
+        Assert.Equal(InterventionErrors.AmountTooLarge, Create(amount: Intervention.MaxAmount + 0.01m).Error);
     }
 }

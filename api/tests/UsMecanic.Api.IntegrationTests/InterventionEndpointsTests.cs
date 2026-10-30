@@ -24,7 +24,7 @@ public class InterventionEndpointsTests : IClassFixture<ApiFactory>
     private sealed record DoneDeadlineDto(Guid Id, string? TypeName);
 
     private sealed record InterventionDto(
-        Guid Id, Guid VehicleId, DateOnly Date, int? Kilometers, GarageDto? Garage, string Work, List<DoneDeadlineDto> Deadlines);
+        Guid Id, Guid VehicleId, DateOnly Date, int? Kilometers, GarageDto? Garage, string Work, decimal? Amount, List<DoneDeadlineDto> Deadlines);
 
     private sealed record DeadlineDto(Guid Id, DateOnly? LastDoneDate, int? LastDoneKm, DateOnly? DueDate, int? DueKm, bool IsClosed);
 
@@ -352,5 +352,57 @@ public class InterventionEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.Conflict, afterRetired.StatusCode);
         Assert.Equal("vehicle.retired", await ErrorCodeAsync(afterRetired));
         Assert.Single((await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json))!);
+    }
+
+    [Fact]
+    public async Task Une_intervention_sans_montant_n_en_renvoie_pas()
+    {
+        var vehicleId = await CreateVehicleAsync();
+
+        var response = await _client.PostAsJsonAsync(InterventionsUri(vehicleId), new { date = Offset(-1), work = "Vidange" });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Null((await response.Content.ReadFromJsonAsync<InterventionDto>(Json))!.Amount);
+        var logbook = await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json);
+        Assert.Null(Assert.Single(logbook!).Amount);
+    }
+
+    [Fact]
+    public async Task Le_montant_zero_ou_decimal_est_renvoye_a_l_identique_a_la_creation_et_dans_le_carnet()
+    {
+        var vehicleId = await CreateVehicleAsync();
+
+        var free = await _client.PostAsJsonAsync(InterventionsUri(vehicleId), new { date = Offset(-2), work = "Geste commercial", amount = 0 });
+        var paid = await _client.PostAsJsonAsync(InterventionsUri(vehicleId), new { date = Offset(-1), work = "Vidange", amount = 120.50m });
+
+        Assert.Equal(HttpStatusCode.Created, free.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, paid.StatusCode);
+        Assert.Equal(0m, (await free.Content.ReadFromJsonAsync<InterventionDto>(Json))!.Amount);
+        Assert.Equal(120.50m, (await paid.Content.ReadFromJsonAsync<InterventionDto>(Json))!.Amount);
+        var logbook = await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json);
+        Assert.Equal(new decimal?[] { 120.50m, 0m }, logbook!.Select(i => i.Amount).ToArray());
+    }
+
+    [Fact]
+    public async Task Un_montant_negatif_est_refuse_en_problem_details()
+    {
+        var vehicleId = await CreateVehicleAsync();
+
+        var response = await _client.PostAsJsonAsync(InterventionsUri(vehicleId), new { date = Offset(-1), work = "Vidange", amount = -0.01m });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("intervention.amount_negative", await ErrorCodeAsync(response));
+        Assert.Empty((await _client.GetFromJsonAsync<List<InterventionDto>>(InterventionsUri(vehicleId), Json))!);
+    }
+
+    [Fact]
+    public async Task Un_montant_a_plus_de_deux_decimales_est_refuse()
+    {
+        var vehicleId = await CreateVehicleAsync();
+
+        var response = await _client.PostAsJsonAsync(InterventionsUri(vehicleId), new { date = Offset(-1), work = "Vidange", amount = 10.505m });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("intervention.amount_too_precise", await ErrorCodeAsync(response));
     }
 }
