@@ -48,7 +48,7 @@ public sealed class CompleteVehicleDeadline(
 
         var work = comment ?? (await types.GetByIdAsync(deadline.DeadlineTypeId, cancellationToken))?.Name;
         var intervention = new InterventionInput(
-            input.Date, input.Kilometers, input.GarageId, work, [deadline.Id], input.Reason, input.ConfirmHighMileage);
+            input.Date, input.Kilometers, input.GarageId, work, [deadline.Id], input.Reason, input.ConfirmHighMileage, input.Amount);
         var created = await addIntervention.ExecuteAsync(vehicleId, intervention, cancellationToken);
         if (created.IsFailure)
         {

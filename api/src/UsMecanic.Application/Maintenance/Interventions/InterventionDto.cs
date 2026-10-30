@@ -9,6 +9,7 @@ public sealed record InterventionDto(
     InterventionGarageDto? Garage,
     string Work,
     DateTimeOffset RecordedAt,
+    decimal? Amount,
     IReadOnlyList<InterventionDeadlineDto> Deadlines);
 
 public sealed record InterventionGarageDto(Guid Id, string Name);

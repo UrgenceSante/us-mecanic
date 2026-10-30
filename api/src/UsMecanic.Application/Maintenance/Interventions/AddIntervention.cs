@@ -36,7 +36,7 @@ public sealed class AddIntervention(
         var now = clock.GetUtcNow();
         var today = calendar.Today;
         var created = Intervention.Create(
-            vehicleId, input.Date, input.Kilometers, input.GarageId, input.Work, input.DeadlineIds ?? [], today, now);
+            vehicleId, input.Date, input.Kilometers, input.GarageId, input.Work, input.DeadlineIds ?? [], today, now, input.Amount);
         if (created.IsFailure)
         {
             return Result<InterventionDto>.Failure(created.Error!);
