@@ -49,6 +49,7 @@ public sealed class InterventionDtoFactory(
                 garage,
                 intervention.Work,
                 intervention.RecordedAt,
+                intervention.Amount,
                 [.. done.OrderBy(d => d.TypeName, StringComparer.OrdinalIgnoreCase)]);
         })];
     }
