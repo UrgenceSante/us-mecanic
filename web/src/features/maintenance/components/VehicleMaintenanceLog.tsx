@@ -5,10 +5,11 @@ import useNotifSnack from "../../../hooks/useNotifSnack";
 import { useVehicleDeadlines } from "../../vehicle-deadlines/api/vehicleDeadlineQueries";
 import type { VehicleStatus } from "../../vehicles/types/vehicle";
 import { interventionErrorMessage, interventionFlow } from "../api/interventionErrors";
-import { useAddIntervention, useDeleteIntervention, useInterventions } from "../api/interventionQueries";
+import { useAddIntervention, useChangeInterventionAmount, useDeleteIntervention, useInterventions } from "../api/interventionQueries";
 import type { Intervention, InterventionInput } from "../types/intervention";
 import AddInterventionDialog from "./AddInterventionDialog";
 import DeleteInterventionDialog from "./DeleteInterventionDialog";
+import EditAmountDialog from "./EditAmountDialog";
 import InterventionList from "./InterventionList";
 
 interface VehicleMaintenanceLogProps {
@@ -25,6 +26,8 @@ export default function VehicleMaintenanceLog({ vehicleId, status, currentMileag
   const add = useAddIntervention(vehicleId);
   const [toDelete, setToDelete] = useState<Intervention | null>(null);
   const remove = useDeleteIntervention(vehicleId);
+  const [toEdit, setToEdit] = useState<Intervention | null>(null);
+  const changeAmount = useChangeInterventionAmount(vehicleId);
   const flow = interventionFlow(add.isError ? add.error : null);
 
   const close = () => {
@@ -35,6 +38,24 @@ export default function VehicleMaintenanceLog({ vehicleId, status, currentMileag
   const closeDelete = () => {
     setToDelete(null);
     remove.reset();
+  };
+
+  const closeEdit = () => {
+    setToEdit(null);
+    changeAmount.reset();
+  };
+
+  const submitAmount = (amount: number | null) => {
+    if (!toEdit) return;
+    changeAmount.mutate(
+      { interventionId: toEdit.id, amount },
+      {
+        onSuccess: () => {
+          notifySuccess("Montant modifié");
+          closeEdit();
+        },
+      },
+    );
   };
 
   const confirmDelete = () => {
@@ -74,9 +95,22 @@ export default function VehicleMaintenanceLog({ vehicleId, status, currentMileag
         {interventions.isError && <Alert severity="error">{interventionErrorMessage(interventions.error)}</Alert>}
         {interventions.data?.length === 0 && <Typography color="text.secondary">Aucune intervention.</Typography>}
         {interventions.data && interventions.data.length > 0 && (
-          <InterventionList interventions={interventions.data} onDelete={status === "Retired" ? undefined : setToDelete} />
+          <InterventionList
+            interventions={interventions.data}
+            onDelete={status === "Retired" ? undefined : setToDelete}
+            onEditAmount={setToEdit}
+          />
         )}
       </Stack>
+      {toEdit && (
+        <EditAmountDialog
+          intervention={toEdit}
+          submitting={changeAmount.isPending}
+          error={changeAmount.isError ? interventionErrorMessage(changeAmount.error) : null}
+          onSubmit={submitAmount}
+          onClose={closeEdit}
+        />
+      )}
       {toDelete && (
         <DeleteInterventionDialog
           intervention={toDelete}

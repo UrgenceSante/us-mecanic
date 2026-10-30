@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import VehicleMaintenanceLog from "./VehicleMaintenanceLog";
 import { todayLocalIso } from "../../mileage/types/date";
 
-const api = vi.hoisted(() => ({ listInterventions: vi.fn(), addIntervention: vi.fn(), deleteIntervention: vi.fn() }));
+const api = vi.hoisted(() => ({ listInterventions: vi.fn(), addIntervention: vi.fn(), deleteIntervention: vi.fn(), changeInterventionAmount: vi.fn() }));
 const deadlinesApi = vi.hoisted(() => ({ listVehicleDeadlines: vi.fn() }));
 const garagesApi = vi.hoisted(() => ({ listGarages: vi.fn(), createGarage: vi.fn() }));
 vi.mock("../api/interventionsApi", () => api);
@@ -177,5 +177,50 @@ describe("VehicleMaintenanceLog", () => {
     renderLog("Retired");
     expect(await screen.findByText("Vidange complète")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Supprimer l'intervention du/ })).toBeNull();
+  });
+
+  it("modifie le montant d'une intervention, prérempli, avec une virgule", async () => {
+    api.changeInterventionAmount.mockResolvedValue({ ...interventions[0], amount: 89.9 });
+    renderLog();
+    fireEvent.click(await screen.findByRole("button", { name: /Modifier le montant de l'intervention du/ }));
+    const field = screen.getByLabelText(/Montant/);
+    expect(field).toHaveValue("1234,5");
+
+    fireEvent.change(field, { target: { value: "89,9" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+    await waitFor(() => expect(api.changeInterventionAmount).toHaveBeenCalledWith("v1", "i1", 89.9));
+    await waitFor(() => expect(screen.queryByText("Modifier le montant")).toBeNull());
+    expect(api.listInterventions).toHaveBeenCalledTimes(2);
+  });
+
+  it("vide le montant quand le champ est vide et bloque une saisie invalide", async () => {
+    api.changeInterventionAmount.mockResolvedValue({ ...interventions[0], amount: null });
+    renderLog();
+    fireEvent.click(await screen.findByRole("button", { name: /Modifier le montant de l'intervention du/ }));
+    const field = screen.getByLabelText(/Montant/);
+
+    fireEvent.change(field, { target: { value: "-2" } });
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    fireEvent.change(field, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+    await waitFor(() => expect(api.changeInterventionAmount).toHaveBeenCalledWith("v1", "i1", null));
+  });
+
+  it("traduit l'erreur de l'API et garde le dialogue ouvert", async () => {
+    api.changeInterventionAmount.mockRejectedValue(problem("intervention.amount_too_large"));
+    renderLog();
+    fireEvent.click(await screen.findByRole("button", { name: /Modifier le montant de l'intervention du/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+    expect(await screen.findByText("Le montant dépasse la valeur maximale autorisée.")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Montant/)).toBeInTheDocument();
+  });
+
+  it("garde la correction du montant pour un véhicule sorti du parc, sans la suppression", async () => {
+    renderLog("Retired");
+    expect(await screen.findByRole("button", { name: /Modifier le montant de l'intervention du/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Supprimer l'intervention/ })).toBeNull();
   });
 });

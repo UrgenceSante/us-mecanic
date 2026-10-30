@@ -16,3 +16,9 @@ export async function addIntervention(vehicleId: string, input: InterventionInpu
   const { data } = await apiClient.post<Intervention>(interventionsUrl(vehicleId), input);
   return data;
 }
+
+/** Modifie le montant d'une intervention (null pour le vider). */
+export async function changeInterventionAmount(vehicleId: string, interventionId: string, amount: number | null): Promise<Intervention> {
+  const { data } = await apiClient.put<Intervention>(`${interventionsUrl(vehicleId)}/${interventionId}/amount`, { amount });
+  return data;
+}
