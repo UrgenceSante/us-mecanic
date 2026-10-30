@@ -201,6 +201,11 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<decimal?>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount");
+
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date")
                         .HasColumnName("date");
