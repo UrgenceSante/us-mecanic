@@ -100,7 +100,7 @@ export default function VehicleDetailPage() {
       <VehicleProblems vehicleId={data.id} />
 
       <div>
-        <Button component={Link} to={`/costs?vehicleId=${data.id}`} size="small">
+        <Button component={Link} to={`/costs?vehicleId=${data.id}`} variant="outlined" sx={{ minHeight: 44 }}>
           Voir les coûts
         </Button>
       </div>

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -64,6 +64,22 @@ describe("CostSummaryPage", () => {
 
     expect(await screen.findByText(/0,15\s€ \/ km/)).toBeInTheDocument();
     expect(api.getCostSummary).toHaveBeenCalledWith(expect.objectContaining({ vehicleId: "v1", granularity: "month" }));
+  });
+
+  it("affiche km parcourus, exclusions et applique un raccourci de période", async () => {
+    api.getCostSummary.mockResolvedValue(
+      summary({ costPerKm: { kilometers: 12000, cost: 1800, value: 0.15, computable: true, excludedVehicles: 3 } }),
+    );
+    renderPage();
+
+    expect(await screen.findByText(/12\s000 km parcourus/)).toBeInTheDocument();
+    expect(screen.getByText("3 véhicules exclus (moins de 2 relevés)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Sous-total Ponctuelles")).toHaveTextContent("100,00");
+
+    fireEvent.click(screen.getByRole("button", { name: "Mois dernier" }));
+    await waitFor(() =>
+      expect(api.getCostSummary).toHaveBeenLastCalledWith(expect.objectContaining({ to: expect.stringMatching(/^\d{4}-\d{2}-(28|29|30|31)$/) })),
+    );
   });
 
   it("affiche l'état vide", async () => {

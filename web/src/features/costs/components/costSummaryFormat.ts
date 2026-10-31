@@ -25,3 +25,31 @@ export function currentYearRange(now = new Date()): { from: string; to: string }
   const year = now.getFullYear();
   return { from: `${year}-01-01`, to: `${year}-12-31` };
 }
+
+function iso(d: Date): string {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+export type PeriodShortcut = "thisYear" | "last12Months" | "lastMonth";
+
+export const periodShortcutLabels: Record<PeriodShortcut, string> = {
+  thisYear: "Cette année",
+  last12Months: "12 derniers mois",
+  lastMonth: "Mois dernier",
+};
+
+/** Dates des raccourcis de période, calculées en date locale (jamais en UTC). */
+export function shortcutRange(shortcut: PeriodShortcut, now = new Date()): { from: string; to: string } {
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  if (shortcut === "thisYear") return currentYearRange(now);
+  if (shortcut === "lastMonth") return { from: iso(new Date(y, m - 1, 1)), to: iso(new Date(y, m, 0)) };
+  return { from: iso(new Date(y, m - 11, 1)), to: iso(new Date(y, m + 1, 0)) };
+}
+
+/** Texte « N véhicule(s) exclu(s) (moins de 2 relevés) ». */
+export function excludedLabel(count: number): string {
+  return `${count} véhicule${count > 1 ? "s" : ""} exclu${count > 1 ? "s" : ""} (moins de 2 relevés)`;
+}
