@@ -29,7 +29,7 @@ function perKmCard(perKm: CostPerKm, allFleet: boolean) {
       <Card
         title="Coût au km"
         value="Non calculable"
-        note={["Il faut au moins deux relevés de km et des dépenses sur la période.", excluded].filter(Boolean).join(" ")}
+        note={["Il faut au moins deux relevés kilométriques sur la période.", excluded].filter(Boolean).join(" ")}
       />
     );
   }
