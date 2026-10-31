@@ -30,6 +30,8 @@ export default function VehicleMaintenanceLog({ vehicleId, status, currentMileag
   const changeAmount = useChangeInterventionAmount(vehicleId);
   const flow = interventionFlow(add.isError ? add.error : null);
 
+  const actions = status === "Retired" ? {} : { delete: setToDelete, editAmount: setToEdit };
+
   const close = () => {
     setOpen(false);
     add.reset();
@@ -97,8 +99,8 @@ export default function VehicleMaintenanceLog({ vehicleId, status, currentMileag
         {interventions.data && interventions.data.length > 0 && (
           <InterventionList
             interventions={interventions.data}
-            onDelete={status === "Retired" ? undefined : setToDelete}
-            onEditAmount={setToEdit}
+            onDelete={actions.delete}
+            onEditAmount={actions.editAmount}
           />
         )}
       </Stack>

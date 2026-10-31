@@ -1,6 +1,6 @@
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Chip, Divider, IconButton, Stack, Typography } from "@mui/material";
+import { Chip, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { Fragment } from "react";
 import { formatEuro } from "../../../shared/format/formatEuro";
 import { formatKm } from "../../mileage/types/format";
@@ -11,7 +11,7 @@ interface InterventionListProps {
   interventions: Intervention[];
   /** Absent pour un véhicule sorti du parc : l'action « Supprimer » est alors masquée. */
   onDelete?: (intervention: Intervention) => void;
-  /** Toujours proposée, même pour un véhicule sorti du parc : corriger un coût reste permis. */
+  /** Absent pour un véhicule sorti du parc : l'action « Modifier le montant » est alors masquée. */
   onEditAmount?: (intervention: Intervention) => void;
 }
 
@@ -33,18 +33,27 @@ export default function InterventionList({ interventions, onDelete, onEditAmount
                 {i.amount != null && ` · ${formatEuro(i.amount)}`}
               </Typography>
               {onEditAmount && (
-                <IconButton
-                  aria-label={`Modifier le montant de l'intervention du ${formatDateOnly(i.date)}`}
-                  sx={touchTarget}
-                  onClick={() => onEditAmount(i)}
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
+                <Tooltip title="Modifier le montant">
+                  <IconButton
+                    aria-label={`Modifier le montant de l'intervention du ${formatDateOnly(i.date)}`}
+                    sx={touchTarget}
+                    onClick={() => onEditAmount(i)}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               )}
               {onDelete && (
-                <IconButton aria-label={`Supprimer l'intervention du ${formatDateOnly(i.date)}`} sx={touchTarget} onClick={() => onDelete(i)}>
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
+                <Tooltip title="Supprimer">
+                  <IconButton
+                    aria-label={`Supprimer l'intervention du ${formatDateOnly(i.date)}`}
+                    color="error"
+                    sx={touchTarget}
+                    onClick={() => onDelete(i)}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               )}
             </Stack>
             <Typography sx={{ whiteSpace: "pre-wrap" }}>{i.work}</Typography>

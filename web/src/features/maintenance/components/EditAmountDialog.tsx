@@ -1,5 +1,5 @@
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import AmountField from "../../../shared/components/AmountField";
 import { parseAmount } from "../../../shared/format/parseAmount";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
@@ -19,8 +19,14 @@ export default function EditAmountDialog({ intervention, submitting, error, onSu
   const [amount, setAmount] = useState(intervention.amount == null ? "" : String(intervention.amount).replace(".", ","));
   const parsed = parseAmount(amount);
 
+  const canSubmit = !submitting && parsed.error === null;
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    if (canSubmit) onSubmit(parsed.value);
+  };
+
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
+    <Dialog open onClose={onClose} fullWidth maxWidth="xs" component="form" onSubmit={handleSubmit}>
       <DialogTitle>Modifier le montant</DialogTitle>
       <DialogContent>
         {error && (
@@ -31,11 +37,11 @@ export default function EditAmountDialog({ intervention, submitting, error, onSu
         <DialogContentText>
           Intervention du {formatDateOnly(intervention.date)} ({intervention.work})
         </DialogContentText>
-        <AmountField value={amount} onChange={setAmount} hint="Laisser vide pour retirer le montant" />
+        <AmountField autoFocus value={amount} onChange={setAmount} hint="Laisser vide pour retirer le montant" />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Annuler</Button>
-        <Button variant="contained" disabled={submitting || parsed.error !== null} onClick={() => onSubmit(parsed.value)}>
+        <Button type="submit" variant="contained" disabled={!canSubmit}>
           Enregistrer
         </Button>
       </DialogActions>

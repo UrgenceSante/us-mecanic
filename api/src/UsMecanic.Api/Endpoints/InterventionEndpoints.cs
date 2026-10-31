@@ -31,7 +31,7 @@ internal static class InterventionEndpoints
         interventions.MapPut("/{interventionId:guid}/amount", async (
                 Guid vehicleId, Guid interventionId, ChangeAmountRequest request, ChangeInterventionAmount useCase, CancellationToken ct) =>
                 (await useCase.ExecuteAsync(vehicleId, interventionId, request.Amount, ct)).ToOk())
-            .WithSummary("Modifie le montant d'une intervention (null pour le vider), mêmes validations qu'à la création ; autorisé même si le véhicule est sorti du parc");
+            .WithSummary("Modifie le montant d'une intervention (null pour le vider), mêmes validations qu'à la création ; refusé (409 vehicle.retired) si le véhicule est sorti du parc");
 
         return app;
     }

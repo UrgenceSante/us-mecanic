@@ -453,7 +453,7 @@ public class InterventionEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task La_modification_du_montant_refuse_l_inconnu_et_l_anonyme_mais_accepte_un_vehicule_sorti_du_parc()
+    public async Task La_modification_du_montant_refuse_l_inconnu_l_anonyme_et_un_vehicule_sorti_du_parc()
     {
         var vehicleId = await CreateVehicleAsync();
         var otherId = await CreateVehicleAsync();
@@ -473,7 +473,7 @@ public class InterventionEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal("intervention.not_found", await ErrorCodeAsync(otherVehicle));
         Assert.Equal(HttpStatusCode.NotFound, unknownVehicle.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, anonymous.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, afterRetired.StatusCode);
-        Assert.Equal(42m, (await afterRetired.Content.ReadFromJsonAsync<InterventionDto>(Json))!.Amount);
+        Assert.Equal(HttpStatusCode.Conflict, afterRetired.StatusCode);
+        Assert.Equal("vehicle.retired", await ErrorCodeAsync(afterRetired));
     }
 }

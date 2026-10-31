@@ -383,14 +383,14 @@ public class InterventionUseCasesTests
     }
 
     [Fact]
-    public async Task Le_montant_reste_modifiable_pour_un_vehicule_sorti_du_parc()
+    public async Task Le_montant_est_refuse_pour_un_vehicule_sorti_du_parc()
     {
         var added = await ExecuteAsync(new InterventionInput(Today, Work: "Vidange"));
         _vehicle.ChangeStatus(VehicleStatus.Retired, _clock.Now);
 
         var result = await ChangeAmount.ExecuteAsync(_vehicle.Id, added.Value.Id, 42m, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
-        Assert.Equal(42m, Assert.Single(_interventions.Saved).Amount);
+        Assert.Equal(VehicleErrors.Retired, result.Error);
+        Assert.Null(Assert.Single(_interventions.Saved).Amount);
     }
 }

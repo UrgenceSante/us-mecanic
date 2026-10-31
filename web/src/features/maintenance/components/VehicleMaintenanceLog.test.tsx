@@ -218,9 +218,10 @@ describe("VehicleMaintenanceLog", () => {
     expect(screen.getByLabelText(/Montant/)).toBeInTheDocument();
   });
 
-  it("garde la correction du montant pour un véhicule sorti du parc, sans la suppression", async () => {
+  it("masque la modification du montant et la suppression pour un véhicule sorti du parc", async () => {
     renderLog("Retired");
-    expect(await screen.findByRole("button", { name: /Modifier le montant de l'intervention du/ })).toBeInTheDocument();
+    expect(await screen.findByText("Vidange complète")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Modifier le montant de l'intervention du/ })).toBeNull();
     expect(screen.queryByRole("button", { name: /Supprimer l'intervention/ })).toBeNull();
   });
 });

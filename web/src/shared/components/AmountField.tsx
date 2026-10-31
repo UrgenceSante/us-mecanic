@@ -8,15 +8,24 @@ interface AmountFieldProps {
   /** Remplace « Facultatif » (ex. champ obligatoire). */
   hint?: string;
   required?: boolean;
+  autoFocus?: boolean;
 }
 
 /** Champ « Montant (€) » facultatif : clavier décimal sur mobile, virgule française acceptée. */
-export default function AmountField({ value, onChange, label = "Montant (€)", hint = "Facultatif", required = false }: AmountFieldProps) {
+export default function AmountField({
+  value,
+  onChange,
+  label = "Montant (€)",
+  hint = "Facultatif",
+  required = false,
+  autoFocus = false,
+}: AmountFieldProps) {
   const { error } = parseAmount(value);
   return (
     <TextField
       label={label}
       required={required}
+      autoFocus={autoFocus}
       fullWidth
       margin="dense"
       value={value}
@@ -24,7 +33,9 @@ export default function AmountField({ value, onChange, label = "Montant (€)", 
       helperText={error ?? (required ? undefined : hint)}
       slotProps={{
         htmlInput: { inputMode: "decimal", maxLength: 16 },
-        input: { endAdornment: <InputAdornment position="end">€</InputAdornment> },
+        input: {
+          endAdornment: <InputAdornment position="end">€</InputAdornment>,
+        },
       }}
       onChange={(e) => onChange(e.target.value)}
     />
