@@ -227,6 +227,12 @@ describe("VehicleMaintenanceLog", () => {
 });
 
 describe("VehicleMaintenanceLog : montant vide", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    deadlinesApi.listVehicleDeadlines.mockResolvedValue(deadlines);
+    garagesApi.listGarages.mockResolvedValue([]);
+  });
+
   it("propose « Ajouter un montant » quand le montant est vide, sauf véhicule sorti du parc", async () => {
     api.listInterventions.mockResolvedValue([{ ...interventions[0], amount: null }]);
     renderLog();
