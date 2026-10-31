@@ -225,3 +225,25 @@ describe("VehicleMaintenanceLog", () => {
     expect(screen.queryByRole("button", { name: /Supprimer l'intervention/ })).toBeNull();
   });
 });
+
+describe("VehicleMaintenanceLog : montant vide", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    deadlinesApi.listVehicleDeadlines.mockResolvedValue(deadlines);
+    garagesApi.listGarages.mockResolvedValue([]);
+  });
+
+  it("propose « Ajouter un montant » quand le montant est vide, sauf véhicule sorti du parc", async () => {
+    api.listInterventions.mockResolvedValue([{ ...interventions[0], amount: null }]);
+    renderLog();
+    fireEvent.click(await screen.findByRole("button", { name: "Ajouter un montant" }));
+    expect(screen.getByLabelText(/Montant/)).toHaveValue("");
+  });
+
+  it("ne propose pas « Ajouter un montant » pour un véhicule sorti du parc", async () => {
+    api.listInterventions.mockResolvedValue([{ ...interventions[0], amount: null }]);
+    renderLog("Retired");
+    await screen.findByText("Vidange complète");
+    expect(screen.queryByRole("button", { name: "Ajouter un montant" })).toBeNull();
+  });
+});

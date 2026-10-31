@@ -1,6 +1,6 @@
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Chip, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { Button, Chip, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { Fragment } from "react";
 import { formatEuro } from "../../../shared/format/formatEuro";
 import { formatKm } from "../../mileage/types/format";
@@ -30,8 +30,22 @@ export default function InterventionList({ interventions, onDelete, onEditAmount
                 {formatDateOnly(i.date)}
                 {i.kilometers != null && ` · ${formatKm(i.kilometers)}`}
                 {i.garage && ` · ${i.garage.name}`}
-                {i.amount != null && ` · ${formatEuro(i.amount)}`}
               </Typography>
+              {i.amount != null && (
+                <Typography fontWeight={500} sx={{ whiteSpace: "nowrap" }}>
+                  {formatEuro(i.amount)}
+                </Typography>
+              )}
+              {i.amount == null && onEditAmount && (
+                <Button
+                  size="small"
+                  aria-label="Ajouter un montant"
+                  sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+                  onClick={() => onEditAmount(i)}
+                >
+                  + Montant
+                </Button>
+              )}
               {onEditAmount && (
                 <Tooltip title="Modifier le montant">
                   <IconButton

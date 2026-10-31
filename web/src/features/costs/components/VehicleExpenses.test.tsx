@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { todayLocal } from "./expenseForm";
 import { expensesTotal } from "../types/expense";
 import VehicleExpenses from "./VehicleExpenses";
 
@@ -83,8 +84,23 @@ describe("VehicleExpenses", () => {
     renderExpenses();
     expect(await screen.findByText("Lavage complet")).toBeInTheDocument();
     expect(screen.getByText("Prévue")).toBeInTheDocument();
-    expect(screen.getByTestId("expenses-total")).toHaveTextContent(/185,50\s€/);
+    expect(screen.getByTestId("expenses-total")).toHaveTextContent(/Réalisées : 85,50\s€ · Prévues : 100,00\s€/);
+    expect(screen.getByText("Importée")).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
+  });
+
+  it("n'affiche pas « Prévues » sans dépense prévue", async () => {
+    api.listExpenses.mockResolvedValue([manual]);
+    renderExpenses();
+    await screen.findByText("Lavage complet");
+    expect(screen.getByTestId("expenses-total")).not.toHaveTextContent("Prévues");
+    expect(screen.queryByText("Importée")).toBeNull();
+  });
+
+  it("préremplit la date à aujourd'hui à l'ajout", async () => {
+    renderExpenses();
+    fireEvent.click(await screen.findByRole("button", { name: "Ajouter une dépense" }));
+    expect(screen.getByLabelText(/^Date/)).toHaveValue(todayLocal());
   });
 
   it("masque modifier et supprimer pour une dépense non manuelle", async () => {

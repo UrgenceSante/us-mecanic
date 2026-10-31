@@ -8,7 +8,14 @@ export interface ExpenseFormValues {
   label: string;
 }
 
-export const emptyExpenseForm: ExpenseFormValues = { date: "", categoryId: "", amount: "", label: "" };
+/** Date locale du jour au format AAAA-MM-JJ. */
+export function todayLocal(now: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/** Formulaire d'ajout : la date est préremplie à aujourd'hui. */
+export const emptyExpenseForm = (): ExpenseFormValues => ({ date: todayLocal(), categoryId: "", amount: "", label: "" });
 
 export function expenseToFormValues(expense: Expense): ExpenseFormValues {
   return {

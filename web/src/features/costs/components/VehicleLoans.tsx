@@ -1,11 +1,12 @@
 import AddIcon from "@mui/icons-material/Add";
 import { Alert, Button, CircularProgress, Paper, Stack, Typography } from "@mui/material";
 import { useState } from "react";
+import { formatEuro } from "../../../shared/format/formatEuro";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import type { VehicleStatus } from "../../vehicles/types/vehicle";
 import { loanErrorMessage } from "../api/loanErrors";
 import { useAddLoan, useDeleteLoan, useLoans, useUpdateLoan } from "../api/loanQueries";
-import type { Loan, LoanInput } from "../types/loan";
+import { loansMonthlyTotal, type Loan, type LoanInput } from "../types/loan";
 import DeleteLoanDialog from "./DeleteLoanDialog";
 import LoanFormDialog from "./LoanFormDialog";
 import { loanToFormValues } from "./loanForm";
@@ -69,7 +70,14 @@ export default function VehicleLoans({ vehicleId, status }: VehicleLoansProps) {
         {loans.isLoading && <CircularProgress size={24} aria-label="Chargement des emprunts" />}
         {loans.isError && <Alert severity="error">{loanErrorMessage(loans.error)}</Alert>}
         {loans.data?.length === 0 && <Typography color="text.secondary">Aucun emprunt enregistré pour ce véhicule.</Typography>}
-        {loans.data && loans.data.length > 0 && <LoanList loans={loans.data} onEdit={setEditing} onDelete={setDeleting} />}
+        {loans.data && loans.data.length > 0 && (
+          <>
+            <LoanList loans={loans.data} onEdit={setEditing} onDelete={setDeleting} />
+            <Typography fontWeight="bold" textAlign="right" data-testid="loans-total">
+              Total des mensualités : {formatEuro(loansMonthlyTotal(loans.data))}
+            </Typography>
+          </>
+        )}
       </Stack>
       {(adding || editing) && (
         <LoanFormDialog

@@ -28,5 +28,12 @@ export interface ExpenseInput {
 /** Seules les dépenses saisies à la main sont modifiables et supprimables. */
 export const isManualExpense = (expense: Expense) => expense.source === "Manual";
 
+/** Totaux séparés : dépenses réalisées et dépenses prévues (date future). */
+export const expensesTotals = (expenses: Expense[]) => ({
+  done: expensesTotal(expenses.filter((e) => !e.isPlanned)),
+  planned: expensesTotal(expenses.filter((e) => e.isPlanned)),
+  hasPlanned: expenses.some((e) => e.isPlanned),
+});
+
 /** Total en euros, arrondi au centime. */
 export const expensesTotal = (expenses: Expense[]) => Math.round(expenses.reduce((sum, e) => sum + e.amount * 100, 0)) / 100;

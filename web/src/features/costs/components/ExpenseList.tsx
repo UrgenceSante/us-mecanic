@@ -1,6 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme } from "@mui/material";
+import { Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, useMediaQuery, useTheme } from "@mui/material";
 import { formatEuro } from "../../../shared/format/formatEuro";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import { isManualExpense, type Expense } from "../types/expense";
@@ -31,9 +31,14 @@ export default function ExpenseList({ expenses, editable, onEdit, onDelete }: Ex
         </TableHead>
         <TableBody>
           {expenses.map((expense) => (
-            <TableRow key={expense.id}>
+            <TableRow key={expense.id} sx={expense.isPlanned ? { opacity: 0.7 } : undefined}>
               <TableCell>
                 {formatDateOnly(expense.date)} {expense.isPlanned && <Chip size="small" label="Prévue" color="info" sx={{ marginLeft: 1 }} />}
+                {!isManualExpense(expense) && (
+                  <Tooltip title="Importée automatiquement">
+                    <Chip size="small" variant="outlined" label="Importée" sx={{ marginLeft: 1 }} />
+                  </Tooltip>
+                )}
               </TableCell>
               <TableCell>{expense.categoryName ?? "Sans catégorie"}</TableCell>
               <TableCell>{expense.label}</TableCell>
