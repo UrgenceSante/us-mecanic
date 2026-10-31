@@ -9,6 +9,7 @@ export interface NavItem {
 export const mainNavItems: NavItem[] = [
   { label: "Tableau de bord", to: "/", end: true },
   { label: "Parc", to: "/vehicles" },
+  { label: "Coûts", to: "/costs" },
 ];
 
 /** Référentiels et pages d'administration, regroupés dans un menu. */

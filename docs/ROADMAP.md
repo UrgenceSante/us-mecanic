@@ -76,7 +76,7 @@ Spec : `docs/specs/phase-5-couts.md`
 
 - [x] Montant d'une intervention ; dépenses ponctuelles et catégories administrables
 - [x] Emprunts des véhicules (mensualités)
-- [ ] Synthèse par véhicule et par période, coût au kilomètre
+- [x] Synthèse par véhicule et par période, coût au kilomètre
 
 ## Phase 6 — Documents
 

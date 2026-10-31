@@ -99,6 +99,12 @@ export default function VehicleDetailPage() {
 
       <VehicleProblems vehicleId={data.id} />
 
+      <div>
+        <Button component={Link} to={`/costs?vehicleId=${data.id}`} size="small">
+          Voir les coûts
+        </Button>
+      </div>
+
       <VehicleExpenses vehicleId={data.id} status={data.status} />
 
       <VehicleLoans vehicleId={data.id} status={data.status} />
