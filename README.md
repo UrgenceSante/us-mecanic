@@ -17,6 +17,56 @@ deploy/   docker compose + script de redéploiement (dev / prod)
 
 Le front ne parle qu'à l'API `us-mecanic`. L'agrégation des sources externes (kilométrage, infos véhicule…) se fait côté API derrière des ports de la couche Application. Déléguer une source à un autre service revient à changer d'adaptateur, sans impact sur le front.
 
+## Fonctionnalités livrées
+
+- **Parc** : véhicules, statuts (en service, immobilisé, sorti du parc), import CSV, types de véhicule.
+- **Kilométrage et échéances** : relevés, échéances (contrôle technique, assurance, entretien…), tableau de bord.
+- **Carnet d'entretien** : interventions rattachées à des échéances, garages administrables.
+- **Problèmes et résolution** :
+  - Une application chauffeur (hors de ce dépôt) signale un problème par `POST /api/problems`.
+  - Un administrateur analyse le problème : nature, élément concerné, texte, immobilisation.
+  - L'analyse porte 0 à n actions : acteur, type, contrainte, échéance, commentaire, clôture. Une action peut être reliée à une intervention du carnet.
+  - Les statuts sont automatiques : Signalé, puis Analysé, puis Résolu quand toutes les actions sont closes. Ajouter une action à un problème résolu le rouvre.
+  - Une analyse « immobilisante » passe le véhicule en « immobilisé ». Il revient en service quand plus aucun problème immobilisant n'est ouvert.
+  - Natures, éléments, acteurs, types d'action et contraintes sont des référentiels administrables (création, renommage, désactivation ; pas de suppression).
+  - Le tableau de bord trie les problèmes du plus au moins bloquant. Filtres : statut, véhicule, nature.
+- **Coûts** :
+  - Montant facultatif sur une intervention.
+  - Dépenses ponctuelles par véhicule, avec catégories administrables. Une dépense datée après aujourd'hui est « prévue » (`isPlanned`).
+  - Emprunts par véhicule (organisme, montant, mensualité, début, durée) : une mensualité par mois dans la synthèse.
+  - Synthèse par mois ou par année, pour le parc ou un véhicule, avec le coût au kilomètre (non calculable s'il y a moins de deux relevés sur la période).
+  - Carburant et péages ne sont pas saisissables : ils viendront de connecteurs en phase 8.
+- **Navigation** : entrées du quotidien (Tableau de bord, Parc, Coûts) et, sur ordinateur, un menu déroulant « Administration » (types de véhicule, types d'échéance, garages, catégories de dépense, référentiels problèmes, abonnements). Sur mobile, un tiroir latéral regroupe « Suivi » et « Administration ».
+
+## Endpoints de l'API
+
+Tous sont authentifiés, sauf `/health` et `GET /api/info`. Les erreurs sont en ProblemDetails. Le détail (paramètres, schémas) est dans Scalar (`/scalar`, en Development).
+
+| Domaine | Endpoints |
+|---|---|
+| Système | `GET /health`, `GET /api/info`, `GET /api/me` |
+| Véhicules | `GET/POST /api/vehicles`, `GET/PUT /api/vehicles/{id}`, `PUT /api/vehicles/{id}/status`, `POST /api/vehicles/import` |
+| Types de véhicule | `/api/vehicle-types` (liste, création, `PUT /{id}`, `POST /{id}/deactivate`) |
+| Kilométrage | `/api/vehicles/{vehicleId}/mileage-readings` (liste, création, `PUT` et `DELETE /{readingId}`) |
+| Échéances | `/api/vehicles/{vehicleId}/deadlines` (liste, création, `PUT /{id}/interval`, `POST /{id}/completions`) |
+| Types et seuils d'échéance | `/api/deadline-types` (comme les types de véhicule, plus `POST /{id}/assign`), `GET/PUT /api/deadline-thresholds` |
+| Tableau de bord | `GET /api/dashboard/deadlines` |
+| Carnet d'entretien | `/api/vehicles/{vehicleId}/interventions` (liste, création, `DELETE /{id}`, `PUT /{id}/amount`) |
+| Garages | `/api/garages` (liste, création, `PUT /{id}`, `POST /{id}/deactivate`) |
+| Problèmes | `POST /api/problems`, `GET /api/problems?status=&vehicleId=&natureId=`, `GET /api/problems/{id}`, `GET /api/vehicles/{vehicleId}/problems`, `PUT /api/problems/{id}/analysis` |
+| Actions de résolution | `POST /api/problems/{id}/actions`, `PUT /api/problems/{id}/actions/{actionId}`, `POST /api/problems/{id}/actions/{actionId}/close` |
+| Référentiels problèmes | `/api/problem-natures`, `/api/problem-elements`, `/api/problem-actors`, `/api/problem-action-types`, `/api/problem-constraints` (liste avec `includeInactive`, création, `PUT /{id}`, `POST /{id}/deactivate`) |
+| Dépenses | `/api/vehicles/{vehicleId}/expenses` (liste, création, `PUT` et `DELETE /{expenseId}`) |
+| Catégories de dépense | `/api/expense-categories` (liste, création, `PUT /{id}`, `POST /{id}/deactivate`) |
+| Emprunts | `/api/vehicles/{vehicleId}/loans` (liste, création, `PUT` et `DELETE /{loanId}`) |
+| Synthèse des coûts | `GET /api/costs/summary?from=&to=&granularity=&vehicleId=` |
+
+Exemple de signalement par l'application chauffeur (corps : immatriculation, date, description, auteur ; noms exacts des champs dans Scalar) :
+
+```bash
+curl -X POST "$API_URL/api/problems" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d @signalement.json
+```
+
 ## Développement local
 
 ```bash
