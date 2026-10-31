@@ -19,9 +19,9 @@ describe("parseAmount", () => {
   it.each([
     ["-5", "Le montant ne peut pas être négatif."],
     ["1,234", "Le montant est limité à 2 décimales."],
-    ["abc", "Montant invalide."],
-    ["1,2,3", "Montant invalide."],
-    [",", "Montant invalide."],
+    ["abc", "Saisissez un nombre, par exemple 89,90."],
+    ["1,2,3", "Saisissez un nombre, par exemple 89,90."],
+    [",", "Saisissez un nombre, par exemple 89,90."],
     ["10000000000", "Le montant dépasse la valeur maximale autorisée."],
   ])("refuse %j", (input, error) => {
     expect(parseAmount(input)).toEqual({ value: null, error });

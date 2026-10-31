@@ -15,7 +15,7 @@ interface ExpenseFormDialogProps {
 }
 
 export default function ExpenseFormDialog({ initialValues, submitting, error, onSubmit, onClose }: ExpenseFormDialogProps) {
-  const [values, setValues] = useState<ExpenseFormValues>(initialValues ?? emptyExpenseForm);
+  const [values, setValues] = useState<ExpenseFormValues>(initialValues ?? emptyExpenseForm());
   const set = (patch: Partial<ExpenseFormValues>) => setValues((v) => ({ ...v, ...patch }));
   const categories = useExpenseCategories(true);
   // Catégories actives, plus la catégorie déjà utilisée par la dépense même si elle est désactivée.

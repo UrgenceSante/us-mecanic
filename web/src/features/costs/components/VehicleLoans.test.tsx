@@ -70,11 +70,12 @@ describe("VehicleLoans", () => {
     renderLoans();
     expect(await screen.findByText("Crédit Test")).toBeInTheDocument();
     expect(screen.getByText(/20\s000,00\s€/)).toBeInTheDocument();
-    expect(screen.getByText(/350,50\s€/)).toBeInTheDocument();
+    expect(screen.getAllByText(/350,50\s€/)[0]).toBeInTheDocument();
     expect(screen.getByText("15/11/2026")).toBeInTheDocument();
     expect(screen.getByText("3 mois")).toBeInTheDocument();
     expect(screen.getByText("01/2027")).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getByTestId("loans-total")).toHaveTextContent(/Total des mensualités : 350,50\s€/);
   });
 
   it("affiche l'état vide", async () => {

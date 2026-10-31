@@ -18,6 +18,9 @@ export interface LoanInput {
   durationMonths: number;
 }
 
+/** Somme des mensualités, arrondie au centime. */
+export const loansMonthlyTotal = (loans: Loan[]) => Math.round(loans.reduce((sum, l) => sum + l.monthlyPayment * 100, 0)) / 100;
+
 /** Mois de la dernière mensualité (MM/AAAA) : une mensualité par mois à partir du mois de début. */
 export function loanEndMonth(startDate: string, durationMonths: number): string {
   const [year, month] = startDate.split("-").map(Number);

@@ -2,14 +2,14 @@ import AddIcon from "@mui/icons-material/Add";
 import { Alert, Button, CircularProgress, Paper, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import useNotifSnack from "../../../hooks/useNotifSnack";
-import { formatEuro } from "../../../shared/format/formatEuro";
 import type { VehicleStatus } from "../../vehicles/types/vehicle";
 import { expenseErrorMessage } from "../api/expenseErrors";
 import { useAddExpense, useDeleteExpense, useExpenses, useUpdateExpense } from "../api/expenseQueries";
-import { expensesTotal, type Expense, type ExpenseInput } from "../types/expense";
+import { type Expense, type ExpenseInput } from "../types/expense";
 import DeleteExpenseDialog from "./DeleteExpenseDialog";
 import ExpenseFormDialog from "./ExpenseFormDialog";
 import { expenseToFormValues } from "./expenseForm";
+import ExpensesTotals from "./ExpensesTotals";
 import ExpenseList from "./ExpenseList";
 
 interface VehicleExpensesProps {
@@ -74,9 +74,7 @@ export default function VehicleExpenses({ vehicleId, status }: VehicleExpensesPr
         {expenses.data && expenses.data.length > 0 && (
           <>
             <ExpenseList expenses={expenses.data} editable={!retired} onEdit={setEditing} onDelete={setDeleting} />
-            <Typography fontWeight="bold" textAlign="right" data-testid="expenses-total">
-              Total : {formatEuro(expensesTotal(expenses.data))}
-            </Typography>
+            <ExpensesTotals expenses={expenses.data} />
           </>
         )}
       </Stack>

@@ -13,7 +13,7 @@ export function parseAmount(input: string): ParsedAmount {
   const text = input.replace(/[\s\u00a0\u202f]/g, "").replace(",", ".");
   if (text === "") return { value: null, error: null };
   if (text.startsWith("-")) return { value: null, error: "Le montant ne peut pas être négatif." };
-  if (!/^\d*\.?\d*$/.test(text) || !/\d/.test(text)) return { value: null, error: "Montant invalide." };
+  if (!/^\d*\.?\d*$/.test(text) || !/\d/.test(text)) return { value: null, error: "Saisissez un nombre, par exemple 89,90." };
   if ((text.split(".")[1] ?? "").length > 2) return { value: null, error: "Le montant est limité à 2 décimales." };
   const value = Number(text);
   if (value > MAX_AMOUNT) return { value: null, error: "Le montant dépasse la valeur maximale autorisée." };
