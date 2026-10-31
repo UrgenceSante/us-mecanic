@@ -70,6 +70,7 @@ public class CostSummaryEndpointsTests : IClassFixture<ApiFactory>
     {
         var vehicleId = await CreateVehicleAsync();
         var category = await _client.PostAsJsonAsync(new Uri("/api/expense-categories", UriKind.Relative), new { name = $"Péage {Guid.NewGuid():N}" });
+        Assert.Equal(HttpStatusCode.Created, category.StatusCode);
         var categoryDto = (await category.Content.ReadFromJsonAsync<IdDto>(Json))!;
         await PostAsync($"/api/vehicles/{vehicleId}/interventions", new { date = "2025-03-15", work = "Vidange", amount = 120m });
         await PostAsync($"/api/vehicles/{vehicleId}/expenses", new { date = "2025-03-20", categoryId = categoryDto.Id, amount = 30.5m });

@@ -4,7 +4,7 @@ namespace UsMecanic.Application.Costs.Summary;
 public sealed record CostFamilyTotal(CostFamily Family, decimal Total);
 
 /// <summary>Total d'une catégorie au sein d'une famille.</summary>
-public sealed record CostCategoryTotal(CostFamily Family, string Category, decimal Total);
+public sealed record CostCategoryTotal(CostFamily Family, Guid? CategoryId, string Category, decimal Total);
 
 /// <summary>Coûts d'une période (mois ou année). <c>Period</c> : « yyyy-MM » ou « yyyy » ; <c>Start</c> : premier jour de la période.</summary>
 public sealed record CostPeriodDto(

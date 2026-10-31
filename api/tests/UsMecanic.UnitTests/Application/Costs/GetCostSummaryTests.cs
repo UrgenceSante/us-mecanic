@@ -67,7 +67,7 @@ public class GetCostSummaryTests
         var result = await UseCase.ExecuteAsync(Query("2026-03-01", "2026-03-31"), CancellationToken.None);
 
         Assert.Equal(0m, result.Value.Total);
-        Assert.Empty(result.Value.Categories.Where(c => c.Total != 0m));
+        Assert.DoesNotContain(result.Value.Categories, c => c.Total != 0m);
     }
 
     [Fact]
@@ -101,6 +101,30 @@ public class GetCostSummaryTests
         var result = await UseCase.ExecuteAsync(Query("2026-03-20", "2026-04-05"), CancellationToken.None);
 
         Assert.Equal(600m, result.Value.Total);
+    }
+
+    [Fact]
+    public async Task La_mensualite_du_mois_de_fin_compte_meme_si_l_emprunt_debute_apres_la_date_de_fin()
+    {
+        AddLoan(_vehicle.Id, "2026-04-15", 12, 300m);
+
+        var result = await UseCase.ExecuteAsync(Query("2026-04-01", "2026-04-10"), CancellationToken.None);
+
+        Assert.Equal(300m, result.Value.Total);
+    }
+
+    [Fact]
+    public async Task Une_categorie_utilisateur_homonyme_des_interventions_reste_distincte()
+    {
+        var homonym = _categories.Seed("Entretien et réparation");
+        AddExpense(_vehicle.Id, "2026-03-01", homonym.Id, 10m);
+        AddIntervention(_vehicle.Id, "2026-03-02", 20m);
+
+        var result = await UseCase.ExecuteAsync(Query("2026-03-01", "2026-03-31"), CancellationToken.None);
+
+        Assert.Equal(2, result.Value.Categories.Count);
+        Assert.Contains(result.Value.Categories, c => c.CategoryId == homonym.Id && c.Total == 10m);
+        Assert.Contains(result.Value.Categories, c => c.CategoryId is null && c.Total == 20m);
     }
 
     [Fact]

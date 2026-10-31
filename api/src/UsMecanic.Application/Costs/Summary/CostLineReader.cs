@@ -37,15 +37,15 @@ public sealed class CostLineReader(
         if (spent.Count > 0)
         {
             var names = (await categories.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(c => c.Id, c => c.Name);
-            lines.AddRange(spent.Select(e => new CostLine(e.Date, ToFamily(e.Family), CategoryName(e, names), e.Amount)));
+            lines.AddRange(spent.Select(e => new CostLine(e.Date, ToFamily(e.Family), CategoryName(e, names), e.Amount, e.CategoryId)));
         }
 
         // Une mensualité compte si son mois est l'un des mois touchés par la période.
         var firstMonth = CostAggregator.PeriodStart(from, CostGranularity.Month);
-        var borrowed = await loans.ListStartedBeforeAsync(to, vehicleId, cancellationToken);
+        var borrowed = await loans.ListStartedBeforeAsync(CostAggregator.PeriodStart(to, CostGranularity.Month).AddMonths(1), vehicleId, cancellationToken);
         lines.AddRange(borrowed
             .SelectMany(l => l.Installments())
-            .Where(m => m.Month >= firstMonth && m.Month <= to)
+            .Where(m => m.Month >= firstMonth && m.Month <= CostAggregator.PeriodStart(to, CostGranularity.Month))
             .Select(m => new CostLine(m.Month, CostFamily.Loan, LoanCategory, m.Amount)));
 
         return lines;

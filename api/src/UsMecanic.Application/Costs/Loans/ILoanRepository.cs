@@ -11,10 +11,10 @@ public interface ILoanRepository
     Task<IReadOnlyList<Loan>> ListByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Emprunts dont la date de début n'est pas postérieure à <paramref name="to"/>, pour un véhicule ou, sans filtre,
+    /// Emprunts dont la date de début est strictement antérieure à <paramref name="before"/>, pour un véhicule ou, sans filtre,
     /// pour tout le parc. Les emprunts déjà terminés avant la période sont écartés par l'appelant (la fin se déduit de la durée).
     /// </summary>
-    Task<IReadOnlyList<Loan>> ListStartedBeforeAsync(DateOnly to, Guid? vehicleId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Loan>> ListStartedBeforeAsync(DateOnly before, Guid? vehicleId, CancellationToken cancellationToken);
 
     void Add(Loan loan);
 
