@@ -22,6 +22,62 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("UsMecanic.Domain.Costs.Expense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<string>("Family")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("family");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("label");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("source");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_expenses");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_expenses_category_id");
+
+                    b.HasIndex("VehicleId", "Date")
+                        .HasDatabaseName("ix_expenses_vehicle_id_date");
+
+                    b.ToTable("expenses", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Costs.ExpenseCategory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -700,6 +756,22 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_vehicle_types_name");
 
                     b.ToTable("vehicle_types", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Costs.Expense", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Costs.ExpenseCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_expenses_expense_categories_category_id");
+
+                    b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_expenses_vehicles_vehicle_id");
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Costs.Loan", b =>

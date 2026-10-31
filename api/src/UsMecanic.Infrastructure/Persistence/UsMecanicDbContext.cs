@@ -18,6 +18,8 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
 
     public DbSet<ExpenseCategory> ExpenseCategories => Set<ExpenseCategory>();
 
+    public DbSet<Expense> Expenses => Set<Expense>();
+
     public DbSet<Intervention> Interventions => Set<Intervention>();
 
     public DbSet<Problem> Problems => Set<Problem>();

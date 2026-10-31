@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using UsMecanic.Application.Costs.ExpenseCategories;
+using UsMecanic.Application.Costs.Expenses;
 using UsMecanic.Application.Costs.Loans;
 using UsMecanic.Application.Dashboard;
 using UsMecanic.Application.Deadlines;
@@ -45,6 +46,11 @@ public static class DependencyInjection
         services.AddScoped<CreateExpenseCategory>();
         services.AddScoped<RenameExpenseCategory>();
         services.AddScoped<DeactivateExpenseCategory>();
+        services.AddScoped<ExpenseDtoFactory>();
+        services.AddScoped<ListExpenses>();
+        services.AddScoped<AddExpense>();
+        services.AddScoped<UpdateExpense>();
+        services.AddScoped<DeleteExpense>();
 
         services.AddScoped(typeof(ListProblemReferences<>));
         services.AddScoped(typeof(CreateProblemReference<>));
