@@ -17,6 +17,12 @@ internal sealed class LoanRepository(UsMecanicDbContext db) : ILoanRepository
             .ThenByDescending(l => l.RecordedAt)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Loan>> ListStartedBeforeAsync(DateOnly to, Guid? vehicleId, CancellationToken cancellationToken) =>
+        await db.Loans
+            .AsNoTracking()
+            .Where(l => l.StartDate <= to && (vehicleId == null || l.VehicleId == vehicleId))
+            .ToListAsync(cancellationToken);
+
     public void Add(Loan loan) => db.Loans.Add(loan);
 
     public void Remove(Loan loan) => db.Loans.Remove(loan);

@@ -16,6 +16,12 @@ internal sealed class InterventionRepository(UsMecanicDbContext db) : IIntervent
             .ThenByDescending(i => i.RecordedAt)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Intervention>> ListWithAmountInPeriodAsync(DateOnly from, DateOnly to, Guid? vehicleId, CancellationToken cancellationToken) =>
+        await db.Interventions
+            .AsNoTracking()
+            .Where(i => i.Amount != null && i.Date >= from && i.Date <= to && (vehicleId == null || i.VehicleId == vehicleId))
+            .ToListAsync(cancellationToken);
+
     public Task<Intervention?> GetAsync(Guid vehicleId, Guid interventionId, CancellationToken cancellationToken) =>
         db.Interventions
             .Include(i => i.Deadlines)

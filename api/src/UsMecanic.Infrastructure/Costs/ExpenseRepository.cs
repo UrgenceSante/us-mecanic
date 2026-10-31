@@ -15,6 +15,12 @@ internal sealed class ExpenseRepository(UsMecanicDbContext db) : IExpenseReposit
             .ThenByDescending(e => e.RecordedAt)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Expense>> ListInPeriodAsync(DateOnly from, DateOnly to, Guid? vehicleId, CancellationToken cancellationToken) =>
+        await db.Expenses
+            .AsNoTracking()
+            .Where(e => e.Date >= from && e.Date <= to && (vehicleId == null || e.VehicleId == vehicleId))
+            .ToListAsync(cancellationToken);
+
     public Task<Expense?> GetAsync(Guid vehicleId, Guid expenseId, CancellationToken cancellationToken) =>
         db.Expenses.FirstOrDefaultAsync(e => e.Id == expenseId && e.VehicleId == vehicleId, cancellationToken);
 

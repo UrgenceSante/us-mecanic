@@ -22,6 +22,10 @@ internal sealed class InMemoryInterventionRepository : IInterventionRepository
             [.. Saved.Where(i => i.VehicleId == vehicleId).OrderByDescending(i => i.Date).ThenByDescending(i => i.RecordedAt)]);
     }
 
+    public Task<IReadOnlyList<Intervention>> ListWithAmountInPeriodAsync(DateOnly from, DateOnly to, Guid? vehicleId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Intervention>>(
+            [.. Saved.Where(i => i.Amount != null && i.Date >= from && i.Date <= to && (vehicleId is null || i.VehicleId == vehicleId))]);
+
     public Task<Intervention?> GetAsync(Guid vehicleId, Guid interventionId, CancellationToken cancellationToken) =>
         Task.FromResult(Saved.Find(i => i.Id == interventionId && i.VehicleId == vehicleId));
 

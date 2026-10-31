@@ -19,6 +19,10 @@ internal sealed class InMemoryLoanRepository : ILoanRepository
         Task.FromResult<IReadOnlyList<Loan>>(
             [.. Saved.Where(l => l.VehicleId == vehicleId).OrderByDescending(l => l.StartDate).ThenByDescending(l => l.RecordedAt)]);
 
+    public Task<IReadOnlyList<Loan>> ListStartedBeforeAsync(DateOnly to, Guid? vehicleId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Loan>>(
+            [.. Saved.Where(l => l.StartDate <= to && (vehicleId is null || l.VehicleId == vehicleId))]);
+
     public void Add(Loan loan) => _pending.Add(loan);
 
     public void Remove(Loan loan) => Saved.Remove(loan);
