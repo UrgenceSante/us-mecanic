@@ -14,6 +14,14 @@ public sealed record CostPeriodDto(
     IReadOnlyList<CostFamilyTotal> Families,
     IReadOnlyList<CostCategoryTotal> Categories);
 
+/// <summary>
+/// Coût au kilomètre sur la période demandée. <c>Value</c> : €/km arrondi à 2 décimales, <c>null</c> si non calculable
+/// (jamais 0 ni erreur). <c>Kilometers</c> et <c>Cost</c> : km parcourus et dépenses (emprunts compris) des seuls véhicules
+/// calculables. <c>ExcludedVehicles</c> : véhicules du parc avec des dépenses ou des relevés mais non calculables
+/// (toujours 0 pour une demande sur un seul véhicule : lire <c>Computable</c>).
+/// </summary>
+public sealed record CostPerKmDto(int Kilometers, decimal Cost, decimal? Value, bool Computable, int ExcludedVehicles);
+
 /// <summary>Synthèse des coûts : total global de la période demandée, ventilations globales, puis une entrée par période.</summary>
 public sealed record CostSummaryDto(
     DateOnly From,
@@ -23,4 +31,5 @@ public sealed record CostSummaryDto(
     decimal Total,
     IReadOnlyList<CostFamilyTotal> Families,
     IReadOnlyList<CostCategoryTotal> Categories,
-    IReadOnlyList<CostPeriodDto> Periods);
+    IReadOnlyList<CostPeriodDto> Periods,
+    CostPerKmDto CostPerKm);

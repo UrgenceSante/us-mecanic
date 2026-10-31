@@ -14,6 +14,7 @@ public class GetCostSummaryTests
     private readonly InMemoryExpenseRepository _expenses = new();
     private readonly InMemoryExpenseCategoryRepository _categories = new();
     private readonly InMemoryLoanRepository _loans = new();
+    private readonly InMemoryMileageReadingRepository _mileage = new();
     private readonly FixedClock _clock = new();
     private readonly Vehicle _vehicle;
 
@@ -22,7 +23,7 @@ public class GetCostSummaryTests
         _vehicle = _vehicles.Seed("AB-123-CD");
     }
 
-    private GetCostSummary UseCase => new(new MileageVehicleGuard(_vehicles), new CostLineReader(_interventions, _expenses, _categories, _loans));
+    private GetCostSummary UseCase => new(new MileageVehicleGuard(_vehicles), new CostLineReader(_interventions, _expenses, _categories, _loans), _mileage);
 
     private static CostSummaryQuery Query(string from, string to, string? granularity = "month", Guid? vehicleId = null) =>
         new(
@@ -223,5 +224,41 @@ public class GetCostSummaryTests
         Assert.Equal(CostSummaryErrors.InvalidRange, reversed.Error);
         Assert.Equal(CostSummaryErrors.InvalidGranularity, unknown.Error);
         Assert.Equal(CostSummaryErrors.RangeTooLong, tooLong.Error);
+    }
+
+    [Fact]
+    public async Task Le_cout_au_km_ne_retient_que_les_releves_de_la_periode()
+    {
+        AddIntervention(_vehicle.Id, "2026-03-15", 250m);
+        _mileage.Seed(_vehicle.Id, Day("2025-12-01"), 1000);
+        _mileage.Seed(_vehicle.Id, Day("2026-03-01"), 5000);
+        _mileage.Seed(_vehicle.Id, Day("2026-03-31"), 6000);
+        _mileage.Seed(_vehicle.Id, Day("2026-05-01"), 9000);
+
+        var result = await UseCase.ExecuteAsync(Query("2026-03-01", "2026-03-31", vehicleId: _vehicle.Id), CancellationToken.None);
+
+        var costPerKm = result.Value.CostPerKm;
+        Assert.True(costPerKm.Computable);
+        Assert.Equal(1000, costPerKm.Kilometers);
+        Assert.Equal(0.25m, costPerKm.Value);
+    }
+
+    [Fact]
+    public async Task Le_parc_exclut_et_signale_le_vehicule_sans_deux_releves()
+    {
+        var other = _vehicles.Seed("EF-456-GH");
+        AddIntervention(_vehicle.Id, "2026-03-15", 100m);
+        AddIntervention(other.Id, "2026-03-16", 5000m);
+        _mileage.Seed(_vehicle.Id, Day("2026-03-01"), 5000);
+        _mileage.Seed(_vehicle.Id, Day("2026-03-31"), 5500);
+        _mileage.Seed(other.Id, Day("2026-03-10"), 100);
+
+        var result = await UseCase.ExecuteAsync(Query("2026-03-01", "2026-03-31"), CancellationToken.None);
+
+        var costPerKm = result.Value.CostPerKm;
+        Assert.Equal(0.2m, costPerKm.Value);
+        Assert.Equal(100m, costPerKm.Cost);
+        Assert.Equal(1, costPerKm.ExcludedVehicles);
+        Assert.Equal(5100m, result.Value.Total);
     }
 }

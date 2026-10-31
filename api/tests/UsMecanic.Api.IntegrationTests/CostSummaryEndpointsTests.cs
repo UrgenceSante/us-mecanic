@@ -25,8 +25,10 @@ public class CostSummaryEndpointsTests : IClassFixture<ApiFactory>
 
     private sealed record PeriodDto(string Period, DateOnly Start, decimal Total, List<FamilyDto> Families, List<CategoryTotalDto> Categories);
 
+    private sealed record CostPerKmDto(int Kilometers, decimal Cost, decimal? Value, bool Computable, int ExcludedVehicles);
+
     private sealed record SummaryDto(
-        DateOnly From, DateOnly To, string Granularity, Guid? VehicleId, decimal Total, List<FamilyDto> Families, List<CategoryTotalDto> Categories, List<PeriodDto> Periods);
+        DateOnly From, DateOnly To, string Granularity, Guid? VehicleId, decimal Total, List<FamilyDto> Families, List<CategoryTotalDto> Categories, List<PeriodDto> Periods, CostPerKmDto CostPerKm);
 
     private static string NewPlate()
     {
@@ -127,5 +129,39 @@ public class CostSummaryEndpointsTests : IClassFixture<ApiFactory>
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(code, await ErrorCodeAsync(response));
+    }
+
+    [Fact]
+    public async Task Cout_au_km_d_un_vehicule_avec_deux_releves_dans_la_periode()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        await PostAsync($"/api/vehicles/{vehicleId}/mileage-readings", new { date = "2025-01-10", kilometers = 5000 });
+        await PostAsync($"/api/vehicles/{vehicleId}/mileage-readings", new { date = "2025-06-10", kilometers = 6000 });
+        await PostAsync($"/api/vehicles/{vehicleId}/interventions", new { date = "2025-03-15", work = "Vidange", amount = 250m });
+
+        var response = await _client.GetAsync(SummaryUri($"from=2025-01-01&to=2025-12-31&vehicleId={vehicleId}"));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var costPerKm = (await response.Content.ReadFromJsonAsync<SummaryDto>(Json))!.CostPerKm;
+        Assert.True(costPerKm.Computable);
+        Assert.Equal(1000, costPerKm.Kilometers);
+        Assert.Equal(250m, costPerKm.Cost);
+        Assert.Equal(0.25m, costPerKm.Value);
+    }
+
+    [Fact]
+    public async Task Cout_au_km_non_calculable_avec_un_seul_releve()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        await PostAsync($"/api/vehicles/{vehicleId}/mileage-readings", new { date = "2025-01-10", kilometers = 5000 });
+        await PostAsync($"/api/vehicles/{vehicleId}/interventions", new { date = "2025-03-15", work = "Vidange", amount = 250m });
+
+        var response = await _client.GetAsync(SummaryUri($"from=2025-01-01&to=2025-12-31&vehicleId={vehicleId}"));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var summary = (await response.Content.ReadFromJsonAsync<SummaryDto>(Json))!;
+        Assert.False(summary.CostPerKm.Computable);
+        Assert.Null(summary.CostPerKm.Value);
+        Assert.Equal(250m, summary.Total);
     }
 }

@@ -31,22 +31,22 @@ public sealed class CostLineReader(
         var lines = new List<CostLine>();
 
         var done = await interventions.ListWithAmountInPeriodAsync(from, to, vehicleId, cancellationToken);
-        lines.AddRange(done.Select(i => new CostLine(i.Date, CostFamily.OneOff, MaintenanceCategory, i.Amount!.Value)));
+        lines.AddRange(done.Select(i => new CostLine(i.Date, CostFamily.OneOff, MaintenanceCategory, i.Amount!.Value, VehicleId: i.VehicleId)));
 
         var spent = await expenses.ListInPeriodAsync(from, to, vehicleId, cancellationToken);
         if (spent.Count > 0)
         {
             var names = (await categories.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(c => c.Id, c => c.Name);
-            lines.AddRange(spent.Select(e => new CostLine(e.Date, ToFamily(e.Family), CategoryName(e, names), e.Amount, e.CategoryId)));
+            lines.AddRange(spent.Select(e => new CostLine(e.Date, ToFamily(e.Family), CategoryName(e, names), e.Amount, e.CategoryId, e.VehicleId)));
         }
 
         // Une mensualité compte si son mois est l'un des mois touchés par la période.
         var firstMonth = CostAggregator.PeriodStart(from, CostGranularity.Month);
         var borrowed = await loans.ListStartedBeforeAsync(CostAggregator.PeriodStart(to, CostGranularity.Month).AddMonths(1), vehicleId, cancellationToken);
         lines.AddRange(borrowed
-            .SelectMany(l => l.Installments())
-            .Where(m => m.Month >= firstMonth && m.Month <= CostAggregator.PeriodStart(to, CostGranularity.Month))
-            .Select(m => new CostLine(m.Month, CostFamily.Loan, LoanCategory, m.Amount)));
+            .SelectMany(l => l.Installments().Select(m => (Loan: l, Installment: m)))
+            .Where(x => x.Installment.Month >= firstMonth && x.Installment.Month <= CostAggregator.PeriodStart(to, CostGranularity.Month))
+            .Select(x => new CostLine(x.Installment.Month, CostFamily.Loan, LoanCategory, x.Installment.Amount, VehicleId: x.Loan.VehicleId)));
 
         return lines;
     }

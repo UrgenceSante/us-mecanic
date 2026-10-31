@@ -19,6 +19,10 @@ internal sealed class InMemoryMileageReadingRepository : IMileageReadingReposito
         Task.FromResult<IReadOnlyList<MileageReading>>(
             [.. Saved.Where(r => r.VehicleId == vehicleId).OrderByDescending(r => r.Date).ThenByDescending(r => r.RecordedAt)]);
 
+    public Task<IReadOnlyList<MileageReading>> ListInPeriodAsync(DateOnly firstDay, DateOnly lastDay, Guid? vehicleId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<MileageReading>>(
+            [.. Saved.Where(r => r.Date >= firstDay && r.Date <= lastDay && (vehicleId is null || r.VehicleId == vehicleId))]);
+
     public int CurrentByVehicleCalls { get; private set; }
 
     public Task<CurrentMileage?> GetCurrentAsync(Guid vehicleId, CancellationToken cancellationToken)
