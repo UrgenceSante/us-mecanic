@@ -13,8 +13,7 @@ public sealed class UpdateExpense(
     MileageVehicleGuard guard,
     IExpenseCategoryRepository categories,
     IExpenseRepository expenses,
-    ExpenseDtoFactory factory,
-    BusinessCalendar calendar)
+    ExpenseDtoFactory factory)
 {
     public async Task<Result<ExpenseDto>> ExecuteAsync(Guid vehicleId, Guid expenseId, ExpenseInput input, CancellationToken cancellationToken)
     {
@@ -51,7 +50,7 @@ public sealed class UpdateExpense(
             }
         }
 
-        var updated = expense.Update(input.Date, input.CategoryId, input.Amount, input.Label, calendar.Today);
+        var updated = expense.Update(input.Date, input.CategoryId, input.Amount, input.Label);
         if (updated.IsFailure)
         {
             return Result<ExpenseDto>.Failure(updated.Error!);

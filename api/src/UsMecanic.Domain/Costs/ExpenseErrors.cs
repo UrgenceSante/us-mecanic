@@ -11,9 +11,6 @@ public static class ExpenseErrors
     public static readonly DomainError DateRequired =
         new("expense.date_required", "La date de la dépense est obligatoire.");
 
-    public static readonly DomainError DateInFuture =
-        new("expense.date_in_future", "La date de la dépense ne peut pas être dans le futur.");
-
     public static readonly DomainError AmountRequired =
         new("expense.amount_required", "Le montant de la dépense est obligatoire.");
 

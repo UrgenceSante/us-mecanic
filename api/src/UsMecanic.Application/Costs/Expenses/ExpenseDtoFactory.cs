@@ -4,7 +4,7 @@ using UsMecanic.Domain.Costs;
 namespace UsMecanic.Application.Costs.Expenses;
 
 /// <summary>Construit les DTO avec le nom des catégories en une seule requête, quel que soit le nombre de dépenses.</summary>
-public sealed class ExpenseDtoFactory(IExpenseCategoryRepository categories)
+public sealed class ExpenseDtoFactory(IExpenseCategoryRepository categories, BusinessCalendar calendar)
 {
     public async Task<IReadOnlyList<ExpenseDto>> BuildAsync(IReadOnlyList<Expense> expenses, CancellationToken cancellationToken)
     {
@@ -16,6 +16,7 @@ public sealed class ExpenseDtoFactory(IExpenseCategoryRepository categories)
         }
 
         var names = (await categories.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(c => c.Id, c => c.Name);
+        var today = calendar.Today;
         return
         [
             .. expenses.Select(e => new ExpenseDto(
@@ -28,7 +29,8 @@ public sealed class ExpenseDtoFactory(IExpenseCategoryRepository categories)
                 e.Amount,
                 e.Label,
                 e.Source,
-                e.RecordedAt)),
+                e.RecordedAt,
+                e.Date > today)),
         ];
     }
 }

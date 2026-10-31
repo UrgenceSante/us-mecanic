@@ -58,14 +58,14 @@ public sealed class Expense
     /// catégorie sont contrôlés par le cas d'usage.
     /// </summary>
     public static Result<Expense> CreateManual(
-        Guid vehicleId, ExpenseFamily family, DateOnly? date, Guid? categoryId, decimal? amount, string? label, DateOnly today, DateTimeOffset now)
+        Guid vehicleId, ExpenseFamily family, DateOnly? date, Guid? categoryId, decimal? amount, string? label, DateTimeOffset now)
     {
         if (family != ExpenseFamily.OneOff)
         {
             return Result<Expense>.Failure(ExpenseErrors.FamilyNotManual);
         }
 
-        var checkedFields = Check(date, categoryId, amount, label, today);
+        var checkedFields = Check(date, categoryId, amount, label);
         if (checkedFields.IsFailure)
         {
             return Result<Expense>.Failure(checkedFields.Error!);
@@ -77,14 +77,14 @@ public sealed class Expense
     }
 
     /// <summary>Modifie une dépense manuelle (mêmes contrôles qu'à la création) ; la famille et la source ne changent pas.</summary>
-    public Result<Expense> Update(DateOnly? date, Guid? categoryId, decimal? amount, string? label, DateOnly today)
+    public Result<Expense> Update(DateOnly? date, Guid? categoryId, decimal? amount, string? label)
     {
         if (Source != ExpenseSource.Manual)
         {
             return Result<Expense>.Failure(ExpenseErrors.NotManual);
         }
 
-        var checkedFields = Check(date, categoryId, amount, label, today);
+        var checkedFields = Check(date, categoryId, amount, label);
         if (checkedFields.IsFailure)
         {
             return Result<Expense>.Failure(checkedFields.Error!);
@@ -98,16 +98,11 @@ public sealed class Expense
         return Result<Expense>.Success(this);
     }
 
-    private static Result<CheckedFields> Check(DateOnly? date, Guid? categoryId, decimal? amount, string? label, DateOnly today)
+    private static Result<CheckedFields> Check(DateOnly? date, Guid? categoryId, decimal? amount, string? label)
     {
         if (date is not { } day)
         {
             return Result<CheckedFields>.Failure(ExpenseErrors.DateRequired);
-        }
-
-        if (day > today)
-        {
-            return Result<CheckedFields>.Failure(ExpenseErrors.DateInFuture);
         }
 
         if (categoryId is null)

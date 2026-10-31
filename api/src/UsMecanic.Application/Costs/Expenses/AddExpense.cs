@@ -11,8 +11,7 @@ public sealed class AddExpense(
     IExpenseCategoryRepository categories,
     IExpenseRepository expenses,
     ExpenseDtoFactory factory,
-    TimeProvider clock,
-    BusinessCalendar calendar)
+    TimeProvider clock)
 {
     public async Task<Result<ExpenseDto>> ExecuteAsync(Guid vehicleId, ExpenseInput input, CancellationToken cancellationToken)
     {
@@ -25,7 +24,7 @@ public sealed class AddExpense(
         }
 
         var created = Expense.CreateManual(
-            vehicleId, input.Family, input.Date, input.CategoryId, input.Amount, input.Label, calendar.Today, clock.GetUtcNow());
+            vehicleId, input.Family, input.Date, input.CategoryId, input.Amount, input.Label, clock.GetUtcNow());
         if (created.IsFailure)
         {
             return Result<ExpenseDto>.Failure(created.Error!);

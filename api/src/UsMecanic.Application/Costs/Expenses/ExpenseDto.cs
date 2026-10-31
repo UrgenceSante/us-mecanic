@@ -2,7 +2,7 @@ using UsMecanic.Domain.Costs;
 
 namespace UsMecanic.Application.Costs.Expenses;
 
-/// <summary>Dépense d'un véhicule, avec le nom de sa catégorie (<c>null</c> si elle n'en a pas ou si elle est introuvable).</summary>
+/// <summary>Dépense d'un véhicule, avec le nom de sa catégorie (<c>null</c> si elle n'en a pas ou si elle est introuvable). <c>IsPlanned</c> : dépense datée après aujourd'hui (prévue).</summary>
 public sealed record ExpenseDto(
     Guid Id,
     Guid VehicleId,
@@ -13,4 +13,5 @@ public sealed record ExpenseDto(
     decimal Amount,
     string? Label,
     ExpenseSource Source,
-    DateTimeOffset RecordedAt);
+    DateTimeOffset RecordedAt,
+    bool IsPlanned);

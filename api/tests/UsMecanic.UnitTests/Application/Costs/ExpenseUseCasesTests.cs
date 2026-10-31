@@ -24,11 +24,11 @@ public class ExpenseUseCasesTests
         _cleaning = _categories.Seed("Nettoyage");
     }
 
-    private ExpenseDtoFactory Factory => new(_categories);
+    private ExpenseDtoFactory Factory => new(_categories, _clock.Calendar);
 
-    private AddExpense Add => new(new MileageVehicleGuard(_vehicles), _categories, _expenses, Factory, _clock, _clock.Calendar);
+    private AddExpense Add => new(new MileageVehicleGuard(_vehicles), _categories, _expenses, Factory, _clock);
 
-    private UpdateExpense Update => new(new MileageVehicleGuard(_vehicles), _categories, _expenses, Factory, _clock.Calendar);
+    private UpdateExpense Update => new(new MileageVehicleGuard(_vehicles), _categories, _expenses, Factory);
 
     private DeleteExpense Delete => new(new MileageVehicleGuard(_vehicles), _expenses);
 
@@ -77,11 +77,15 @@ public class ExpenseUseCasesTests
     }
 
     [Fact]
-    public async Task Refuse_une_date_future()
+    public async Task Accepte_une_date_future_comme_depense_prevue()
     {
-        var result = await Add.ExecuteAsync(_vehicle.Id, Input(date: Today.AddDays(1)), CancellationToken.None);
+        var future = await Add.ExecuteAsync(_vehicle.Id, Input(date: Today.AddDays(1)), CancellationToken.None);
+        var todayOk = await Add.ExecuteAsync(_vehicle.Id, Input(date: Today), CancellationToken.None);
+        var past = await Add.ExecuteAsync(_vehicle.Id, Input(date: Today.AddDays(-1)), CancellationToken.None);
 
-        Assert.Equal(ExpenseErrors.DateInFuture, result.Error);
+        Assert.True(future.Value.IsPlanned);
+        Assert.False(todayOk.Value.IsPlanned);
+        Assert.False(past.Value.IsPlanned);
     }
 
     [Fact]
@@ -89,13 +93,18 @@ public class ExpenseUseCasesTests
     {
         var unknown = await Add.ExecuteAsync(Guid.NewGuid(), Input(), CancellationToken.None);
         var unknownList = await List.ExecuteAsync(Guid.NewGuid(), CancellationToken.None);
+        var existing = await Add.ExecuteAsync(_vehicle.Id, Input(), CancellationToken.None);
         _vehicle.ChangeStatus(VehicleStatus.Retired, _clock.Now);
+        var retiredUpdate = await Update.ExecuteAsync(_vehicle.Id, existing.Value.Id, Input(amount: 2m), CancellationToken.None);
+        var retiredDelete = await Delete.ExecuteAsync(_vehicle.Id, existing.Value.Id, CancellationToken.None);
         var retiredAdd = await Add.ExecuteAsync(_vehicle.Id, Input(), CancellationToken.None);
         var retiredList = await List.ExecuteAsync(_vehicle.Id, CancellationToken.None);
 
         Assert.Equal(VehicleErrors.NotFound, unknown.Error);
         Assert.Equal(VehicleErrors.NotFound, unknownList.Error);
         Assert.Equal(VehicleErrors.Retired, retiredAdd.Error);
+        Assert.Equal(VehicleErrors.Retired, retiredUpdate.Error);
+        Assert.Equal(VehicleErrors.Retired, retiredDelete.Error);
         Assert.True(retiredList.IsSuccess);
     }
 

@@ -27,7 +27,7 @@ public class ExpenseEndpointsTests : IClassFixture<ApiFactory>
     private sealed record CategoryDto(Guid Id, string Name, bool IsActive);
 
     private sealed record ExpenseDto(
-        Guid Id, Guid VehicleId, DateOnly Date, string Family, Guid? CategoryId, string? CategoryName, decimal Amount, string? Label, string Source, DateTimeOffset RecordedAt);
+        Guid Id, Guid VehicleId, DateOnly Date, string Family, Guid? CategoryId, string? CategoryName, decimal Amount, string? Label, string Source, DateTimeOffset RecordedAt, bool IsPlanned);
 
     /// <summary>Jour décalé par rapport à aujourd'hui (jamais 0, pour rester stable autour de minuit UTC).</summary>
     private static DateOnly Offset(int days) => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(days);
@@ -141,7 +141,7 @@ public class ExpenseEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Refuse_une_date_absente_ou_future()
+    public async Task Refuse_une_date_absente_et_accepte_une_date_future()
     {
         var vehicleId = await CreateVehicleAsync();
         var category = await CreateCategoryAsync();
@@ -149,8 +149,8 @@ public class ExpenseEndpointsTests : IClassFixture<ApiFactory>
         var future = await _client.PostAsJsonAsync(ExpensesUri(vehicleId), new { date = Offset(2), categoryId = category.Id, amount = 1 });
         var missing = await _client.PostAsJsonAsync(ExpensesUri(vehicleId), new { categoryId = category.Id, amount = 1 });
 
-        Assert.Equal(HttpStatusCode.BadRequest, future.StatusCode);
-        Assert.Equal("expense.date_in_future", await ErrorCodeAsync(future));
+        Assert.Equal(HttpStatusCode.Created, future.StatusCode);
+        Assert.True((await future.Content.ReadFromJsonAsync<ExpenseDto>())!.IsPlanned);
         Assert.Equal(HttpStatusCode.BadRequest, missing.StatusCode);
         Assert.Equal("expense.date_required", await ErrorCodeAsync(missing));
     }
@@ -213,6 +213,7 @@ public class ExpenseEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, retired.StatusCode);
 
         var afterAdd = await _client.PostAsJsonAsync(ExpensesUri(vehicleId), body);
+        var afterUpdate = await _client.PutAsJsonAsync(ExpenseUri(vehicleId, created.Id), body);
         var afterDelete = await _client.DeleteAsync(ExpenseUri(vehicleId, created.Id));
         var read = await _client.GetAsync(ExpensesUri(vehicleId));
 
@@ -221,6 +222,7 @@ public class ExpenseEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.NotFound, unknownWrite.StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, afterAdd.StatusCode);
         Assert.Equal("vehicle.retired", await ErrorCodeAsync(afterAdd));
+        Assert.Equal(HttpStatusCode.Conflict, afterUpdate.StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, afterDelete.StatusCode);
         Assert.Equal(HttpStatusCode.OK, read.StatusCode);
     }

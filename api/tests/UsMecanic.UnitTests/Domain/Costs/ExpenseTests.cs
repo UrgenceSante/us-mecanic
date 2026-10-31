@@ -11,12 +11,12 @@ public class ExpenseTests
     private static readonly Guid CategoryId = Guid.NewGuid();
 
     private static Expense Create() =>
-        Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 42.5m, "Lavage", Today, Now).Value;
+        Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 42.5m, "Lavage", Now).Value;
 
     [Fact]
     public void Cree_une_depense_manuelle_ponctuelle()
     {
-        var result = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 42.5m, "  Lavage  ", Today, Now);
+        var result = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 42.5m, "  Lavage  ", Now);
 
         Assert.True(result.IsSuccess);
         var expense = result.Value;
@@ -32,8 +32,8 @@ public class ExpenseTests
     [Fact]
     public void Accepte_un_montant_nul_et_le_plafond()
     {
-        Assert.True(Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 0m, null, Today, Now).IsSuccess);
-        Assert.True(Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, Expense.MaxAmount, null, Today, Now).IsSuccess);
+        Assert.True(Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 0m, null, Now).IsSuccess);
+        Assert.True(Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, Expense.MaxAmount, null, Now).IsSuccess);
     }
 
     [Fact]
@@ -47,28 +47,28 @@ public class ExpenseTests
 
     private static void AssertAmountError(decimal? amount, DomainError expected)
     {
-        var result = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, amount, null, Today, Now);
+        var result = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, amount, null, Now);
 
         Assert.True(result.IsFailure);
         Assert.Equal(expected, result.Error);
     }
 
     [Fact]
-    public void Refuse_une_date_absente_ou_future()
+    public void Refuse_une_date_absente_et_accepte_une_date_future()
     {
-        var missing = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, null, CategoryId, 1m, null, Today, Now);
-        var future = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today.AddDays(1), CategoryId, 1m, null, Today, Now);
-        var todayOk = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 1m, null, Today, Now);
+        var missing = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, null, CategoryId, 1m, null, Now);
+        var future = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today.AddDays(1), CategoryId, 1m, null, Now);
+        var todayOk = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 1m, null, Now);
 
         Assert.Equal(ExpenseErrors.DateRequired, missing.Error);
-        Assert.Equal(ExpenseErrors.DateInFuture, future.Error);
+        Assert.True(future.IsSuccess);
         Assert.True(todayOk.IsSuccess);
     }
 
     [Fact]
     public void Refuse_une_categorie_absente()
     {
-        var result = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, null, 1m, null, Today, Now);
+        var result = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, null, 1m, null, Now);
 
         Assert.Equal(ExpenseErrors.CategoryRequired, result.Error);
     }
@@ -76,7 +76,7 @@ public class ExpenseTests
     [Fact]
     public void Refuse_la_saisie_manuelle_de_la_famille_utilisation_courante()
     {
-        var result = Expense.CreateManual(VehicleId, ExpenseFamily.Running, Today, CategoryId, 1m, null, Today, Now);
+        var result = Expense.CreateManual(VehicleId, ExpenseFamily.Running, Today, CategoryId, 1m, null, Now);
 
         Assert.Equal(ExpenseErrors.FamilyNotManual, result.Error);
     }
@@ -84,9 +84,9 @@ public class ExpenseTests
     [Fact]
     public void Limite_le_libelle_et_ignore_un_libelle_blanc()
     {
-        var atLimit = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 1m, new string('x', Expense.MaxLabelLength), Today, Now);
-        var tooLong = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 1m, new string('x', Expense.MaxLabelLength + 1), Today, Now);
-        var blank = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 1m, "   ", Today, Now);
+        var atLimit = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 1m, new string('x', Expense.MaxLabelLength), Now);
+        var tooLong = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 1m, new string('x', Expense.MaxLabelLength + 1), Now);
+        var blank = Expense.CreateManual(VehicleId, ExpenseFamily.OneOff, Today, CategoryId, 1m, "   ", Now);
 
         Assert.True(atLimit.IsSuccess);
         Assert.Equal(ExpenseErrors.LabelTooLong, tooLong.Error);
@@ -99,7 +99,7 @@ public class ExpenseTests
         var expense = Create();
         var otherCategory = Guid.NewGuid();
 
-        var result = expense.Update(Today.AddDays(-2), otherCategory, 0m, " Autre ", Today);
+        var result = expense.Update(Today.AddDays(-2), otherCategory, 0m, " Autre ");
 
         Assert.True(result.IsSuccess);
         Assert.Equal(Today.AddDays(-2), expense.Date);
@@ -113,7 +113,7 @@ public class ExpenseTests
     {
         var expense = Create();
 
-        var result = expense.Update(Today, CategoryId, -1m, "Changé", Today);
+        var result = expense.Update(Today, CategoryId, -1m, "Changé");
 
         Assert.Equal(ExpenseErrors.AmountNegative, result.Error);
         Assert.Equal(42.5m, expense.Amount);
