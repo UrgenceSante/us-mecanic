@@ -37,8 +37,13 @@ export default function InterventionList({ interventions, onDelete, onEditAmount
                 </Typography>
               )}
               {i.amount == null && onEditAmount && (
-                <Button size="small" onClick={() => onEditAmount(i)}>
-                  Ajouter un montant
+                <Button
+                  size="small"
+                  aria-label="Ajouter un montant"
+                  sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+                  onClick={() => onEditAmount(i)}
+                >
+                  + Montant
                 </Button>
               )}
               {onEditAmount && (
