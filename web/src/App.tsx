@@ -14,6 +14,7 @@ import VehicleDetailPage from "./features/vehicles/pages/VehicleDetailPage";
 import VehicleImportPage from "./features/vehicles/pages/VehicleImportPage";
 import GaragesPage from "./features/garages/pages/GaragesPage";
 import ExpenseCategoriesPage from "./features/costs/pages/ExpenseCategoriesPage";
+import CostSummaryPage from "./features/costs/pages/CostSummaryPage";
 import ProblemReferencesPage from "./features/problem-references/pages/ProblemReferencesPage";
 import VehicleTypesPage from "./features/vehicle-types/pages/VehicleTypesPage";
 import DeadlineTypesPage from "./features/deadline-types/pages/DeadlineTypesPage";
@@ -35,6 +36,7 @@ function App() {
               }
             >
               <Route index element={<DashboardPage />} />
+              <Route path="/costs" element={<CostSummaryPage />} />
               <Route path="/vehicles" element={<VehicleListPage />} />
               <Route path="/vehicles/import" element={<VehicleImportPage />} />
               <Route path="/vehicle-types" element={<VehicleTypesPage />} />
