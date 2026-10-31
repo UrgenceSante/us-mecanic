@@ -19,10 +19,6 @@ export const adminNavItems: NavItem[] = [
   { label: "Catégories de dépense", to: "/expense-categories" },
   { label: "Référentiels problèmes", to: "/problem-references" },
   { label: "Abonnements", to: "/notification-subscriptions" },
-  {
-    label: "Géoloc",
-    to: "/geoloc/FS414ZX/bae74f53-8d18-47c8-bd0b-0b9ead081aad",
-  },
 ];
 
 export function isNavItemActive(item: NavItem, pathname: string): boolean {
