@@ -24,7 +24,7 @@ interface GeolocMapProps {
   setArrive: (p: StopPoint) => void;
   mapRef?: RefObject<MapRef | null>;
 }
-export default function GeolocMap(props: GeolocMapProps) {
+export default function GeolocMap({ mapRef, ...props }: GeolocMapProps) {
   const [limit, setLimit] = useState<number[]>(props.minMax);
 
   const isInLimit = (p: StopPoint | DrivePoint) => {
@@ -80,7 +80,7 @@ export default function GeolocMap(props: GeolocMapProps) {
 
       <MapLibre
         initialViewState={initialViewState}
-        ref={props.mapRef}
+        ref={mapRef}
         style={{ height: "100%" }}
         mapStyle={appConfig.mapStyleUrl}
       >
