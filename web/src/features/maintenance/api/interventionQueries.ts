@@ -6,7 +6,7 @@ import { vehicleDeadlineKeys } from "../../vehicle-deadlines/api/vehicleDeadline
 import { vehicleKeys } from "../../vehicles/api/vehicleQueries";
 import type { InterventionInput } from "../types/intervention";
 import { interventionKeys } from "./interventionKeys";
-import { addIntervention, deleteIntervention, listInterventions } from "./interventionsApi";
+import { addIntervention, changeInterventionAmount, deleteIntervention, listInterventions } from "./interventionsApi";
 
 export function useInterventions(vehicleId: string) {
   return useQuery({
@@ -45,6 +45,21 @@ export function useDeleteIntervention(vehicleId: string) {
         queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
       ]),
     // Déjà supprimée ailleurs : le carnet affiché est périmé, on le rafraîchit sans changer l'erreur exposée.
+    onError: (error) =>
+      mileageErrorCode(error) === "intervention.not_found"
+        ? queryClient.invalidateQueries({ queryKey: interventionKeys.list(vehicleId) })
+        : undefined,
+  });
+}
+
+/** Seul le carnet affiche le montant d'une intervention (échéances, relevés et tableau de bord n'en dépendent pas). */
+export function useChangeInterventionAmount(vehicleId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ interventionId, amount }: { interventionId: string; amount: number | null }) =>
+      changeInterventionAmount(vehicleId, interventionId, amount),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: interventionKeys.list(vehicleId) }),
+    // Supprimée entre-temps : le carnet affiché est périmé, on le rafraîchit sans changer l'erreur exposée.
     onError: (error) =>
       mileageErrorCode(error) === "intervention.not_found"
         ? queryClient.invalidateQueries({ queryKey: interventionKeys.list(vehicleId) })

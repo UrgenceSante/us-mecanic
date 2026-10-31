@@ -1,5 +1,6 @@
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Chip, Divider, IconButton, Stack, Typography } from "@mui/material";
+import { Chip, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { Fragment } from "react";
 import { formatEuro } from "../../../shared/format/formatEuro";
 import { formatKm } from "../../mileage/types/format";
@@ -10,27 +11,49 @@ interface InterventionListProps {
   interventions: Intervention[];
   /** Absent pour un véhicule sorti du parc : l'action « Supprimer » est alors masquée. */
   onDelete?: (intervention: Intervention) => void;
+  /** Absent pour un véhicule sorti du parc : l'action « Modifier le montant » est alors masquée. */
+  onEditAmount?: (intervention: Intervention) => void;
 }
 
+const touchTarget = { minWidth: 40, minHeight: 40 };
+
 /** Carnet d'entretien : interventions du plus récent au plus ancien (ordre fourni par l'API). */
-export default function InterventionList({ interventions, onDelete }: InterventionListProps) {
+export default function InterventionList({ interventions, onDelete, onEditAmount }: InterventionListProps) {
   return (
     <Stack gap={1} component="ul" sx={{ listStyle: "none", margin: 0, padding: 0 }}>
       {interventions.map((i, index) => (
         <Fragment key={i.id}>
           {index > 0 && <Divider component="li" />}
           <Stack component="li" gap={0.5}>
-            <Stack direction="row" alignItems="center">
+            <Stack direction="row" alignItems="center" gap={0.5}>
               <Typography fontWeight="bold" flexGrow={1}>
                 {formatDateOnly(i.date)}
                 {i.kilometers != null && ` · ${formatKm(i.kilometers)}`}
                 {i.garage && ` · ${i.garage.name}`}
                 {i.amount != null && ` · ${formatEuro(i.amount)}`}
               </Typography>
+              {onEditAmount && (
+                <Tooltip title="Modifier le montant">
+                  <IconButton
+                    aria-label={`Modifier le montant de l'intervention du ${formatDateOnly(i.date)}`}
+                    sx={touchTarget}
+                    onClick={() => onEditAmount(i)}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
               {onDelete && (
-                <IconButton aria-label={`Supprimer l'intervention du ${formatDateOnly(i.date)}`} onClick={() => onDelete(i)}>
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
+                <Tooltip title="Supprimer">
+                  <IconButton
+                    aria-label={`Supprimer l'intervention du ${formatDateOnly(i.date)}`}
+                    color="error"
+                    sx={touchTarget}
+                    onClick={() => onDelete(i)}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               )}
             </Stack>
             <Typography sx={{ whiteSpace: "pre-wrap" }}>{i.work}</Typography>

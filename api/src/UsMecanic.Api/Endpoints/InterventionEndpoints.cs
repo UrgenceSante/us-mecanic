@@ -28,6 +28,14 @@ internal static class InterventionEndpoints
             })
             .WithSummary("Supprime une intervention et ses liens ; les échéances ne sont pas recalculées et le relevé kilométrique est conservé");
 
+        interventions.MapPut("/{interventionId:guid}/amount", async (
+                Guid vehicleId, Guid interventionId, ChangeAmountRequest request, ChangeInterventionAmount useCase, CancellationToken ct) =>
+                (await useCase.ExecuteAsync(vehicleId, interventionId, request.Amount, ct)).ToOk())
+            .WithSummary("Modifie le montant d'une intervention (null pour le vider), mêmes validations qu'à la création ; refusé (409 vehicle.retired) si le véhicule est sorti du parc");
+
         return app;
     }
 }
+
+/// <summary>Corps de la modification du montant : <c>null</c> vide le montant.</summary>
+internal sealed record ChangeAmountRequest(decimal? Amount);
