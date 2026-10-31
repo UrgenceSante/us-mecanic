@@ -74,7 +74,7 @@ Reprise de ce que fait l'ancienne API (logs mécaniques, analyses, actions, réf
 
 Spec : `docs/specs/phase-5-couts.md`
 
-- [ ] Montant d'une intervention ; dépenses ponctuelles et catégories administrables
+- [x] Montant d'une intervention ; dépenses ponctuelles et catégories administrables
 - [x] Emprunts des véhicules (mensualités)
 - [ ] Synthèse par véhicule et par période, coût au kilomètre
 

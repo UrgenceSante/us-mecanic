@@ -13,6 +13,7 @@ import VehicleDeadlines from "../../vehicle-deadlines/components/VehicleDeadline
 import VehicleMileage from "../../mileage/components/VehicleMileage";
 import VehicleMaintenanceLog from "../../maintenance/components/VehicleMaintenanceLog";
 import VehicleProblems from "../../issues/components/VehicleProblems";
+import VehicleExpenses from "../../costs/components/VehicleExpenses";
 import VehicleLoans from "../../costs/components/VehicleLoans";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import VehicleStatusActions from "../components/VehicleStatusActions";
@@ -97,6 +98,8 @@ export default function VehicleDetailPage() {
       <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
 
       <VehicleProblems vehicleId={data.id} />
+
+      <VehicleExpenses vehicleId={data.id} status={data.status} />
 
       <VehicleLoans vehicleId={data.id} status={data.status} />
 
