@@ -9,6 +9,8 @@ interface Props {
 }
 
 const shortcuts = Object.keys(periodShortcutLabels) as PeriodShortcut[];
+// Cible tactile d'au moins 44 px sur téléphone.
+const touchOnMobile = { minHeight: { xs: 44, sm: "auto" } };
 
 export default function CostSummaryFilters({ value, onChange }: Props) {
   const vehicles = useVehicles({});
@@ -56,7 +58,7 @@ export default function CostSummaryFilters({ value, onChange }: Props) {
       </Stack>
       <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
         {shortcuts.map((s) => (
-          <Button key={s} size="small" variant="outlined" onClick={() => set(shortcutRange(s))}>
+          <Button key={s} size="small" variant="outlined" sx={touchOnMobile} onClick={() => set(shortcutRange(s))}>
             {periodShortcutLabels[s]}
           </Button>
         ))}
@@ -68,8 +70,8 @@ export default function CostSummaryFilters({ value, onChange }: Props) {
           onChange={(_, g) => g && set({ granularity: g })}
           sx={{ ml: { sm: "auto" } }}
         >
-          <ToggleButton value="month">Par mois</ToggleButton>
-          <ToggleButton value="year">Par année</ToggleButton>
+          <ToggleButton value="month" sx={touchOnMobile}>Par mois</ToggleButton>
+          <ToggleButton value="year" sx={touchOnMobile}>Par année</ToggleButton>
         </ToggleButtonGroup>
       </Stack>
     </Stack>
