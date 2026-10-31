@@ -17,6 +17,10 @@ internal sealed class InMemoryExpenseRepository : IExpenseRepository
         Task.FromResult<IReadOnlyList<Expense>>(
             [.. Saved.Where(e => e.VehicleId == vehicleId).OrderByDescending(e => e.Date).ThenByDescending(e => e.RecordedAt)]);
 
+    public Task<IReadOnlyList<Expense>> ListInPeriodAsync(DateOnly firstDay, DateOnly lastDay, Guid? vehicleId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Expense>>(
+            [.. Saved.Where(e => e.Date >= firstDay && e.Date <= lastDay && (vehicleId is null || e.VehicleId == vehicleId))]);
+
     public Task<Expense?> GetAsync(Guid vehicleId, Guid expenseId, CancellationToken cancellationToken) =>
         Task.FromResult(Saved.Find(e => e.Id == expenseId && e.VehicleId == vehicleId));
 

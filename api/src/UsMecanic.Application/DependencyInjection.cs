@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UsMecanic.Application.Costs.ExpenseCategories;
 using UsMecanic.Application.Costs.Expenses;
 using UsMecanic.Application.Costs.Loans;
+using UsMecanic.Application.Costs.Summary;
 using UsMecanic.Application.Dashboard;
 using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Maintenance.Garages;
@@ -86,6 +87,8 @@ public static class DependencyInjection
         services.AddScoped<UpdateMileageReading>();
         services.AddScoped<DeleteMileageReading>();
         services.AddScoped<ListLoans>();
+        services.AddScoped<CostLineReader>();
+        services.AddScoped<GetCostSummary>();
         services.AddScoped<AddLoan>();
         services.AddScoped<UpdateLoan>();
         services.AddScoped<DeleteLoan>();
