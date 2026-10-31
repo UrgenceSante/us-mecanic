@@ -1,49 +1,29 @@
-import { Link, Outlet } from "react-router";
-import { AppBar, Avatar, Box, Button, Container, Toolbar } from "@mui/material";
+import { Outlet } from "react-router";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Container,
+  Toolbar,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import logo from "../Assets/Images/logo-us.png";
 import UserAvatar from "../components/User/UserAvatar";
+import DesktopNav from "./layout/DesktopNav";
+import MobileNav from "./layout/MobileNav";
 
 export default function AppLayout() {
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
   return (
     <Box display={"flex"} flexDirection={"column"} gap={2} height={"100%"}>
       <AppBar position="relative">
-        <Toolbar>
+        <Toolbar sx={{ gap: 1 }}>
+          {!isDesktop && <MobileNav />}
           <Avatar src={logo} />
-          <Button color="inherit" component={Link} to="/vehicles">
-            Parc
-          </Button>
-          <Button color="inherit" component={Link} to="/vehicle-types">
-            Types
-          </Button>
-          <Button color="inherit" component={Link} to="/garages">
-            Garages
-          </Button>
-          <Button color="inherit" component={Link} to="/expense-categories">
-            Catégories de dépense
-          </Button>
-          <Button color="inherit" component={Link} to="/problem-references">
-            Référentiels problèmes
-          </Button>
-          <Button color="inherit" component={Link} to="/deadline-types">
-            Échéances
-          </Button>
-          <Button color="inherit" component={Link} to="/">
-            Logs
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/geoloc/FS414ZX/bae74f53-8d18-47c8-bd0b-0b9ead081aad"
-          >
-            Geoloc
-          </Button>
-          <Button
-            color="inherit"
-            component={Link}
-            to="/notification-subscriptions"
-          >
-            Subscriptions
-          </Button>
+          {isDesktop && <DesktopNav />}
 
           <Box flexGrow={1} />
 
