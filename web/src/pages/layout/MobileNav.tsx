@@ -40,7 +40,12 @@ function NavGroup({ title, items, pathname, onNavigate }: NavGroupProps) {
             selected={active}
             aria-current={active ? "page" : undefined}
             onClick={onNavigate}
-            sx={{ minHeight: 48 }}
+            sx={{
+              minHeight: 48,
+              borderLeft: 4,
+              borderColor: active ? "primary.main" : "transparent",
+              "& .MuiListItemText-primary": { fontWeight: active ? 700 : 400 },
+            }}
           >
             <ListItemText primary={item.label} />
           </ListItemButton>

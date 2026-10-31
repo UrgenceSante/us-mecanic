@@ -9,12 +9,12 @@ export interface NavItem {
 export const mainNavItems: NavItem[] = [
   { label: "Tableau de bord", to: "/", end: true },
   { label: "Parc", to: "/vehicles" },
-  { label: "Échéances", to: "/deadline-types" },
 ];
 
 /** Référentiels et pages d'administration, regroupés dans un menu. */
 export const adminNavItems: NavItem[] = [
   { label: "Types de véhicule", to: "/vehicle-types" },
+  { label: "Types d'échéance", to: "/deadline-types" },
   { label: "Garages", to: "/garages" },
   { label: "Catégories de dépense", to: "/expense-categories" },
   { label: "Référentiels problèmes", to: "/problem-references" },

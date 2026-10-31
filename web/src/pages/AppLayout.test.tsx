@@ -48,12 +48,13 @@ describe("AppLayout desktop", () => {
     expect(
       screen.getByRole("link", { name: "Parc" }).getAttribute("aria-current"),
     ).toBe("page");
-    expect(screen.getByRole("link", { name: "Échéances" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Échéances" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Garages" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: /Administration/ }));
     for (const label of [
       "Types de véhicule",
+      "Types d'échéance",
       "Garages",
       "Catégories de dépense",
       "Référentiels problèmes",

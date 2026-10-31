@@ -15,7 +15,7 @@ import MobileNav from "./layout/MobileNav";
 
 export default function AppLayout() {
   const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
 
   return (
     <Box display={"flex"} flexDirection={"column"} gap={2} height={"100%"}>
