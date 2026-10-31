@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace UsMecanic.Application.Costs.Summary;
 
 /// <summary>
@@ -8,7 +6,7 @@ namespace UsMecanic.Application.Costs.Summary;
 /// </summary>
 public static class CostAggregator
 {
-    private static readonly StringComparer FrenchComparer = StringComparer.Create(new CultureInfo("fr-FR"), ignoreCase: true);
+    private static readonly StringComparer CategoryComparer = StringComparer.InvariantCultureIgnoreCase;
 
     public static CostSummaryDto Build(DateOnly from, DateOnly to, CostGranularity granularity, Guid? vehicleId, IEnumerable<CostLine> lines)
     {
@@ -54,7 +52,7 @@ public static class CostAggregator
             .. lines
                 .GroupBy(l => (l.Family, l.CategoryId, l.Category))
                 .OrderBy(g => g.Key.Family)
-                .ThenBy(g => g.Key.Category, FrenchComparer)
+                .ThenBy(g => g.Key.Category, CategoryComparer)
                 .Select(g => new CostCategoryTotal(g.Key.Family, g.Key.CategoryId, g.Key.Category, Sum(g))),
         ];
 }
