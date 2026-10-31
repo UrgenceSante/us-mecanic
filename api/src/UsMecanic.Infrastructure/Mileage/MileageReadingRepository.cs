@@ -17,6 +17,13 @@ internal sealed class MileageReadingRepository(UsMecanicDbContext db) : IMileage
             .ThenByDescending(r => r.RecordedAt)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<MileageReading>> ListInPeriodAsync(
+        DateOnly firstDay, DateOnly lastDay, Guid? vehicleId, CancellationToken cancellationToken) =>
+        await db.MileageReadings
+            .AsNoTracking()
+            .Where(r => r.Date >= firstDay && r.Date <= lastDay && (vehicleId == null || r.VehicleId == vehicleId))
+            .ToListAsync(cancellationToken);
+
     // Règle : voir CurrentMileageRule (date la plus récente, puis km le plus élevé).
     public async Task<CurrentMileage?> GetCurrentAsync(Guid vehicleId, CancellationToken cancellationToken)
     {

@@ -5,7 +5,7 @@ using UsMecanic.Domain.Costs;
 namespace UsMecanic.Application.Costs.Summary;
 
 /// <summary>Synthèse des coûts d'un véhicule ou du parc, par mois ou par année.</summary>
-public sealed class GetCostSummary(MileageVehicleGuard guard, CostLineReader reader)
+public sealed class GetCostSummary(MileageVehicleGuard guard, CostLineReader reader, IMileageReadingRepository readings)
 {
     public async Task<Result<CostSummaryDto>> ExecuteAsync(CostSummaryQuery query, CancellationToken cancellationToken)
     {
@@ -30,7 +30,9 @@ public sealed class GetCostSummary(MileageVehicleGuard guard, CostLineReader rea
         }
 
         var lines = await reader.ReadAsync(from, to, query.VehicleId, cancellationToken);
-        return Result<CostSummaryDto>.Success(CostAggregator.Build(from, to, granularity, query.VehicleId, lines));
+        var inPeriod = await readings.ListInPeriodAsync(from, to, query.VehicleId, cancellationToken);
+        var costPerKm = CostPerKmCalculator.Compute(lines, inPeriod, query.VehicleId.HasValue);
+        return Result<CostSummaryDto>.Success(CostAggregator.Build(from, to, granularity, query.VehicleId, lines, costPerKm));
     }
 
     private static DomainError? Validate(CostSummaryQuery query, out CostGranularity granularity)

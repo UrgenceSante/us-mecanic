@@ -8,9 +8,10 @@ public static class CostAggregator
 {
     private static readonly StringComparer CategoryComparer = StringComparer.InvariantCultureIgnoreCase;
 
-    public static CostSummaryDto Build(DateOnly from, DateOnly to, CostGranularity granularity, Guid? vehicleId, IEnumerable<CostLine> lines)
+    public static CostSummaryDto Build(DateOnly from, DateOnly to, CostGranularity granularity, Guid? vehicleId, IEnumerable<CostLine> lines, CostPerKmDto costPerKm)
     {
         ArgumentNullException.ThrowIfNull(lines);
+        ArgumentNullException.ThrowIfNull(costPerKm);
 
         var first = PeriodStart(from, granularity);
         var last = PeriodStart(to, granularity);
@@ -26,7 +27,7 @@ public static class CostAggregator
         }
 
         List<CostLine> all = [.. byPeriod.SelectMany(g => g)];
-        return new CostSummaryDto(from, to, granularity, vehicleId, Sum(all), FamilyTotals(all), CategoryTotals(all), periods);
+        return new CostSummaryDto(from, to, granularity, vehicleId, Sum(all), FamilyTotals(all), CategoryTotals(all), periods, costPerKm);
     }
 
     /// <summary>Premier jour de la période qui contient la date.</summary>

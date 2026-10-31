@@ -13,7 +13,8 @@ public class CostAggregatorTests
             DateOnly.Parse(to, System.Globalization.CultureInfo.InvariantCulture),
             granularity,
             null,
-            lines);
+            lines,
+            CostPerKmCalculator.Compute(lines, [], singleVehicle: false));
 
     [Fact]
     public void Renvoie_une_entree_par_mois_meme_vide()
