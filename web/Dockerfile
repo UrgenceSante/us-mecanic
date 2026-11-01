@@ -11,7 +11,7 @@ COPY . .
 RUN npm run build
 
 # ---- Runtime ----
-FROM nginx:1.29-alpine
+FROM nginx:1.31-alpine
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 # Exécuté automatiquement par l'entrypoint nginx au démarrage : génère config.js
