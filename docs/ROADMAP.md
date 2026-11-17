@@ -86,6 +86,26 @@ Spec : `docs/specs/v1-demontrable.md`
 - [x] Passe UX globale et corrections prioritaires
 - [x] Parcours de démonstration documenté
 
+## Phase 5 bis — Sociétés et locations
+
+Spec : `docs/specs/phase-5b-societes-locations.md`.
+Sociétés du groupe (ambulances, pompes funèbres, transport PSL…), société propriétaire de chaque véhicule,
+locations datées entre sociétés. Aucune migration ne modifie de données existantes.
+
+- [ ] Référentiel « Sociétés » : API (créer, renommer, désactiver), écran « Administration »
+- [ ] Propriétaire du véhicule (API) : colonne nullable sans reprise, contrôles (non vidé, pas un locataire en cours),
+      réponse véhicule avec propriétaire et utilisateur actuel
+- [ ] Propriétaire dans le formulaire et la fiche véhicule, mention « Propriétaire à renseigner »
+- [ ] Locations (API) : création, fin, modification, suppression ; règles (chevauchement, locataire ≠ propriétaire,
+      fin ≥ début, sorti du parc) ; utilisateur à une date
+- [ ] Section « Propriétaire et locations » de la fiche véhicule : utilisateur actuel, historique, actions
+- [ ] Parc : colonnes et filtres Propriétaire (dont « À renseigner ») et Utilisateur actuel (API et front)
+- [ ] Import de véhicules : colonne `Propriétaire` facultative, modèle CSV et README
+- [ ] Synthèse des coûts : filtres Société propriétaire et Société locataire (API et front)
+- [ ] Tableau de bord : filtre Société (propriétaire ou utilisateur actuel)
+- [ ] Passe `ux` de la phase (ordinateur, iPad, téléphone) et corrections prioritaires
+- [ ] (Could) Sociétés fictives et locations dans le script de démonstration
+
 ## Phase 6 — Documents
 
 Spec : `docs/specs/phase-6-documents.md` (stockage : `docs/decisions/0002-stockage-des-documents.md`).
@@ -117,7 +137,8 @@ Pièces jointes du véhicule (carte grise, attestation d'assurance…) et factur
 
 ## Phase 9 — Authentification et nettoyage
 
-- [ ] Rôles Keycloak (lecture seule / gestionnaire / service financier pour les emprunts)
+- [ ] Rôles Keycloak (lecture seule / gestionnaire / service financier pour les emprunts) ; visibilité par
+      société envisagée (voir `docs/specs/phase-5b-societes-locations.md`), à spécifier
 - [ ] Réactivation et vérification de l'authentification sur tous les environnements
 - [ ] Suppression du code front historique (`components/`, `services/`, `hooks/`)
 - [ ] Retrait de `APP_LEGACY_API_URL` et arrêt de l'ancienne API
