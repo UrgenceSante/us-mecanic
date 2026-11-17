@@ -98,6 +98,7 @@ dotnet ef migrations add <Nom> --project src/UsMecanic.Infrastructure --output-d
 ```
 
 Feuille de route : [docs/ROADMAP.md](docs/ROADMAP.md).
+Présenter l'application : [parcours de démonstration](docs/demo.md) (chargement des données fictives et déroulé de 5 à 10 minutes).
 
 ## Données de démonstration
 

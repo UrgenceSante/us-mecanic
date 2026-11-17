@@ -15,7 +15,7 @@ interface InterventionListProps {
   onEditAmount?: (intervention: Intervention) => void;
 }
 
-const touchTarget = { minWidth: 40, minHeight: 40 };
+const touchTarget = { minWidth: 44, minHeight: 44 };
 
 /** Carnet d'entretien : interventions du plus récent au plus ancien (ordre fourni par l'API). */
 export default function InterventionList({ interventions, onDelete, onEditAmount }: InterventionListProps) {
@@ -26,11 +26,14 @@ export default function InterventionList({ interventions, onDelete, onEditAmount
           {index > 0 && <Divider component="li" />}
           <Stack component="li" gap={0.5}>
             <Stack direction="row" alignItems="center" gap={0.5}>
-              <Typography fontWeight="bold" flexGrow={1}>
-                {formatDateOnly(i.date)}
-                {i.kilometers != null && ` · ${formatKm(i.kilometers)}`}
-                {i.garage && ` · ${i.garage.name}`}
-              </Typography>
+              <Stack flexGrow={1}>
+                <Typography fontWeight="bold">{formatDateOnly(i.date)}</Typography>
+                {(i.kilometers != null || i.garage) && (
+                  <Typography variant="body2" color="text.secondary">
+                    {[i.kilometers != null ? formatKm(i.kilometers) : null, i.garage?.name].filter(Boolean).join(" · ")}
+                  </Typography>
+                )}
+              </Stack>
               {i.amount != null && (
                 <Typography fontWeight={500} sx={{ whiteSpace: "nowrap" }}>
                   {formatEuro(i.amount)}

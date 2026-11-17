@@ -13,7 +13,7 @@ export default function PropertyDisplay(props: PropertyDisplayProps) {
       <Typography
         className="fw-bold"
         variant="body1"
-        color={props.contentColor || "primary"}
+        color={props.contentColor || "text.primary"}
       >
         {props.content}
       </Typography>
