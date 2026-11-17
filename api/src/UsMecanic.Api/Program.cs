@@ -50,6 +50,7 @@ app.MapVehicleTypeEndpoints();
 app.MapGarageEndpoints();
 app.MapExpenseCategoryEndpoints();
 app.MapExpenseEndpoints();
+app.MapDocumentCategoryEndpoints();
 app.MapProblemReferenceEndpoints();
 app.MapInterventionEndpoints();
 app.MapProblemEndpoints();

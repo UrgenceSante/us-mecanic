@@ -269,6 +269,32 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.ToTable("vehicle_deadlines", (string)null);
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Documents.DocumentCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_document_categories");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_document_categories_name");
+
+                    b.ToTable("document_categories", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Maintenance.Garage", b =>
                 {
                     b.Property<Guid>("Id")
