@@ -88,7 +88,20 @@ Spec : `docs/specs/v1-demontrable.md`
 
 ## Phase 6 — Documents
 
-- [ ] Pièces jointes du véhicule (carte grise, attestation d'assurance…) et factures des interventions et dépenses
+Spec : `docs/specs/phase-6-documents.md` (stockage : `docs/decisions/0002-stockage-des-documents.md`).
+Pièces jointes du véhicule (carte grise, attestation d'assurance…) et factures des interventions et dépenses.
+
+- [ ] Catégories de document administrables : API, valeurs initiales, écran « Administration »
+- [ ] Stockage des documents : port `IDocumentStorage`, adaptateur PostgreSQL (métadonnées et contenu séparés),
+      contrôles du fichier (PDF / JPEG / PNG par signature, 10 Mo)
+- [ ] Documents du véhicule (API) : ajout, liste avec les factures, ouverture / téléchargement, suppression
+- [ ] Section « Documents » de la fiche véhicule : ajout (fichier ou photo), filtre, ouverture, téléchargement,
+      suppression
+- [ ] Factures des interventions et des dépenses (API) : ajout, liste, suppression en cascade
+- [ ] Factures dans le carnet d'entretien et la liste des dépenses (front)
+- [ ] (Should) Justificatif joint en marquant une échéance réalisée (fiche et tableau de bord)
+- [ ] Passe `ux` de la phase (ordinateur, iPad, téléphone) et corrections prioritaires
+- [ ] (Could) Documents fictifs dans le script de démonstration
 
 ## Phase 7 — Notifications
 
