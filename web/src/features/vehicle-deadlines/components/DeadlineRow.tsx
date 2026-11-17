@@ -40,7 +40,13 @@ export default function DeadlineRow({ deadline: d, canComplete, onComplete }: De
             <DeadlineStatusChip status={d.status} isClosed={d.isClosed} />
           </Stack>
         }
-        secondary={`${next} | ${last}`}
+        secondary={
+          <>
+            {next}
+            <br />
+            {last}
+          </>
+        }
         slotProps={{ primary: { component: "div" } }}
         sx={{ paddingRight: 18 }}
       />
