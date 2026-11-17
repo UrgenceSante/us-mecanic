@@ -1,3 +1,4 @@
+import ActionsHeaderCell from "../../../shared/components/ActionsHeaderCell";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, useMediaQuery, useTheme } from "@mui/material";
@@ -26,7 +27,7 @@ export default function ExpenseList({ expenses, editable, onEdit, onDelete }: Ex
             <TableCell>Catégorie</TableCell>
             <TableCell>Libellé</TableCell>
             <TableCell align="right">Montant</TableCell>
-            {editable && <TableCell />}
+            {editable && <ActionsHeaderCell />}
           </TableRow>
         </TableHead>
         <TableBody>

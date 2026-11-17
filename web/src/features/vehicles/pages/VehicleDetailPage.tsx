@@ -1,3 +1,4 @@
+import PageTitle from "../../../shared/components/PageTitle";
 import { Button, Paper, Stack, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
@@ -64,7 +65,7 @@ export default function VehicleDetailPage() {
         </Button>
       </div>
       <Stack direction="row" alignItems="center" gap={2} flexWrap="wrap">
-        <Typography variant="h5">{data.licensePlate}</Typography>
+        <PageTitle>{data.licensePlate}</PageTitle>
         <VehicleStatusChip status={data.status} />
         <Stack flexGrow={1} />
         <Button component={Link} to={`/costs?vehicleId=${data.id}`} variant="outlined" sx={{ minHeight: 44 }}>

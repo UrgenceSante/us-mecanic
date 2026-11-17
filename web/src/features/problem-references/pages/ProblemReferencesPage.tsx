@@ -1,4 +1,5 @@
-import { Alert, Stack, Tab, Tabs, Typography } from "@mui/material";
+import PageTitle from "../../../shared/components/PageTitle";
+import { Alert, Stack, Tab, Tabs } from "@mui/material";
 import { useState } from "react";
 import { problemReferenceConfigs } from "../api/referenceConfigs";
 import ReferenceAdminPanel from "../components/ReferenceAdminPanel";
@@ -9,7 +10,7 @@ export default function ProblemReferencesPage() {
 
   return (
     <Stack gap={2} marginY={2}>
-      <Typography variant="h5">Référentiels des problèmes</Typography>
+      <PageTitle>Référentiels des problèmes</PageTitle>
       <Alert severity="info">
         Une valeur désactivée n'est plus proposée à la saisie mais reste affichée sur les problèmes existants.
       </Alert>

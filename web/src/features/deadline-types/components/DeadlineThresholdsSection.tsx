@@ -59,7 +59,7 @@ export default function DeadlineThresholdsSection() {
   return (
     <Paper sx={{ padding: 2 }}>
       <Stack gap={1}>
-        <Typography variant="h6">Seuils globaux « échéance proche »</Typography>
+        <Typography variant="h6" component="h2">Seuils globaux « échéance proche »</Typography>
         {thresholds.isError && <ErrorHandler error={thresholds.error} />}
         {thresholds.data && <ThresholdsForm thresholds={thresholds.data} />}
       </Stack>

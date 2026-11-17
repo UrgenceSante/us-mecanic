@@ -56,7 +56,7 @@ export default function VehicleExpenses({ vehicleId, status }: VehicleExpensesPr
     <Paper sx={{ padding: 2 }}>
       <Stack gap={1}>
         <Stack direction="row" alignItems="center" gap={2} flexWrap="wrap">
-          <Typography variant="h6">Dépenses</Typography>
+          <Typography variant="h6" component="h2">Dépenses</Typography>
           <Stack flexGrow={1} />
           {retired ? (
             <Typography variant="body2" color="text.secondary">

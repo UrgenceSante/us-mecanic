@@ -1,6 +1,7 @@
 import { Alert } from "@mui/material";
 import type { AxiosError } from "axios";
 import { type ReactNode } from "react";
+import { problemMessage } from "../../../shared/api/problemMessage";
 
 interface AxiosErrorHandlerProps {
   error: AxiosError;
@@ -12,7 +13,7 @@ export default function AxiosErrorHandler(props: AxiosErrorHandlerProps) {
   if (custom404Render && error.status === 404) return custom404Render;
   return (
     <Alert sx={{ marginY: 2 }} severity="warning">
-      {error.message}
+      {problemMessage(error, "Le serveur ne répond pas, réessayez.")}
     </Alert>
   );
 }

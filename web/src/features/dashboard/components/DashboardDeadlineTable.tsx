@@ -1,3 +1,4 @@
+import ActionsHeaderCell from "../../../shared/components/ActionsHeaderCell";
 import { Button, Link as MuiLink, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { Link } from "react-router";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
@@ -25,7 +26,7 @@ export default function DashboardDeadlineTable({ deadlines, onComplete }: Dashbo
           <TableCell>Échéance (date)</TableCell>
           <TableCell>Échéance (km)</TableCell>
           <TableCell>Km actuel</TableCell>
-          <TableCell />
+          <ActionsHeaderCell />
         </TableRow>
       </TableHead>
       <TableBody>

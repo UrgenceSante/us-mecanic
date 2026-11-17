@@ -3,6 +3,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format, isValid, parse } from "date-fns";
 import { useMemo } from "react";
 import { fr } from "date-fns/locale";
+import { frFR } from "@mui/x-date-pickers/locales";
 
 interface FrenchDateFieldProps {
   label: string;
@@ -23,7 +24,9 @@ const toDate = (iso: string): Date | null => {
 export default function FrenchDateField({ label, value, onChange }: FrenchDateFieldProps) {
   const date = useMemo(() => toDate(value), [value]);
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}
+      localeText={frFR.components.MuiLocalizationProvider.defaultProps.localeText}
+    >
       <DatePicker
         label={label}
         value={date}
