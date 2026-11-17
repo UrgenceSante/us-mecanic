@@ -12,7 +12,7 @@ Parcours de 5 à 10 minutes, du point de vue d'un gestionnaire de parc d'une ent
      Auth__Disabled=true dotnet run --project src/UsMecanic.Api   # http://localhost:5255
      ```
      Dans un autre terminal, front sans connexion Keycloak : copier `web/.env.example` en `web/.env.local` et y décommenter `VITE_AUTH_DISABLED=true`, puis `cd web && npm ci && npm run dev` (http://localhost:5173).
-   - Sur l'environnement de dev : `API_AUTH_DISABLED=true` et `APP_AUTH_DISABLED=true` dans `deploy/.env.dev` (voir `deploy/.env.dev.example`), puis `deploy/redeploy.sh dev` (depuis le dossier `deploy/`).
+   - Sur l'environnement de dev : `API_AUTH_DISABLED=true` et `APP_AUTH_DISABLED=true` dans `deploy/.env.dev` (voir `deploy/.env.dev.example`), puis `deploy/redeploy.sh dev` depuis la racine du dépôt.
 2. Charger les données (prérequis : bash, curl, jq, `date` GNU) :
    ```bash
    scripts/demo-seed.sh http://localhost:5255     # ou l'URL de l'API de dev
