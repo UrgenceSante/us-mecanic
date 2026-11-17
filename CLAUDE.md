@@ -2,6 +2,8 @@
 
 Application de suivi du parc de véhicules (maintenance, problèmes, coûts, certification de trajet). Voir README.md pour la structure, la CI/CD et le déploiement.
 
+Contexte métier : entreprise d'ambulances et de pompes funèbres qui assure aussi du transport de produits sanguins (PSL), avec un parc de véhicules varié (ambulances, VSL, véhicules funéraires, véhicules PSL). Pour une question métier sans réponse du propriétaire, se placer du point de vue d'un gestionnaire de parc de cette entreprise, choisir l'option la plus simple et la noter dans la spec ou la PR ; ne notifier le propriétaire que pour un vrai blocage.
+
 ## Règles générales
 - Code et commentaires en français pour le métier, identifiants de code en anglais.
 - Fichiers courts et focalisés : ESLint `max-lines` à 300 côté front. Côté API, une classe = une responsabilité.
