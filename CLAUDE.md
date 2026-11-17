@@ -7,7 +7,7 @@ Contexte métier : entreprise d'ambulances et de pompes funèbres qui assure aus
 ## Règles générales
 - Code et commentaires en français pour le métier, identifiants de code en anglais.
 - Fichiers courts et focalisés : ESLint `max-lines` à 300 côté front. Côté API, une classe = une responsabilité.
-- Commits au format Conventional Commits (`feat:`, `fix:`, `refactor:`, `chore:`…) : ils pilotent la version et le CHANGELOG (release-please). Ne jamais modifier la version à la main.
+- Commits au format Conventional Commits (`feat:`, `fix:`, `refactor:`, `chore:`…) : ils pilotent le CHANGELOG (release-please). La version de dev s'incrémente avec `scripts/bump-version.sh` (patch), par une PR `chore: version X.Y.Z` de l'orchestrateur après chaque lot de merges, pour suivre les déploiements ; jamais dans une PR de fonctionnalité.
 - Avant de pousser : `npm run lint && npm run typecheck && npm test` dans `web/`, et `dotnet format --verify-no-changes && dotnet test` dans `api/`.
 
 ## Front (`web/`)
