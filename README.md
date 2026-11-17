@@ -99,6 +99,25 @@ dotnet ef migrations add <Nom> --project src/UsMecanic.Infrastructure --output-d
 
 Feuille de route : [docs/ROADMAP.md](docs/ROADMAP.md).
 
+## Données de démonstration
+
+`scripts/demo-seed.sh` remplit une base vide, uniquement via l'API (bash, curl, jq, `date` GNU), avec des
+données **fictives** : 11 véhicules `DM-001-AA` à `DM-011-AA` (ambulances, VSL, corbillards, véhicule
+funéraire, transport PSL), relevés kilométriques sur 12 mois, échéances proches / dépassées / à jour
+(dates calculées par rapport au jour d'exécution), interventions avec montants et garages, problèmes à tous
+les statuts (dont deux véhicules immobilisés et des actions en retard), dépenses dont deux prévues, emprunts.
+
+```bash
+# API locale lancée avec l'authentification désactivée (Auth__Disabled=true, voir appsettings)
+scripts/demo-seed.sh http://localhost:5255      # ou : API_URL=... scripts/demo-seed.sh
+scripts/demo-seed.sh --dry-run                  # affiche les requêtes sans les envoyer
+```
+
+Garde-fous : le script s'arrête (« API authentifiée : refus d'exécuter le script de démo ») si
+`GET /api/vehicles` répond 401, il ne doit donc jamais tourner contre une API de production. Si des véhicules
+`DM-…` existent déjà, il indique que la démo est chargée et ne fait rien ; les référentiels (types, garages,
+catégories…) sont réutilisés par nom s'ils existent. Pour rejouer la démo, repartir d'une base vide.
+
 ## Import du parc existant
 
 Écran **Parc → Importer** (ou `POST /api/vehicles/import?dryRun=true|false`, fichier en multipart).
