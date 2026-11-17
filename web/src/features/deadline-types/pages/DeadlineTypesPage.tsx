@@ -18,6 +18,7 @@ import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { useState } from "react";
+import useBelow from "../../../shared/hooks/useBelow";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import {
@@ -38,6 +39,7 @@ type Editing = DeadlineType | null | undefined;
 
 export default function DeadlineTypesPage() {
   const { notifySuccess, notifyError } = useNotifSnack();
+  const compact = useBelow("sm");
   const [editing, setEditing] = useState<Editing>(undefined);
 
   const types = useDeadlineTypes(true);
@@ -102,7 +104,7 @@ export default function DeadlineTypesPage() {
               <TableRow>
                 <TableCell>Nom</TableCell>
                 <TableCell>Périodicité</TableCell>
-                <TableCell>Seuils « proche »</TableCell>
+                {!compact && <TableCell>Seuils « proche »</TableCell>}
                 <TableCell>Statut</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
@@ -110,9 +112,16 @@ export default function DeadlineTypesPage() {
             <TableBody>
               {(types.data ?? []).map((type) => (
                 <TableRow key={type.id}>
-                  <TableCell>{type.name}</TableCell>
+                  <TableCell sx={{ overflowWrap: "anywhere" }}>
+                    {type.name}
+                    {compact && (
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        Seuils : {formatThresholds(type)}
+                      </Typography>
+                    )}
+                  </TableCell>
                   <TableCell>{formatPeriodicity(type)}</TableCell>
-                  <TableCell>{formatThresholds(type)}</TableCell>
+                  {!compact && <TableCell>{formatThresholds(type)}</TableCell>}
                   <TableCell>
                     <Chip
                       size="small"
@@ -152,7 +161,7 @@ export default function DeadlineTypesPage() {
               ))}
               {types.data?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5}>Aucun type d'échéance.</TableCell>
+                  <TableCell colSpan={compact ? 4 : 5}>Aucun type d'échéance.</TableCell>
                 </TableRow>
               )}
             </TableBody>

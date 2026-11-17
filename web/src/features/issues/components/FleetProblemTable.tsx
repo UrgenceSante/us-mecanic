@@ -3,10 +3,14 @@ import { Link } from "react-router";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import { problemStatusLabels } from "../types/labels";
 import type { FleetProblem } from "../types/problem";
+import useBelow from "../../../shared/hooks/useBelow";
 import BlockingLevelChip from "./BlockingLevelChip";
+import FleetProblemCards from "./FleetProblemCards";
 
 /** Les lignes sont affichées dans l'ordre renvoyé par l'API (du plus au moins bloquant) : aucun tri ici. */
 export default function FleetProblemTable({ problems }: { problems: FleetProblem[] }) {
+  const compact = useBelow("sm");
+  if (compact) return <FleetProblemCards problems={problems} />;
   return (
     <Table size="small" aria-label="Problèmes du parc">
       <TableHead>

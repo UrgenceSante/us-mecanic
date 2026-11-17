@@ -83,7 +83,7 @@ Spec : `docs/specs/phase-5-couts.md`
 Spec : `docs/specs/v1-demontrable.md`
 
 - [ ] Script de données de démonstration (via l'API)
-- [ ] Passe UX globale et corrections prioritaires
+- [x] Passe UX globale et corrections prioritaires
 - [ ] Parcours de démonstration documenté
 
 ## Phase 6 — Documents

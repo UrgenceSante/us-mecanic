@@ -2,7 +2,9 @@ import { Button, Link as MuiLink, Table, TableBody, TableCell, TableHead, TableR
 import { Link } from "react-router";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import DeadlineStatusChip from "../../vehicle-deadlines/components/DeadlineStatusChip";
+import useBelow from "../../../shared/hooks/useBelow";
 import type { DashboardDeadline } from "../types/dashboard";
+import DashboardDeadlineCards from "./DashboardDeadlineCards";
 
 const formatKm = (km: number | null) => (km === null ? "-" : `${km.toLocaleString("fr-FR")} km`);
 
@@ -12,6 +14,8 @@ interface DashboardDeadlineTableProps {
 }
 
 export default function DashboardDeadlineTable({ deadlines, onComplete }: DashboardDeadlineTableProps) {
+  const compact = useBelow("sm");
+  if (compact) return <DashboardDeadlineCards deadlines={deadlines} onComplete={onComplete} />;
   return (
     <Table size="small" aria-label="Échéances proches ou dépassées">
       <TableHead>
