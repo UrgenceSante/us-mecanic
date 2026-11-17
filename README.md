@@ -134,7 +134,7 @@ Une seule branche longue : `master`. Plus de branche `dev`.
   - `feat:` → minor ;
   - `feat!:` ou `BREAKING CHANGE:` → major (tant qu'on est en `0.x`, un breaking change bumpe le minor).
 - À chaque push sur `master`, release-please ouvre ou met à jour une **PR de release** (numéro de version + `CHANGELOG.md`). La fusionner crée le tag, la release GitHub et publie les images.
-- La version est synchronisée dans `web/package.json` et `api/Directory.Build.props`. Elle ne se modifie pas à la main.
+- La version est synchronisée dans `web/package.json`, `web/package-lock.json`, `api/Directory.Build.props` et `.release-please-manifest.json`. Pour suivre les déploiements de dev, elle est incrémentée après chaque lot de merges avec `scripts/bump-version.sh [patch|minor]` (PR `chore: version X.Y.Z`), jamais à la main fichier par fichier.
 
 Workflows (`.github/workflows/`) :
 
