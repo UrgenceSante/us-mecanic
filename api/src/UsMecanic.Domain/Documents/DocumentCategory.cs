@@ -48,8 +48,8 @@ public sealed class DocumentCategory
     public void Deactivate() => IsActive = false;
 
     /// <summary>
-    /// Erreur à renvoyer si cette catégorie est choisie pour une nouveau document alors qu'elle est inactive ;
-    /// <c>null</c> si elle est acceptée. Les documents déjà classés ne sont pas concernées.
+    /// Erreur à renvoyer si cette catégorie est choisie pour un nouveau document alors qu'elle est inactive ;
+    /// <c>null</c> si elle est acceptée. Les documents déjà classés ne sont pas concernés.
     /// </summary>
     public DomainError? GetSelectionError() => IsActive ? null : DocumentCategoryErrors.Inactive;
 

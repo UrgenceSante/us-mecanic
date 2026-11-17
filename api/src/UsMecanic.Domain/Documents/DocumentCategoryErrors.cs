@@ -20,5 +20,5 @@ public static class DocumentCategoryErrors
         new("document_category.unknown", "Catégorie de document inconnue.");
 
     public static readonly DomainError Inactive =
-        new("document_category.inactive", "Cette catégorie est désactivée : elle ne peut plus être choisie pour une nouveau document.");
+        new("document_category.inactive", "Cette catégorie est désactivée : elle ne peut plus être choisie pour un nouveau document.");
 }
