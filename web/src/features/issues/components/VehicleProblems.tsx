@@ -14,7 +14,7 @@ export default function VehicleProblems({ vehicleId }: { vehicleId: string }) {
 
   return (
     <Paper sx={{ padding: 2 }}>
-      <Typography variant="h6" marginBottom={1}>
+      <Typography variant="h6" component="h2" marginBottom={1}>
         Problèmes
       </Typography>
       {problems.isLoading && <LogoLoader />}

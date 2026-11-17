@@ -8,7 +8,7 @@ const num = { fontVariantNumeric: "tabular-nums" } as const;
 export default function CostCategoryBreakdown({ categories }: { categories: CostCategoryTotal[] }) {
   return (
     <Paper sx={{ padding: 2, maxWidth: 600, width: "100%" }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" component="h2" gutterBottom>
         Par catégorie
       </Typography>
       <Stack gap={2}>

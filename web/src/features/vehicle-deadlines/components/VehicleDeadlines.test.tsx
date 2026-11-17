@@ -70,7 +70,7 @@ describe("VehicleDeadlines", () => {
 
     expect(await screen.findByText("Proche")).toBeInTheDocument();
     expect(screen.getByText("Dépassée")).toBeInTheDocument();
-    expect(screen.getByText("Close")).toBeInTheDocument();
+    expect(screen.getByText("Clôturée")).toBeInTheDocument();
     expect(screen.getByText(/Prochaine : 01\/12\/2026/)).toBeInTheDocument();
     expect(screen.getByText(/Dernière réalisation : 01\/12\/2025/)).toBeInTheDocument();
     expect(screen.getByText(/Prochaine : 80 000 km/)).toBeInTheDocument();

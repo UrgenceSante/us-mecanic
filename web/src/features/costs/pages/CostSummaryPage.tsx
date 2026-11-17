@@ -1,3 +1,4 @@
+import PageTitle from "../../../shared/components/PageTitle";
 import { Alert, CircularProgress, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import { useSearchParams } from "react-router";
@@ -29,7 +30,7 @@ export default function CostSummaryPage() {
 
   return (
     <Stack gap={2} marginY={2}>
-      <Typography variant="h5">Coûts</Typography>
+      <PageTitle>Coûts</PageTitle>
       <CostSummaryFilters value={params} onChange={handleChange} />
       {summary.isLoading && <CircularProgress aria-label="Chargement" sx={{ alignSelf: "center" }} />}
       {summary.isError && <Alert severity="error">{costSummaryErrorMessage(summary.error)}</Alert>}

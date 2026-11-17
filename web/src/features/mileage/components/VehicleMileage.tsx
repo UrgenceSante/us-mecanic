@@ -99,7 +99,7 @@ export default function VehicleMileage({
     <Paper sx={{ padding: 2 }}>
       <Stack gap={1}>
         <Stack direction="row" alignItems="center" gap={2} flexWrap="wrap">
-          <Typography variant="h6">Kilométrage</Typography>
+          <Typography variant="h6" component="h2">Kilométrage</Typography>
           <Stack flexGrow={1} />
           {status === "Retired" ? (
             <Typography variant="body2" color="text.secondary">

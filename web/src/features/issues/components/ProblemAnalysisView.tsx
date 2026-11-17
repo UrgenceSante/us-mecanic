@@ -8,7 +8,7 @@ export default function ProblemAnalysisView({ analysis }: { analysis: ProblemAna
   const name = useReferenceNames();
   return (
     <Paper sx={{ padding: 2 }}>
-      <Typography variant="h6" marginBottom={1}>
+      <Typography variant="h6" component="h2" marginBottom={1}>
         Analyse
       </Typography>
       <PropertyDisplay title="Nature" content={name("nature", analysis.natureId)} />

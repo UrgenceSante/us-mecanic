@@ -60,7 +60,7 @@ export default function VehicleDeadlines({ vehicleId, status, currentMileage }: 
     <Paper sx={{ padding: 2 }}>
       <Stack gap={1}>
         <Stack direction="row" alignItems="center" gap={2} flexWrap="wrap">
-          <Typography variant="h6">Échéances</Typography>
+          <Typography variant="h6" component="h2">Échéances</Typography>
           <Stack flexGrow={1} />
           {!retired && (
             <Button startIcon={<AddIcon />} onClick={() => setAdding(true)}>

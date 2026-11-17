@@ -1,4 +1,4 @@
-import { Box, Divider, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography, useMediaQuery } from "@mui/material";
+import { Box, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { formatEuro } from "../../../shared/format/formatEuro";
 import type { CostGranularity, CostPeriod } from "../types/costSummary";
@@ -14,9 +14,9 @@ const num = { fontVariantNumeric: "tabular-nums" } as const;
 /** Mobile : une ligne empilée par période (période + total, détail par famille dessous). */
 function PeriodList({ periods, granularity }: Props) {
   return (
-    <Stack component="ul" sx={{ listStyle: "none", margin: 0, padding: 0 }} divider={<Divider component="li" />}>
+    <Stack component="ul" sx={{ listStyle: "none", margin: 0, padding: 0 }}>
       {periods.map((p) => (
-        <Box component="li" key={p.period} sx={{ py: 1 }}>
+        <Box component="li" key={p.period} sx={{ py: 1, "&:not(:first-of-type)": { borderTop: 1, borderColor: "divider" } }}>
           <Stack direction="row" justifyContent="space-between" gap={2}>
             <Typography sx={{ textTransform: "capitalize" }}>{formatPeriod(p.period, granularity)}</Typography>
             <Typography fontWeight={600} sx={num}>
@@ -78,7 +78,7 @@ export default function CostPeriodTable({ periods, granularity }: Props) {
   const mobile = useMediaQuery(useTheme().breakpoints.down("sm"));
   return (
     <Paper sx={{ padding: 2 }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" component="h2" gutterBottom>
         Par {granularity === "month" ? "mois" : "année"}
       </Typography>
       {mobile ? <PeriodList periods={periods} granularity={granularity} /> : <PeriodGrid periods={periods} granularity={granularity} />}

@@ -1,3 +1,4 @@
+import PageTitle from "../../../shared/components/PageTitle";
 import {
   Alert,
   Button,
@@ -12,7 +13,6 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
@@ -73,9 +73,7 @@ export default function ExpenseCategoriesPage() {
   return (
     <Stack gap={2} marginY={2}>
       <Stack direction="row" alignItems="center" gap={1}>
-        <Typography variant="h5" flexGrow={1}>
-          Catégories de dépense
-        </Typography>
+        <PageTitle flexGrow={1}>Catégories de dépense</PageTitle>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setEditing(null)}>
           Ajouter
         </Button>
