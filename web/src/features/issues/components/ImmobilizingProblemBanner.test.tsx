@@ -35,6 +35,7 @@ function renderBanner() {
       </MemoryRouter>
     </QueryClientProvider>,
   );
+  return client;
 }
 
 describe("ImmobilizingProblemBanner", () => {
@@ -56,8 +57,8 @@ describe("ImmobilizingProblemBanner", () => {
       problem("p1", "Fuite d'huile", "Resolved", true),
       problem("p3", "Vitre", "Reported", null),
     ]);
-    renderBanner();
-    await vi.waitFor(() => expect(api.listVehicleProblems).toHaveBeenCalled());
+    const client = renderBanner();
+    await vi.waitFor(() => expect(client.getQueryState(["problems", "vehicle", "v1"])?.status).toBe("success"));
     expect(screen.queryByRole("alert")).toBeNull();
   });
 });

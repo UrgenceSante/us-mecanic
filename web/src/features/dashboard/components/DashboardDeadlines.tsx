@@ -38,6 +38,9 @@ export default function DashboardDeadlines() {
   const complete = useCompleteVehicleDeadline(completing?.vehicle.id ?? "", completing?.id ?? "");
   const sorted = useMemo(() => sortDeadlines(deadlines.data ?? []), [deadlines.data]);
   const counts = countDeadlines(sorted);
+  const isFiltered = (Object.keys(emptyDashboardFilter) as (keyof DashboardFilter)[]).some(
+    (k) => filter[k] !== emptyDashboardFilter[k],
+  );
   const flow = completionFlow(complete.isError ? complete.error : null);
 
   const close = () => {
@@ -57,12 +60,17 @@ export default function DashboardDeadlines() {
       <DashboardFilters value={filter} onChange={setFilter} />
       {deadlines.isError && <Alert severity="error">{deadlineErrorMessage(deadlines.error)}</Alert>}
       {deadlines.data && deadlines.data.length === 0 && (
-        <Alert severity="success">Rien d'urgent : toutes les échéances sont à jour</Alert>
+        isFiltered ? (
+          <Typography>Aucune échéance ne correspond aux filtres</Typography>
+        ) : (
+          <Alert severity="success">Rien d'urgent : toutes les échéances sont à jour</Alert>
+        )
       )}
       {sorted.length > 0 && (
         <>
           <Typography variant="subtitle1">
-            {counts.overdue} dépassées · {counts.dueSoon} proches
+            {counts.overdue} {counts.overdue > 1 ? "dépassées" : "dépassée"} · {counts.dueSoon}{" "}
+            {counts.dueSoon > 1 ? "proches" : "proche"}
           </Typography>
           <DashboardDeadlineTable deadlines={sorted} onComplete={setCompleting} />
         </>

@@ -71,6 +71,27 @@ describe("DashboardPage", () => {
     expect(screen.getByText("01/12/2026")).toBeInTheDocument();
   });
 
+  it("affiche l'alerte de succès quand il n'y a aucune échéance et aucun filtre", async () => {
+    api.listDashboardDeadlines.mockResolvedValue([]);
+    renderPage();
+    expect(await screen.findByText("Rien d'urgent : toutes les échéances sont à jour")).toBeInTheDocument();
+  });
+
+  it("affiche un message neutre quand les filtres ne donnent aucun résultat", async () => {
+    renderPage();
+    await screen.findByText("Vidange");
+    api.listDashboardDeadlines.mockResolvedValue([]);
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "Statut" }));
+    fireEvent.click(within(await screen.findByRole("listbox")).getByText("Dépassée"));
+    expect(await screen.findByText("Aucune échéance ne correspond aux filtres")).toBeInTheDocument();
+    expect(screen.queryByText(/Rien d'urgent/)).toBeNull();
+  });
+
+  it("affiche le compteur d'échéances", async () => {
+    renderPage();
+    expect(await screen.findByText(/1 dépassée · 1\s+proche/)).toBeInTheDocument();
+  });
+
   it("transmet les filtres à l'API", async () => {
     renderPage();
     await screen.findByText("Vidange");

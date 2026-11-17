@@ -67,7 +67,7 @@ export default function VehicleDetailPage() {
         <Typography variant="h5">{data.licensePlate}</Typography>
         <VehicleStatusChip status={data.status} />
         <Stack flexGrow={1} />
-        <Button component={Link} to={`/costs?vehicleId=${data.id}`} variant="outlined">
+        <Button component={Link} to={`/costs?vehicleId=${data.id}`} variant="outlined" sx={{ minHeight: 44 }}>
           Voir les coûts
         </Button>
         {data.status !== "Retired" && (
