@@ -11,15 +11,15 @@ Parcours de 5 à 10 minutes, du point de vue d'un gestionnaire de parc d'une ent
      cd api
      Auth__Disabled=true dotnet run --project src/UsMecanic.Api   # http://localhost:5255
      ```
-     Dans un autre terminal : `cd web && npm ci && npm run dev` (http://localhost:5173).
-   - Sur l'environnement de dev : `API_AUTH_DISABLED=true` et `APP_AUTH_DISABLED=true` dans `deploy/.env.dev` (voir `deploy/.env.dev.example`), puis `./redeploy.sh dev`.
+     Dans un autre terminal, front sans connexion Keycloak : copier `web/.env.example` en `web/.env.local` et y décommenter `VITE_AUTH_DISABLED=true`, puis `cd web && npm ci && npm run dev` (http://localhost:5173).
+   - Sur l'environnement de dev : `API_AUTH_DISABLED=true` et `APP_AUTH_DISABLED=true` dans `deploy/.env.dev` (voir `deploy/.env.dev.example`), puis `deploy/redeploy.sh dev` (depuis le dossier `deploy/`).
 2. Charger les données (prérequis : bash, curl, jq, `date` GNU) :
    ```bash
    scripts/demo-seed.sh http://localhost:5255     # ou l'URL de l'API de dev
    scripts/demo-seed.sh --dry-run                 # pour voir les requêtes sans les envoyer
    ```
 3. Le script **refuse une API authentifiée** (« API authentifiée : refus d'exécuter le script de démo ») : il ne peut pas tourner en prod.
-4. Le script ne rejoue pas la démo : si les véhicules `DM-…` existent, il ne fait rien. Pour repartir de zéro, utiliser une base vide. La démo modifie des données (clôture d'action, étape 4) : la recharger avant chaque présentation.
+4. Le script ne rejoue pas la démo : si les véhicules `DM-…` existent, il ne fait rien. Pour repartir de zéro, utiliser une base vide. La démo modifie des données (clôture d'action, étape 3) : la recharger avant chaque présentation.
 
 Les dates sont calculées par rapport au jour d'exécution : les échéances « dépassées » le restent le jour de la démo.
 
@@ -30,20 +30,21 @@ Les dates sont calculées par rapport au jour d'exécution : les échéances « 
 1. Ouvrir **Tableau de bord**, onglet **Échéances**.
 2. Montrer les échéances dépassées en haut de la liste, puis les proches : contrôle technique de `DM-001-AA` dépassé, assurance de `DM-006-AA` dépassée, etc.
 3. Montrer le bouton **Marquer réalisée** sur une ligne.
-4. Passer à l'onglet **Problèmes** : la colonne **Blocage** classe du plus au moins bloquant. Les deux problèmes **Immobilisant** (`DM-002-AA`, `DM-009-AA`) sont en tête, puis **Non analysé**, **Action en retard**.
+4. Passer à l'onglet **Problèmes** : la colonne **Blocage** classe du plus au moins bloquant. Les deux problèmes **Immobilisant** (`DM-002-AA`, `DM-009-AA`) sont en tête, puis les **Non analysé** (`DM-001-AA`, `DM-004-AA`), puis les autres.
 
 Message clé : le gestionnaire voit en un écran ce qui l'empêche de rouler et ce qui arrive à échéance.
 
 ### Étape 2 — Fiche d'une ambulance immobilisée (2 min)
 
 1. Depuis la liste des problèmes, cliquer sur la plaque `DM-002-AA` (Mercedes-Benz Sprinter, ambulance). Le véhicule est **Immobilisé**.
-2. Montrer le bandeau du problème immobilisant en haut de la fiche (livré par la PR #176).
+2. Montrer le bandeau du problème immobilisant en haut de la fiche.
 3. Parcourir les sections, dans l'ordre de la page :
    - **Kilométrage** : relevés sur 12 mois ;
    - **Échéances** : l'entretien constructeur est dépassé en kilométrage, d'autres échéances sont proches ;
    - **Carnet d'entretien** : remplacement de l'embrayage (1 180,90 €) ;
+   - **Problèmes** : le problème immobilisant et ses actions (ouvert à l'étape 3) ;
    - **Dépenses** : remplacement du matelas de brancard (340 €).
-4. Sur téléphone ou iPad, montrer les cartes mobiles à la place des tableaux (branche feat/168).
+4. Sur téléphone ou iPad, montrer les cartes mobiles à la place des tableaux.
 
 Message clé : tout l'historique d'un véhicule est au même endroit, et son indisponibilité est visible dès l'ouverture de la fiche.
 
