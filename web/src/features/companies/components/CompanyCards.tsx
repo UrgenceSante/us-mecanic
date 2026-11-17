@@ -24,7 +24,7 @@ export default function CompanyCards({ companies, deactivating, onRename, onDeac
               <Typography fontWeight="bold">{company.name}</Typography>
               <Chip
                 size="small"
-                label={company.isActive ? "Actif" : "Désactivé"}
+                label={company.isActive ? "Active" : "Désactivée"}
                 color={company.isActive ? "success" : "default"}
               />
             </Stack>

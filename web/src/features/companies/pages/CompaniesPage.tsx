@@ -1,5 +1,6 @@
 import {
   Alert,
+  CircularProgress,
   Button,
   Chip,
   IconButton,
@@ -73,11 +74,13 @@ export default function CompaniesPage() {
         </Button>
       </Stack>
       <Alert severity="info">
-        Un company désactivé n'est plus proposé à la saisie mais reste affiché sur les interventions existantes.
+        Une société désactivée n'est plus proposée comme propriétaire ni comme locataire, mais reste affichée sur les véhicules et locations qui la citent.
       </Alert>
 
       {companies.isError ? (
         <ErrorHandler error={companies.error} />
+      ) : companies.isLoading ? (
+        <CircularProgress aria-label="Chargement" sx={{ alignSelf: "center" }} />
       ) : compact ? (
         <Paper>
           <CompanyCards
@@ -104,7 +107,7 @@ export default function CompaniesPage() {
                   <TableCell>
                     <Chip
                       size="small"
-                      label={company.isActive ? "Actif" : "Désactivé"}
+                      label={company.isActive ? "Active" : "Désactivée"}
                       color={company.isActive ? "success" : "default"}
                     />
                   </TableCell>

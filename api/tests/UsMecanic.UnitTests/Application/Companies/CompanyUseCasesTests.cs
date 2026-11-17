@@ -9,7 +9,7 @@ public class CompanyUseCasesTests
     private readonly InMemoryCompanyRepository _companies = new();
 
     [Fact]
-    public async Task Cree_une_categorie_active()
+    public async Task Cree_une_societe_active()
     {
         var result = await new CreateCompany(_companies).ExecuteAsync(" Nettoyage ", CancellationToken.None);
 
@@ -44,7 +44,7 @@ public class CompanyUseCasesTests
     }
 
     [Fact]
-    public async Task Renomme_une_categorie_y_compris_pour_changer_la_casse()
+    public async Task Renomme_une_societe_y_compris_pour_changer_la_casse()
     {
         var company = _companies.Seed("nettoyage");
 
@@ -55,7 +55,7 @@ public class CompanyUseCasesTests
     }
 
     [Fact]
-    public async Task Refuse_de_renommer_vers_un_nom_existant_ou_une_categorie_inconnue()
+    public async Task Refuse_de_renommer_vers_un_nom_existant_ou_une_societe_inconnue()
     {
         _companies.Seed("Nettoyage");
         var other = _companies.Seed("Équipement");
@@ -72,7 +72,7 @@ public class CompanyUseCasesTests
     }
 
     [Fact]
-    public async Task Une_categorie_desactivee_n_est_plus_proposee_mais_reste_liste_sur_demande()
+    public async Task Une_societe_desactivee_n_est_plus_proposee_mais_reste_liste_sur_demande()
     {
         var company = _companies.Seed("Nettoyage");
 
@@ -86,7 +86,7 @@ public class CompanyUseCasesTests
     }
 
     [Fact]
-    public async Task Desactiver_une_categorie_inconnue_renvoie_introuvable()
+    public async Task Desactiver_une_societe_inconnue_renvoie_introuvable()
     {
         var result = await new DeactivateCompany(_companies).ExecuteAsync(Guid.NewGuid(), CancellationToken.None);
 

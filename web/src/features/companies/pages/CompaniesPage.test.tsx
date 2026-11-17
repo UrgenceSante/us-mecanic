@@ -45,12 +45,12 @@ describe("CompaniesPage", () => {
     ]);
   });
 
-  it("liste les companies actifs et désactivés, avec la désactivation réservée aux actifs", async () => {
+  it("liste les sociétés actives et désactivées, avec la désactivation réservée aux actifs", async () => {
     renderPage();
 
     expect(await screen.findByText("Ambulances Nord")).toBeInTheDocument();
     expect(api.listCompanies).toHaveBeenCalledWith(true);
-    expect(screen.getByText("Désactivé")).toBeInTheDocument();
+    expect(screen.getByText("Désactivée")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Désactiver Ambulances Nord" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Désactiver Ancienne société" })).not.toBeInTheDocument();
   });
@@ -79,7 +79,7 @@ describe("CompaniesPage", () => {
     fireEvent.change(screen.getByLabelText(/Nom/), { target: { value: "Pompes funèbres Sud" } });
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
-    expect(await screen.findByText("Une société portant ce nom existe déjà.")).toBeInTheDocument();
+    expect(await screen.findByText("Une société porte déjà ce nom.")).toBeInTheDocument();
     expect(api.renameCompany).toHaveBeenCalledWith("g1", "Pompes funèbres Sud");
   });
 

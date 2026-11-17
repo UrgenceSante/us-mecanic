@@ -5,7 +5,7 @@ namespace UsMecanic.UnitTests.Domain.Companies;
 public class CompanyTests
 {
     [Fact]
-    public void Create_nettoie_le_nom_et_cree_une_categorie_active()
+    public void Create_nettoie_le_nom_et_cree_une_societe_active()
     {
         var result = Company.Create("  Nettoyage ");
 
@@ -52,7 +52,7 @@ public class CompanyTests
     }
 
     [Fact]
-    public void Rename_refuse_un_nom_vide_sans_modifier_la_categorie()
+    public void Rename_refuse_un_nom_vide_sans_modifier_la_societe()
     {
         var company = Company.Create("Nettoyage").Value;
 
@@ -63,7 +63,7 @@ public class CompanyTests
     }
 
     [Fact]
-    public void Deactivate_desactive_la_categorie()
+    public void Deactivate_desactive_la_societe()
     {
         var company = Company.Create("Nettoyage").Value;
 
@@ -73,19 +73,19 @@ public class CompanyTests
     }
 
     [Fact]
-    public void GetSelectionError_accepte_une_categorie_active()
+    public void GetSelectionError_accepte_une_societe_active()
     {
-        var category = Company.Create("Nettoyage").Value;
+        var company = Company.Create("Nettoyage").Value;
 
-        Assert.Null(category.GetSelectionError());
+        Assert.Null(company.GetSelectionError());
     }
 
     [Fact]
-    public void GetSelectionError_refuse_une_categorie_inactive()
+    public void GetSelectionError_refuse_une_societe_inactive()
     {
-        var category = Company.Create("Nettoyage").Value;
-        category.Deactivate();
+        var company = Company.Create("Nettoyage").Value;
+        company.Deactivate();
 
-        Assert.Equal(CompanyErrors.Inactive, category.GetSelectionError());
+        Assert.Equal(CompanyErrors.Inactive, company.GetSelectionError());
     }
 }

@@ -38,7 +38,7 @@ public class CompanyEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Les_categories_exigent_une_authentification()
+    public async Task Les_societes_exigent_une_authentification()
     {
         var response = await _anonymous.GetAsync(Companies);
 
@@ -86,7 +86,7 @@ public class CompanyEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Renommer_vers_un_nom_existant_ou_une_categorie_inconnue_est_refuse()
+    public async Task Renommer_vers_un_nom_existant_ou_une_societe_inconnue_est_refuse()
     {
         var other = await CreateCompanyAsync(NewName("Autre"));
         var company = await CreateCompanyAsync(NewName("Société"));
@@ -101,7 +101,7 @@ public class CompanyEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Une_categorie_desactivee_n_est_plus_proposee_mais_reste_liste_sur_demande()
+    public async Task Une_societe_desactivee_n_est_plus_proposee_mais_reste_liste_sur_demande()
     {
         var company = await CreateCompanyAsync(NewName("Ancienne"));
 
@@ -116,7 +116,7 @@ public class CompanyEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Desactiver_une_categorie_inconnue_renvoie_introuvable()
+    public async Task Desactiver_une_societe_inconnue_renvoie_introuvable()
     {
         var response = await _client.PostAsync(new Uri($"/api/companies/{Guid.NewGuid()}/deactivate", UriKind.Relative), null);
 
@@ -125,7 +125,7 @@ public class CompanyEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
-    public async Task Une_categorie_ne_peut_pas_etre_supprimee()
+    public async Task Une_societe_ne_peut_pas_etre_supprimee()
     {
         var company = await CreateCompanyAsync(NewName("Permanente"));
 
