@@ -58,4 +58,4 @@ Au début, lance `/tache` sur une seule issue à la fois pour juger la qualité.
 - Une issue tourne en rond : `/tache` s'arrête après 3 boucles. Précise les critères « fait » ou découpe l'issue.
 - Le résultat ne correspond pas à ce que tu voulais : corrige la spec ou l'issue, pas le code à la main, sinon la prochaine itération refait l'erreur.
 - Un agent sort de son rôle : resserre son champ `tools` ou sa section « Interdits » dans `.claude/agents/`.
-- release-please : le titre des PR et les commits doivent rester en Conventional Commits, les agents ne touchent jamais à la version.
+- release-please : le titre des PR et les commits doivent rester en Conventional Commits, seul l'orchestrateur incrémente la version, avec `scripts/bump-version.sh`, dans une PR dédiée après un lot de merges.

@@ -99,6 +99,25 @@ dotnet ef migrations add <Nom> --project src/UsMecanic.Infrastructure --output-d
 
 Feuille de route : [docs/ROADMAP.md](docs/ROADMAP.md).
 
+## Données de démonstration
+
+`scripts/demo-seed.sh` remplit une base vide, uniquement via l'API (bash, curl, jq, `date` GNU), avec des
+données **fictives** : 11 véhicules `DM-001-AA` à `DM-011-AA` (ambulances, VSL, corbillards, véhicule
+funéraire, transport PSL), relevés kilométriques sur 12 mois, échéances proches / dépassées / à jour
+(dates calculées par rapport au jour d'exécution), interventions avec montants et garages, problèmes à tous
+les statuts (dont deux véhicules immobilisés et des actions en retard), dépenses dont deux prévues, emprunts.
+
+```bash
+# API locale lancée avec l'authentification désactivée (Auth__Disabled=true, voir appsettings)
+scripts/demo-seed.sh http://localhost:5255      # ou : API_URL=... scripts/demo-seed.sh
+scripts/demo-seed.sh --dry-run                  # affiche les requêtes sans les envoyer
+```
+
+Garde-fous : le script s'arrête (« API authentifiée : refus d'exécuter le script de démo ») si
+`GET /api/vehicles` anonyme répond autre chose que 200 (401, 403, redirection…) : il ne peut donc pas tourner contre une API authentifiée comme la production. Si des véhicules
+`DM-…` existent déjà, il indique que la démo est chargée et ne fait rien ; les référentiels (types, garages,
+catégories…) sont réutilisés par nom s'ils existent. Pour rejouer la démo, repartir d'une base vide.
+
 ## Import du parc existant
 
 Écran **Parc → Importer** (ou `POST /api/vehicles/import?dryRun=true|false`, fichier en multipart).
@@ -134,7 +153,7 @@ Une seule branche longue : `master`. Plus de branche `dev`.
   - `feat:` → minor ;
   - `feat!:` ou `BREAKING CHANGE:` → major (tant qu'on est en `0.x`, un breaking change bumpe le minor).
 - À chaque push sur `master`, release-please ouvre ou met à jour une **PR de release** (numéro de version + `CHANGELOG.md`). La fusionner crée le tag, la release GitHub et publie les images.
-- La version est synchronisée dans `web/package.json` et `api/Directory.Build.props`. Elle ne se modifie pas à la main.
+- La version est synchronisée dans `web/package.json`, `web/package-lock.json`, `api/Directory.Build.props` et `.release-please-manifest.json`. Pour suivre les déploiements de dev, elle est incrémentée après chaque lot de merges avec `scripts/bump-version.sh [patch|minor]` (PR `chore: version X.Y.Z`), jamais à la main fichier par fichier.
 
 Workflows (`.github/workflows/`) :
 
