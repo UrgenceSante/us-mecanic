@@ -55,7 +55,7 @@ export default function VehicleLoans({ vehicleId, status }: VehicleLoansProps) {
     <Paper sx={{ padding: 2 }}>
       <Stack gap={1}>
         <Stack direction="row" alignItems="center" gap={2} flexWrap="wrap">
-          <Typography variant="h6">Emprunts</Typography>
+          <Typography variant="h6" component="h2">Emprunts</Typography>
           <Stack flexGrow={1} />
           {status === "Retired" ? (
             <Typography variant="body2" color="text.secondary">

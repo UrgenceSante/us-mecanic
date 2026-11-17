@@ -1,3 +1,4 @@
+import ActionsHeaderCell from "../../../shared/components/ActionsHeaderCell";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, useMediaQuery, useTheme } from "@mui/material";
@@ -30,7 +31,7 @@ export default function LoanList({ loans, onEdit, onDelete }: LoanListProps) {
                 <span>Fin</span>
               </Tooltip>
             </TableCell>
-            <TableCell />
+            <ActionsHeaderCell />
           </TableRow>
         </TableHead>
         <TableBody>

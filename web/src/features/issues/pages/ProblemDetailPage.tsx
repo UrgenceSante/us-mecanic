@@ -1,3 +1,4 @@
+import PageTitle from "../../../shared/components/PageTitle";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import { Button, Chip, Link as MuiLink, Paper, Stack, Typography } from "@mui/material";
 import { Link, useParams } from "react-router";
@@ -31,9 +32,7 @@ export default function ProblemDetailPage() {
         </Button>
       </div>
       <Paper sx={{ padding: 2 }}>
-        <Typography variant="h5" marginBottom={1}>
-          Problème
-        </Typography>
+        <PageTitle marginBottom={1}>Problème</PageTitle>
         <PropertyDisplay
           title="Véhicule"
           content={

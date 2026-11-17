@@ -1,3 +1,4 @@
+import PageTitle from "../../shared/components/PageTitle";
 import { useEffect, useState } from 'react'
 import { Alert, CircularProgress, Stack, Typography } from '@mui/material'
 
@@ -20,7 +21,7 @@ export default function SubscriptionContainer() {
 
     return (
         <Stack gap={2} marginY={2}>
-            <Typography variant="h5">Abonnements</Typography>
+            <PageTitle>Abonnements</PageTitle>
             {loading && <CircularProgress aria-label="Chargement" sx={{ alignSelf: 'center' }} />}
             {failed && <Alert severity="error">Impossible de charger les abonnements.</Alert>}
             {!loading && !failed && subscriptions.length === 0 && (

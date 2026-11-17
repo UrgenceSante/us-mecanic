@@ -1,7 +1,8 @@
+import PageTitle from "../../../shared/components/PageTitle";
 import { Alert, Button, Paper, Stack, Typography } from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router";
 import { problemMessage } from "../../../shared/api/problemMessage";
 import { useImportVehicles } from "../api/vehicleQueries";
@@ -12,6 +13,7 @@ import ImportReportView from "../components/ImportReportView";
  * puis confirmation. Les véhicules sont rapprochés par immatriculation.
  */
 export default function VehicleImportPage() {
+  const fileInput = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const importMutation = useImportVehicles();
   const report = importMutation.data;
@@ -31,7 +33,7 @@ export default function VehicleImportPage() {
           Parc
         </Button>
       </div>
-      <Typography variant="h5">Importer des véhicules</Typography>
+      <PageTitle>Importer des véhicules</PageTitle>
 
       <Paper sx={{ padding: 2 }}>
         <Typography variant="body2" component="div">
@@ -50,9 +52,10 @@ export default function VehicleImportPage() {
           </ul>
         </Typography>
         <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
-          <Button component="label" variant="outlined" startIcon={<UploadFileIcon />}>
+          <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => fileInput.current?.click()}>
             Choisir un fichier
             <input
+              ref={fileInput}
               hidden
               type="file"
               accept=".csv,text/csv"

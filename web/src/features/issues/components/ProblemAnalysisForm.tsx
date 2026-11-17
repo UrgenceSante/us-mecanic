@@ -27,7 +27,7 @@ export default function ProblemAnalysisForm({ problemId, vehicleId }: { problemI
 
   return (
     <Paper component="form" sx={{ padding: 2 }} onSubmit={handleSubmit}>
-      <Typography variant="h6">Analyse</Typography>
+      <Typography variant="h6" component="h2">Analyse</Typography>
       {analyze.isError && <Alert severity="error">{problemErrorMessage(analyze.error)}</Alert>}
       <Stack>
         <ReferenceSelect kind="nature" label="Nature" value={natureId} onChange={setNatureId} />

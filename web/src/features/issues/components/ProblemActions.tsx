@@ -1,3 +1,4 @@
+import ActionsHeaderCell from "../../../shared/components/ActionsHeaderCell";
 import { Button, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { useState } from "react";
 import useNotifSnack from "../../../hooks/useNotifSnack";
@@ -45,7 +46,7 @@ export default function ProblemActions({ problem }: { problem: Problem }) {
   return (
     <Paper sx={{ padding: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" marginBottom={1}>
-        <Typography variant="h6">Actions</Typography>
+        <Typography variant="h6" component="h2">Actions</Typography>
         {problem.status !== "Reported" && (
           <Button variant="outlined" onClick={() => setDialog({ kind: "add" })}>
             Ajouter une action
@@ -66,9 +67,10 @@ export default function ProblemActions({ problem }: { problem: Problem }) {
         <Table size="small" aria-label="Actions du problème">
           <TableHead>
             <TableRow>
-              {["Acteur", "Type", "Contrainte", "Échéance", "Commentaire", "Intervention", "État", ""].map((h) => (
+              {["Acteur", "Type", "Contrainte", "Échéance", "Commentaire", "Intervention", "État"].map((h) => (
                 <TableCell key={h}>{h}</TableCell>
               ))}
+              <ActionsHeaderCell />
             </TableRow>
           </TableHead>
           <TableBody>

@@ -1,9 +1,9 @@
 import { Chip } from "@mui/material";
 import { deadlineStatusColors, deadlineStatusLabels, type DeadlineStatus } from "../types/vehicleDeadline";
 
-/** Statut par couleur et libellé ; « Close » pour une échéance close, « Inconnu » si l'API n'a pas pu le calculer. */
+/** Statut par couleur et libellé ; « Clôturée » pour une échéance close, « Inconnu » si l'API n'a pas pu le calculer. */
 export default function DeadlineStatusChip({ status, isClosed }: { status: DeadlineStatus | null; isClosed: boolean }) {
-  if (isClosed) return <Chip size="small" label="Close" />;
+  if (isClosed) return <Chip size="small" label="Clôturée" />;
   if (status === null) return <Chip size="small" label="Inconnu" />;
   return <Chip size="small" color={deadlineStatusColors[status]} label={deadlineStatusLabels[status]} />;
 }
