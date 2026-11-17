@@ -16,6 +16,15 @@ updates:
     groups:
       api-minor-patch:
         update-types: [minor, patch]
+    # On reste sur .NET LTS : les paquets alignés sur la version de .NET ne montent pas de version majeure
+    # automatiquement (passage à la LTS suivante à la main).
+    ignore:
+      - dependency-name: "Microsoft.*"
+        update-types: [version-update:semver-major]
+      - dependency-name: "System.*"
+        update-types: [version-update:semver-major]
+      - dependency-name: "Npgsql*"
+        update-types: [version-update:semver-major]
     commit-message: { prefix: chore, include: scope }
 
   - package-ecosystem: github-actions
@@ -28,8 +37,10 @@ updates:
     directories: [/web, /api]
     target-branch: master
     schedule: { interval: monthly }
-    # On reste sur une version LTS de Node : les montées de version majeure se font à la main, vers la LTS suivante.
+    # On reste sur une version LTS de Node et de .NET : les montées de version majeure se font à la main, vers la LTS suivante.
     ignore:
       - dependency-name: node
+        update-types: [version-update:semver-major]
+      - dependency-name: "dotnet/*"
         update-types: [version-update:semver-major]
     commit-message: { prefix: chore, include: scope }
