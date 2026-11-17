@@ -114,7 +114,7 @@ scripts/demo-seed.sh --dry-run                  # affiche les requêtes sans les
 ```
 
 Garde-fous : le script s'arrête (« API authentifiée : refus d'exécuter le script de démo ») si
-`GET /api/vehicles` répond 401, il ne doit donc jamais tourner contre une API de production. Si des véhicules
+`GET /api/vehicles` anonyme répond autre chose que 200 (401, 403, redirection…) : il ne peut donc pas tourner contre une API authentifiée comme la production. Si des véhicules
 `DM-…` existent déjà, il indique que la démo est chargée et ne fait rien ; les référentiels (types, garages,
 catégories…) sont réutilisés par nom s'ils existent. Pour rejouer la démo, repartir d'une base vide.
 

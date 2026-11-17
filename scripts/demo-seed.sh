@@ -3,6 +3,8 @@
 # Usage : scripts/demo-seed.sh [--dry-run] [API_URL]      (API_URL peut aussi venir de l'environnement)
 # Prérequis : bash, curl, jq, date GNU. Aucune écriture directe en base.
 set -euo pipefail
+shopt -s inherit_errexit # les erreurs dans $(...) arrêtent aussi le script
+export TZ=Europe/Paris # même « aujourd'hui » que l'API
 
 DRY_RUN=0
 API_URL="${API_URL:-}"
@@ -13,7 +15,7 @@ for arg in "$@"; do
     *) API_URL="$arg" ;;
   esac
 done
-API_URL="${API_URL:-http://localhost:5000}"
+API_URL="${API_URL:-http://localhost:5255}"
 API_URL="${API_URL%/}"
 
 command -v jq >/dev/null || { echo "jq est requis." >&2; exit 1; }
@@ -75,7 +77,7 @@ else
     401 | 403) die "API authentifiée : refus d'exécuter le script de démo" ;;
     *) die "réponse inattendue de l'API (HTTP $code) sur GET /api/vehicles" ;;
   esac
-  if curl -sS "$API_URL/api/vehicles?search=DM-" | jq -e 'any(.[]; .licensePlate | startswith("DM-"))' >/dev/null; then
+  if api GET "/api/vehicles?search=DM-" | jq -e 'any(.[]; .licensePlate | startswith("DM-"))' >/dev/null; then
     echo "La démo est déjà chargée (véhicules DM-xxx-AA présents) : rien à faire." >&2
     exit 0
   fi
@@ -122,8 +124,8 @@ done
 VEHICLES='1|Ambulance|Renault|Master|4|52000|2400|-20|120|800
 2|Ambulance|Mercedes-Benz|Sprinter|6|88000|2800|12|200|-500
 3|Ambulance|Volkswagen|Crafter|3|21000|2600|200|45|15000
-4|VSL|Peugeot|Expert|5|60000|1900|90|300|6000
-5|VSL|Citroën|Jumpy|4|47000|1700|5|18|2500
+4|VSL|Peugeot|508 SW|5|60000|1900|90|300|6000
+5|VSL|Skoda|Superb Combi|4|47000|1700|5|18|2500
 6|Corbillard|Mercedes-Benz|Classe E break|7|70000|900|150|-10|9000
 7|Corbillard|Volvo|V90|3|15000|800|300|260|20000
 8|Véhicule funéraire|Renault|Trafic|5|58000|1500|-3|75|400
@@ -131,7 +133,7 @@ VEHICLES='1|Ambulance|Renault|Master|4|52000|2400|-20|120|800
 10|Transport PSL|Peugeot|Partner|4|44000|2300|240|28|3000
 11|Ambulance|Ford|Transit|9|130000|0|100|100|10000'
 
-declare -A VID PLATE CUR TYPEOF OFF_CT OFF_INS KM_LEFT
+declare -A VID PLATE CUR TYPEOF OFF_CT OFF_INS KM_LEFT INC
 step "Véhicules et relevés kilométriques sur 12 mois"
 while IFS='|' read -r n type brand model age base inc ct ins left; do
   plate=$(printf 'DM-%03d-AA' "$n")
@@ -140,6 +142,7 @@ while IFS='|' read -r n type brand model age base inc ct ins left; do
   OFF_CT[$n]=$ct
   OFF_INS[$n]=$ins
   KM_LEFT[$n]=$left
+  INC[$n]=$inc
   VID[$n]=$(post /api/vehicles "$(jq -nc --arg p "$plate" --arg b "$brand" --arg m "$model" --arg d "$(dt "-$age years -3 months")" \
     --arg vin "$(printf 'VFDM%013d' "$n")" --arg i "$(printf 'DEMO-%02d' "$n")" --arg t "${VTYPE[$type]}" \
     '{licensePlate: $p, details: {brand: $b, model: $m, firstRegistrationDate: $d, vin: $vin, internalNumber: $i, typeId: $t}}')")
@@ -165,12 +168,17 @@ step "Échéances (proches, dépassées et à jour, calculées par rapport à au
 for n in $(seq 1 10); do
   add_periodic "$n" "Contrôle technique" 12 null "$(dt "-12 months $(off "${OFF_CT[$n]}")")"
   add_periodic "$n" "Assurance" 12 null "$(dt "-12 months $(off "${OFF_INS[$n]}")")"
-  add_periodic "$n" "Entretien constructeur" 12 30000 "$(dt "-5 months")" "$((CUR[$n] - 30000 + KM_LEFT[$n]))"
+  # Dernière révision il y a 5 mois, au km du relevé de ce jour-là ; intervalle arrondi au millier pour
+  # qu'il reste environ KM_LEFT km avant la prochaine.
+  km5=$((CUR[$n] - 5 * INC[$n]))
+  add_periodic "$n" "Entretien constructeur" 12 $(((CUR[$n] - km5 + KM_LEFT[$n] + 500) / 1000 * 1000)) "$(dt "-5 months")" "$km5"
   add_periodic "$n" "Extincteur" 12 null "$(dt "-12 months $(off $((n * 37 % 90 - 30)))")"
   case "${TYPEOF[$n]}" in
     Ambulance | VSL)
-      add_periodic "$n" "Oxygène" 6 null "$(dt "-6 months $(off $((n * 11 % 40 - 10)))")"
-      add_periodic "$n" "Matériel médical" 6 null "$(dt "-6 months $(off $((n * 17 % 60 - 5)))")"
+      if [[ "${TYPEOF[$n]}" == Ambulance ]]; then # oxygène et matériel médical : ambulances seulement
+        add_periodic "$n" "Oxygène" 6 null "$(dt "-6 months $(off $((n * 11 % 40 - 10)))")"
+        add_periodic "$n" "Matériel médical" 6 null "$(dt "-6 months $(off $((n * 17 % 60 - 5)))")"
+      fi
       add_periodic "$n" "Désinfection" 3 null "$(dt "-3 months $(off $((n * 7 % 30 - 8)))")"
       # Agrément ARS : échéance ponctuelle (date fixée directement)
       api POST "/api/vehicles/${VID[$n]}/deadlines" "$(jq -nc --arg t "${DTYPE[Agrément ARS]}" --arg d "$(dt "$(off $((n * 53 % 400 - 15)))")" \
