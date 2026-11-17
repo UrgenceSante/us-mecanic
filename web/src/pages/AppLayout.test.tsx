@@ -55,6 +55,7 @@ describe("AppLayout desktop", () => {
     for (const label of [
       "Types de véhicule",
       "Types d'échéance",
+      "Sociétés",
       "Garages",
       "Catégories de dépense",
       "Référentiels problèmes",

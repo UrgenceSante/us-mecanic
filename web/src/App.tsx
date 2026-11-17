@@ -12,6 +12,7 @@ import Page404 from "./pages/Page404";
 import VehicleListPage from "./features/vehicles/pages/VehicleListPage";
 import VehicleDetailPage from "./features/vehicles/pages/VehicleDetailPage";
 import VehicleImportPage from "./features/vehicles/pages/VehicleImportPage";
+import CompaniesPage from "./features/companies/pages/CompaniesPage";
 import GaragesPage from "./features/garages/pages/GaragesPage";
 import ExpenseCategoriesPage from "./features/costs/pages/ExpenseCategoriesPage";
 import CostSummaryPage from "./features/costs/pages/CostSummaryPage";
@@ -40,6 +41,7 @@ function App() {
               <Route path="/vehicles" element={<VehicleListPage />} />
               <Route path="/vehicles/import" element={<VehicleImportPage />} />
               <Route path="/vehicle-types" element={<VehicleTypesPage />} />
+              <Route path="/companies" element={<CompaniesPage />} />
               <Route path="/garages" element={<GaragesPage />} />
               <Route path="/expense-categories" element={<ExpenseCategoriesPage />} />
               <Route path="/problem-references" element={<ProblemReferencesPage />} />
