@@ -78,6 +78,14 @@ Spec : `docs/specs/phase-5-couts.md`
 - [x] Emprunts des véhicules (mensualités)
 - [x] Synthèse par véhicule et par période, coût au kilomètre
 
+## Jalon — v1 démontrable
+
+Spec : `docs/specs/v1-demontrable.md`
+
+- [ ] Script de données de démonstration (via l'API)
+- [ ] Passe UX globale et corrections prioritaires
+- [ ] Parcours de démonstration documenté
+
 ## Phase 6 — Documents
 
 - [ ] Pièces jointes du véhicule (carte grise, attestation d'assurance…) et factures des interventions et dépenses
