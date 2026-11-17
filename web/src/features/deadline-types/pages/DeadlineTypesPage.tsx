@@ -18,6 +18,7 @@ import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { useState } from "react";
+import useBelow from "../../../shared/hooks/useBelow";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import {
@@ -27,6 +28,7 @@ import {
   useUpdateDeadlineType,
 } from "../api/deadlineTypeQueries";
 import { deadlineTypeErrorMessage } from "../api/deadlineTypeErrors";
+import DeadlineTypeCards from "../components/DeadlineTypeCards";
 import AssignDeadlineTypeDialog from "../components/AssignDeadlineTypeDialog";
 import DeadlineThresholdsSection from "../components/DeadlineThresholdsSection";
 import DeadlineTypeDialog from "../components/DeadlineTypeDialog";
@@ -38,6 +40,7 @@ type Editing = DeadlineType | null | undefined;
 
 export default function DeadlineTypesPage() {
   const { notifySuccess, notifyError } = useNotifSnack();
+  const compact = useBelow("sm");
   const [editing, setEditing] = useState<Editing>(undefined);
 
   const types = useDeadlineTypes(true);
@@ -95,6 +98,16 @@ export default function DeadlineTypesPage() {
 
       {types.isError ? (
         <ErrorHandler error={types.error} />
+      ) : compact ? (
+        <Paper>
+          <DeadlineTypeCards
+            types={types.data ?? []}
+            deactivating={deactivate.isPending}
+            onEdit={setEditing}
+            onAssign={setAssigning}
+            onDeactivate={handleDeactivate}
+          />
+        </Paper>
       ) : (
         <Paper>
           <Table>

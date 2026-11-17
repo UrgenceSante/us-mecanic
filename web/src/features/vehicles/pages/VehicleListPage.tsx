@@ -10,6 +10,8 @@ import useNotifSnack from "../../../hooks/useNotifSnack";
 import { problemMessage } from "../../../shared/api/problemMessage";
 import { useRegisterVehicle, useVehicles } from "../api/vehicleQueries";
 import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
+import useBelow from "../../../shared/hooks/useBelow";
+import VehicleCards from "../components/VehicleCards";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import VehicleStatusChip from "../components/VehicleStatusChip";
 import { formatDateOnly, toRegisterCommand, type VehicleFormValues } from "../components/vehicleForm";
@@ -49,6 +51,7 @@ export default function VehicleListPage() {
   const [status, setStatus] = useState<VehicleStatus | "">("");
   const [type, setType] = useState("");
   const [creating, setCreating] = useState(false);
+  const compact = useBelow("sm");
 
   const vehicles = useVehicles({ search, status: status || undefined, type: type || undefined });
   const register = useRegisterVehicle();
@@ -116,6 +119,8 @@ export default function VehicleListPage() {
 
       {vehicles.isError ? (
         <ErrorHandler error={vehicles.error} />
+      ) : compact ? (
+        <VehicleCards vehicles={vehicles.data ?? []} loading={vehicles.isLoading} />
       ) : (
         <Paper>
           <DataGrid

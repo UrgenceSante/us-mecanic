@@ -9,6 +9,8 @@ import { useAddProblemAction, useCloseProblemAction, useUpdateProblemAction } fr
 import { useReferenceNames } from "../hooks/useReferenceNames";
 import type { Problem, ProblemAction } from "../types/problem";
 import CloseActionDialog from "./CloseActionDialog";
+import useBelow from "../../../shared/hooks/useBelow";
+import ProblemActionCards from "./ProblemActionCards";
 import ProblemActionDialog from "./ProblemActionDialog";
 
 type Dialog = { kind: "add" } | { kind: "edit"; action: ProblemAction } | { kind: "close"; action: ProblemAction };
@@ -22,6 +24,7 @@ export default function ProblemActions({ problem }: { problem: Problem }) {
   const update = useUpdateProblemAction(problem.id, problem.vehicleId);
   const close = useCloseProblemAction(problem.id, problem.vehicleId);
   const [dialog, setDialog] = useState<Dialog | null>(null);
+  const compact = useBelow("md");
 
   const dismiss = () => {
     setDialog(null);
@@ -51,6 +54,14 @@ export default function ProblemActions({ problem }: { problem: Problem }) {
       </Stack>
       {problem.actions.length === 0 ? (
         <Typography color="text.secondary">Aucune action.</Typography>
+      ) : compact ? (
+        <ProblemActionCards
+          actions={problem.actions}
+          name={name}
+          interventionLabel={interventionLabel}
+          onEdit={(action) => setDialog({ kind: "edit", action })}
+          onClose={(action) => setDialog({ kind: "close", action })}
+        />
       ) : (
         <Table size="small" aria-label="Actions du problème">
           <TableHead>
