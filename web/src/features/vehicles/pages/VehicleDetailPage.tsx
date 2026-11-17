@@ -12,6 +12,7 @@ import { useChangeVehicleStatus, useUpdateVehicle, useVehicle } from "../api/veh
 import VehicleDeadlines from "../../vehicle-deadlines/components/VehicleDeadlines";
 import VehicleMileage from "../../mileage/components/VehicleMileage";
 import VehicleMaintenanceLog from "../../maintenance/components/VehicleMaintenanceLog";
+import ImmobilizingProblemBanner from "../../issues/components/ImmobilizingProblemBanner";
 import VehicleProblems from "../../issues/components/VehicleProblems";
 import VehicleExpenses from "../../costs/components/VehicleExpenses";
 import VehicleLoans from "../../costs/components/VehicleLoans";
@@ -66,12 +67,17 @@ export default function VehicleDetailPage() {
         <Typography variant="h5">{data.licensePlate}</Typography>
         <VehicleStatusChip status={data.status} />
         <Stack flexGrow={1} />
+        <Button component={Link} to={`/costs?vehicleId=${data.id}`} variant="outlined" sx={{ minHeight: 44 }}>
+          Voir les coûts
+        </Button>
         {data.status !== "Retired" && (
           <Button startIcon={<EditIcon />} onClick={() => setEditing(true)}>
             Modifier
           </Button>
         )}
       </Stack>
+
+      <ImmobilizingProblemBanner vehicleId={data.id} />
 
       <Paper sx={{ padding: 2 }}>
         <Stack gap={1}>
@@ -95,19 +101,13 @@ export default function VehicleDetailPage() {
 
       <VehicleMaintenanceLog vehicleId={data.id} status={data.status} currentMileage={data.currentMileage} />
 
-      <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
-
       <VehicleProblems vehicleId={data.id} />
-
-      <div>
-        <Button component={Link} to={`/costs?vehicleId=${data.id}`} variant="outlined" sx={{ minHeight: 44 }}>
-          Voir les coûts
-        </Button>
-      </div>
 
       <VehicleExpenses vehicleId={data.id} status={data.status} />
 
       <VehicleLoans vehicleId={data.id} status={data.status} />
+
+      <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
 
       {editing && (
         <VehicleFormDialog

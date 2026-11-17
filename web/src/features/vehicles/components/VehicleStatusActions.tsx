@@ -28,7 +28,7 @@ export default function VehicleStatusActions({ status, disabled, onChange }: Veh
           Remettre en service
         </Button>
       )}
-      <Button variant="outlined" color="inherit" disabled={disabled} onClick={confirmRetire}>
+      <Button variant="outlined" color="error" disabled={disabled} onClick={confirmRetire}>
         Sortir du parc
       </Button>
     </Stack>

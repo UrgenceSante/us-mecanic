@@ -1,5 +1,5 @@
 import { Alert, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { completionFlow } from "../../vehicle-deadlines/api/completionFlow";
 import { deadlineErrorMessage } from "../../vehicle-deadlines/api/vehicleDeadlineErrors";
@@ -10,6 +10,7 @@ import { useDashboardDeadlines } from "../api/dashboardQueries";
 import { emptyDashboardFilter, type DashboardDeadline, type DashboardFilter } from "../types/dashboard";
 import DashboardDeadlineTable from "./DashboardDeadlineTable";
 import DashboardFilters from "./DashboardFilters";
+import { countDeadlines, sortDeadlines } from "./sortDeadlines";
 
 /** Le dialogue de réalisation attend une échéance de véhicule : on reconstruit ce que la ligne en connaît. */
 function toVehicleDeadline(d: DashboardDeadline): VehicleDeadline {
@@ -35,6 +36,11 @@ export default function DashboardDeadlines() {
   const [completing, setCompleting] = useState<DashboardDeadline | null>(null);
   const deadlines = useDashboardDeadlines(filter);
   const complete = useCompleteVehicleDeadline(completing?.vehicle.id ?? "", completing?.id ?? "");
+  const sorted = useMemo(() => sortDeadlines(deadlines.data ?? []), [deadlines.data]);
+  const counts = countDeadlines(sorted);
+  const isFiltered = (Object.keys(emptyDashboardFilter) as (keyof DashboardFilter)[]).some(
+    (k) => filter[k] !== emptyDashboardFilter[k],
+  );
   const flow = completionFlow(complete.isError ? complete.error : null);
 
   const close = () => {
@@ -53,9 +59,21 @@ export default function DashboardDeadlines() {
     <Stack gap={2}>
       <DashboardFilters value={filter} onChange={setFilter} />
       {deadlines.isError && <Alert severity="error">{deadlineErrorMessage(deadlines.error)}</Alert>}
-      {deadlines.data && deadlines.data.length === 0 && <Typography>Aucune échéance proche ou dépassée</Typography>}
-      {deadlines.data && deadlines.data.length > 0 && (
-        <DashboardDeadlineTable deadlines={deadlines.data} onComplete={setCompleting} />
+      {deadlines.data && deadlines.data.length === 0 && (
+        isFiltered ? (
+          <Typography>Aucune échéance ne correspond aux filtres</Typography>
+        ) : (
+          <Alert severity="success">Rien d'urgent : toutes les échéances sont à jour</Alert>
+        )
+      )}
+      {sorted.length > 0 && (
+        <>
+          <Typography variant="subtitle1">
+            {counts.overdue} {counts.overdue > 1 ? "dépassées" : "dépassée"} · {counts.dueSoon}{" "}
+            {counts.dueSoon > 1 ? "proches" : "proche"}
+          </Typography>
+          <DashboardDeadlineTable deadlines={sorted} onComplete={setCompleting} />
+        </>
       )}
       {completing && (
         <CompleteDeadlineDialog

@@ -1,5 +1,5 @@
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import { Button, Link as MuiLink, Paper, Stack, Typography } from "@mui/material";
+import { Button, Chip, Link as MuiLink, Paper, Stack, Typography } from "@mui/material";
 import { Link, useParams } from "react-router";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import LogoLoader from "../../../components/Utils/LogoLoader";
@@ -45,7 +45,7 @@ export default function ProblemDetailPage() {
         <PropertyDisplay title="Date" content={formatDateOnly(data.date)} />
         <PropertyDisplay title="Description" content={data.description} />
         <PropertyDisplay title="Auteur" content={data.author} />
-        <PropertyDisplay title="Statut" content={problemStatusLabels[data.status]} />
+        <PropertyDisplay title="Statut" content={<Chip size="small" label={problemStatusLabels[data.status]} />} />
       </Paper>
       {data.analysis ? (
         <ProblemAnalysisView analysis={data.analysis} />

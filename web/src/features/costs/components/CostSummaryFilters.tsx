@@ -1,4 +1,5 @@
 import { Button, MenuItem, Stack, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import FrenchDateField from "../../../shared/components/FrenchDateField";
 import { useVehicles } from "../../vehicles/api/vehicleQueries";
 import type { CostSummaryParams } from "../types/costSummary";
 import { type PeriodShortcut, periodShortcutLabels, shortcutRange } from "./costSummaryFormat";
@@ -20,24 +21,8 @@ export default function CostSummaryFilters({ value, onChange }: Props) {
     <Stack gap={2}>
       <Stack direction={{ xs: "column", sm: "row" }} gap={2} alignItems={{ sm: "center" }}>
         <Stack direction="row" gap={2}>
-          <TextField
-            label="Du"
-            type="date"
-            size="small"
-            value={value.from}
-            onChange={(e) => set({ from: e.target.value })}
-            slotProps={{ inputLabel: { shrink: true } }}
-            sx={{ flex: 1, minWidth: 0 }}
-          />
-          <TextField
-            label="Au"
-            type="date"
-            size="small"
-            value={value.to}
-            onChange={(e) => set({ to: e.target.value })}
-            slotProps={{ inputLabel: { shrink: true } }}
-            sx={{ flex: 1, minWidth: 0 }}
-          />
+          <FrenchDateField label="Du" value={value.from} onChange={(from) => set({ from })} />
+          <FrenchDateField label="Au" value={value.to} onChange={(to) => set({ to })} />
         </Stack>
         <TextField
           select
