@@ -12,13 +12,13 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
+import PageTitle from "../../../shared/components/PageTitle";
 import useBelow from "../../../shared/hooks/useBelow";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { useCreateCompany, useCompanies, useDeactivateCompany, useRenameCompany } from "../api/companyQueries";
@@ -66,9 +66,7 @@ export default function CompaniesPage() {
   return (
     <Stack gap={2} marginY={2}>
       <Stack direction="row" alignItems="center" gap={1}>
-        <Typography variant="h5" flexGrow={1}>
-          Sociétés
-        </Typography>
+        <PageTitle flexGrow={1}>Sociétés</PageTitle>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setEditing(null)}>
           Ajouter
         </Button>
