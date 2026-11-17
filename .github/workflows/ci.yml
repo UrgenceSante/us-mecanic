@@ -31,7 +31,7 @@ jobs:
       - run: npm run test:coverage
       - run: npm run build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: web-coverage
           path: web/coverage/lcov.info
@@ -69,7 +69,7 @@ jobs:
           dotnet test UsMecanic.slnx --no-build -c Release
           --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: api-coverage
           path: api/TestResults/**/coverage.cobertura.xml
