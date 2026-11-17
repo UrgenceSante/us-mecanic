@@ -28,6 +28,7 @@ import {
   useUpdateDeadlineType,
 } from "../api/deadlineTypeQueries";
 import { deadlineTypeErrorMessage } from "../api/deadlineTypeErrors";
+import DeadlineTypeCards from "../components/DeadlineTypeCards";
 import AssignDeadlineTypeDialog from "../components/AssignDeadlineTypeDialog";
 import DeadlineThresholdsSection from "../components/DeadlineThresholdsSection";
 import DeadlineTypeDialog from "../components/DeadlineTypeDialog";
@@ -97,6 +98,16 @@ export default function DeadlineTypesPage() {
 
       {types.isError ? (
         <ErrorHandler error={types.error} />
+      ) : compact ? (
+        <Paper>
+          <DeadlineTypeCards
+            types={types.data ?? []}
+            deactivating={deactivate.isPending}
+            onEdit={setEditing}
+            onAssign={setAssigning}
+            onDeactivate={handleDeactivate}
+          />
+        </Paper>
       ) : (
         <Paper>
           <Table>
@@ -104,7 +115,7 @@ export default function DeadlineTypesPage() {
               <TableRow>
                 <TableCell>Nom</TableCell>
                 <TableCell>Périodicité</TableCell>
-                {!compact && <TableCell>Seuils « proche »</TableCell>}
+                <TableCell>Seuils « proche »</TableCell>
                 <TableCell>Statut</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
@@ -112,16 +123,9 @@ export default function DeadlineTypesPage() {
             <TableBody>
               {(types.data ?? []).map((type) => (
                 <TableRow key={type.id}>
-                  <TableCell sx={{ overflowWrap: "anywhere" }}>
-                    {type.name}
-                    {compact && (
-                      <Typography variant="caption" color="text.secondary" display="block">
-                        Seuils : {formatThresholds(type)}
-                      </Typography>
-                    )}
-                  </TableCell>
+                  <TableCell>{type.name}</TableCell>
                   <TableCell>{formatPeriodicity(type)}</TableCell>
-                  {!compact && <TableCell>{formatThresholds(type)}</TableCell>}
+                  <TableCell>{formatThresholds(type)}</TableCell>
                   <TableCell>
                     <Chip
                       size="small"
@@ -161,7 +165,7 @@ export default function DeadlineTypesPage() {
               ))}
               {types.data?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={compact ? 4 : 5}>Aucun type d'échéance.</TableCell>
+                  <TableCell colSpan={5}>Aucun type d'échéance.</TableCell>
                 </TableRow>
               )}
             </TableBody>

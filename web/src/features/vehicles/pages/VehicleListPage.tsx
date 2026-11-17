@@ -120,7 +120,7 @@ export default function VehicleListPage() {
       {vehicles.isError ? (
         <ErrorHandler error={vehicles.error} />
       ) : compact ? (
-        <VehicleCards vehicles={vehicles.data ?? []} />
+        <VehicleCards vehicles={vehicles.data ?? []} loading={vehicles.isLoading} />
       ) : (
         <Paper>
           <DataGrid

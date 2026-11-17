@@ -1,14 +1,27 @@
-import { Stack, Typography } from "@mui/material";
+import { CircularProgress, Stack, Typography } from "@mui/material";
 import ListCard from "../../../shared/components/ListCard";
 import type { Vehicle } from "../types/vehicle";
 import VehicleStatusChip from "./VehicleStatusChip";
 
+interface VehicleCardsProps {
+  vehicles: Vehicle[];
+  loading?: boolean;
+}
+
 /** Rendu mobile de la liste des véhicules : une carte cliquable par véhicule. */
-export default function VehicleCards({ vehicles }: { vehicles: Vehicle[] }) {
+export default function VehicleCards({ vehicles, loading = false }: VehicleCardsProps) {
+  if (loading) {
+    return (
+      <Stack alignItems="center" padding={3}>
+        <CircularProgress aria-label="Chargement des véhicules" />
+      </Stack>
+    );
+  }
+  if (vehicles.length === 0) return <Typography color="text.secondary">Aucun véhicule trouvé.</Typography>;
   return (
-    <Stack gap={1} aria-label="Véhicules du parc">
+    <Stack gap={1} role="list" aria-label="Véhicules du parc">
       {vehicles.map((v) => (
-        <ListCard key={v.id} to={`/vehicles/${v.id}`} aria-label={`Véhicule ${v.licensePlate}`}>
+        <ListCard key={v.id} to={`/vehicles/${v.id}`}>
           <Stack gap={0.5}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
               <Typography fontWeight="bold">

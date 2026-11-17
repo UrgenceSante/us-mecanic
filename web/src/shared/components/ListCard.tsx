@@ -12,7 +12,7 @@ interface ListCardProps {
 /** Carte de repli mobile d'une ligne de tableau. */
 export default function ListCard({ children, to, "aria-label": ariaLabel }: ListCardProps) {
   return (
-    <Paper variant="outlined" data-testid="list-card">
+    <Paper variant="outlined" role="listitem" data-testid="list-card">
       {to ? (
         <CardActionArea component={Link} to={to} aria-label={ariaLabel} sx={{ padding: 1.5 }}>
           {children}

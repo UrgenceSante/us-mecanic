@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import DashboardDeadlineTable from "../../features/dashboard/components/DashboardDeadlineTable";
 import FleetProblemTable from "../../features/issues/components/FleetProblemTable";
 import ProblemActionCards from "../../features/issues/components/ProblemActionCards";
+import DeadlineTypeCards from "../../features/deadline-types/components/DeadlineTypeCards";
 import VehicleCards from "../../features/vehicles/components/VehicleCards";
 import type { FleetProblem } from "../../features/issues/types/problem";
 import type { Vehicle } from "../../features/vehicles/types/vehicle";
@@ -108,7 +109,7 @@ describe("repli en cartes sur mobile", () => {
         <VehicleCards vehicles={vehicles} />
       </MemoryRouter>,
     );
-    expect(screen.getByRole("link", { name: "Véhicule AB-123-CD" })).toHaveAttribute("href", "/vehicles/v1");
+    expect(screen.getByRole("link", { name: /AB-123-CD.*Ambulance/ })).toHaveAttribute("href", "/vehicles/v1");
     expect(screen.getByText(/Ambulance/)).toBeInTheDocument();
   });
 
@@ -128,5 +129,66 @@ describe("repli en cartes sur mobile", () => {
     fireEvent.click(screen.getByRole("button", { name: "Clôturer" }));
     expect(onEdit).toHaveBeenCalledWith(action);
     expect(onClose).toHaveBeenCalledWith(action);
+  });
+
+  it("véhicules : chargement et liste vide", () => {
+    const { rerender } = render(
+      <MemoryRouter>
+        <VehicleCards vehicles={[]} loading />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    rerender(
+      <MemoryRouter>
+        <VehicleCards vehicles={[]} />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText("Aucun véhicule trouvé.")).toBeInTheDocument();
+  });
+
+  it("actions : une action clôturée n'a pas de bouton", () => {
+    render(
+      <ProblemActionCards
+        actions={[{ ...action, isClosed: true, closedAt: "2026-03-10T08:00:00Z" }]}
+        name={(kind) => kind}
+        interventionLabel={() => "-"}
+        onEdit={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+  });
+
+  it("échéances : pas de tiret isolé sans km d'échéance", () => {
+    mockMatchMedia(true);
+    render(
+      <MemoryRouter>
+        <DashboardDeadlineTable deadlines={[{ ...deadlines[0], dueKm: null }]} onComplete={vi.fn()} />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByText(/ - /)).not.toBeInTheDocument();
+  });
+
+  it("types d'échéance : seuils globaux omis, actions accessibles", () => {
+    const type = {
+      id: "t1",
+      name: "Agrément ARS",
+      defaultIntervalMonths: 12,
+      defaultIntervalKm: null,
+      dueSoonDays: null,
+      dueSoonKm: null,
+      isOneOff: false,
+      isActive: true,
+    };
+    const onEdit = vi.fn();
+    render(
+      <DeadlineTypeCards types={[type]} deactivating={false} onEdit={onEdit} onAssign={vi.fn()} onDeactivate={vi.fn()} />,
+    );
+    expect(screen.getByText("12 mois")).toBeInTheDocument();
+    expect(screen.queryByText(/Seuils/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Modifier Agrément ARS" }));
+    expect(onEdit).toHaveBeenCalledWith(type);
+    expect(screen.getByRole("button", { name: "Désactiver Agrément ARS" })).toBeInTheDocument();
   });
 });

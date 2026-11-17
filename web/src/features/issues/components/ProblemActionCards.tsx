@@ -16,7 +16,7 @@ interface Props {
 /** Rendu mobile / tablette : une action par carte. */
 export default function ProblemActionCards({ actions, name, interventionLabel, onEdit, onClose }: Props) {
   return (
-    <Stack gap={1} aria-label="Actions du problème">
+    <Stack gap={1} role="list" aria-label="Actions du problème">
       {actions.map((a) => (
         <ListCard key={a.id}>
           <Stack gap={0.5}>
@@ -40,11 +40,11 @@ export default function ProblemActionCards({ actions, name, interventionLabel, o
               {a.isClosed ? `Clôturée le ${a.closedAt ? formatParisDate(a.closedAt) : "-"}` : "Ouverte"}
             </Typography>
             {!a.isClosed && (
-              <Stack direction="row" gap={1} justifyContent="flex-end">
-                <Button size="small" onClick={() => onEdit(a)}>
+              <Stack direction="row" gap={2} justifyContent="flex-end" marginTop={0.5}>
+                <Button onClick={() => onEdit(a)}>
                   Modifier
                 </Button>
-                <Button size="small" onClick={() => onClose(a)}>
+                <Button onClick={() => onClose(a)}>
                   Clôturer
                 </Button>
               </Stack>

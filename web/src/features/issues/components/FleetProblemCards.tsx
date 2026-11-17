@@ -9,7 +9,7 @@ import BlockingLevelChip from "./BlockingLevelChip";
 /** Rendu mobile : un problème par carte, dans l'ordre renvoyé par l'API. */
 export default function FleetProblemCards({ problems }: { problems: FleetProblem[] }) {
   return (
-    <Stack gap={1} aria-label="Problèmes du parc">
+    <Stack gap={1} role="list" aria-label="Problèmes du parc">
       {problems.map(({ problem, vehicle, nature, blockingLevel }) => (
         <ListCard key={problem.id}>
           <Stack gap={0.5}>

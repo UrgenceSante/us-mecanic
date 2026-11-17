@@ -3,10 +3,9 @@ import { Link } from "react-router";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import DeadlineStatusChip from "../../vehicle-deadlines/components/DeadlineStatusChip";
 import useBelow from "../../../shared/hooks/useBelow";
+import { formatKm, internalNumberSuffix } from "../types/format";
 import type { DashboardDeadline } from "../types/dashboard";
 import DashboardDeadlineCards from "./DashboardDeadlineCards";
-
-const formatKm = (km: number | null) => (km === null ? "-" : `${km.toLocaleString("fr-FR")} km`);
 
 interface DashboardDeadlineTableProps {
   deadlines: DashboardDeadline[];
@@ -36,7 +35,7 @@ export default function DashboardDeadlineTable({ deadlines, onComplete }: Dashbo
               <MuiLink component={Link} to={`/vehicles/${d.vehicle.id}`}>
                 {d.vehicle.licensePlate}
               </MuiLink>
-              {d.vehicle.internalNumber ? ` (${d.vehicle.internalNumber})` : ""}
+              {internalNumberSuffix(d.vehicle)}
             </TableCell>
             <TableCell>{d.deadlineType.name}</TableCell>
             <TableCell>
