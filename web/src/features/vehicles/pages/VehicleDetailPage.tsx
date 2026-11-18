@@ -18,6 +18,8 @@ import VehicleProblems from "../../issues/components/VehicleProblems";
 import VehicleExpenses from "../../costs/components/VehicleExpenses";
 import VehicleLoans from "../../costs/components/VehicleLoans";
 import VehicleFormDialog from "../components/VehicleFormDialog";
+import RentalHeaderNotice from "../../rentals/components/RentalHeaderNotice";
+import VehicleRentals from "../../rentals/components/VehicleRentals";
 import VehicleOwnerLine from "../components/VehicleOwnerLine";
 import VehicleStatusActions from "../components/VehicleStatusActions";
 import VehicleStatusChip from "../components/VehicleStatusChip";
@@ -80,6 +82,8 @@ export default function VehicleDetailPage() {
       </Stack>
       <VehicleOwnerLine owner={data.owner} onFill={() => setEditing(true)} />
 
+      <RentalHeaderNotice vehicleId={data.id} status={data.status} />
+
       <ImmobilizingProblemBanner vehicleId={data.id} />
 
       <Paper sx={{ padding: 2 }}>
@@ -92,6 +96,8 @@ export default function VehicleDetailPage() {
           <PropertyDisplay title="VIN" content={data.vin ?? "-"} />
         </Stack>
       </Paper>
+
+      <VehicleRentals vehicle={data} />
 
       <VehicleMileage
         vehicleId={data.id}

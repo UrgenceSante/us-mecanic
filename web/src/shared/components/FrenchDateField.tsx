@@ -10,6 +10,10 @@ interface FrenchDateFieldProps {
   /** Date ISO AAAA-MM-JJ, chaîne vide si non renseignée. */
   value: string;
   onChange: (value: string) => void;
+  required?: boolean;
+  /** Erreur affichée à côté du champ. */
+  error?: boolean;
+  helperText?: string;
 }
 
 const isoFormat = "yyyy-MM-dd";
@@ -21,7 +25,7 @@ const toDate = (iso: string): Date | null => {
 };
 
 /** Sélecteur de date affiché JJ/MM/AAAA quelle que soit la langue du navigateur ; l'état reste en ISO. */
-export default function FrenchDateField({ label, value, onChange }: FrenchDateFieldProps) {
+export default function FrenchDateField({ label, value, onChange, required, error, helperText }: FrenchDateFieldProps) {
   const date = useMemo(() => toDate(value), [value]);
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}
@@ -31,7 +35,7 @@ export default function FrenchDateField({ label, value, onChange }: FrenchDateFi
         label={label}
         value={date}
         onChange={(d) => onChange(d && isValid(d) ? format(d, isoFormat) : "")}
-        slotProps={{ textField: { size: "small", sx: { flex: 1, minWidth: 0 } } }}
+        slotProps={{ textField: { size: "small", required, error, helperText, sx: { flex: 1, minWidth: 0 } } }}
       />
     </LocalizationProvider>
   );
