@@ -51,6 +51,27 @@ public class VehicleOwnerEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task La_liste_se_filtre_par_proprietaire_sans_proprietaire_et_utilisateur_actuel()
+    {
+        var owner = await CreateCompanyAsync();
+        var tenant = await CreateCompanyAsync();
+        var rented = await CreateVehicleAsync(owner.Id);
+        var own = await CreateVehicleAsync(owner.Id);
+        var orphan = await CreateVehicleAsync(null);
+        var rental = await _client.PostAsJsonAsync(new Uri($"/api/vehicles/{rented.Id}/rentals", UriKind.Relative), new { tenantCompanyId = tenant.Id, startDate = "2020-01-01", endDate = (string?)null });
+        Assert.Equal(HttpStatusCode.Created, rental.StatusCode);
+
+        async Task<List<Guid>> ListAsync(string query) =>
+            [.. (await _client.GetFromJsonAsync<List<VehicleDto>>(new Uri($"/api/vehicles?{query}", UriKind.Relative), Json))!.Select(v => v.Id)];
+
+        Assert.Equal(new[] { own.Id, rented.Id }.Order(), (await ListAsync($"ownerCompanyId={owner.Id}")).Order());
+        Assert.Contains(orphan.Id, await ListAsync("ownerMissing=true"));
+        Assert.DoesNotContain(rented.Id, await ListAsync("ownerMissing=true"));
+        Assert.Equal([rented.Id], await ListAsync($"currentUserCompanyId={tenant.Id}"));
+        Assert.Equal([own.Id], await ListAsync($"currentUserCompanyId={owner.Id}"));
+    }
+
+    [Fact]
     public async Task Vehicule_sans_proprietaire_a_un_utilisateur_non_renseigne()
     {
         var vehicle = await CreateVehicleAsync(null);

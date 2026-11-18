@@ -12,7 +12,14 @@ const BASE = "api/vehicles";
 
 export async function listVehicles(filter: VehicleFilter): Promise<Vehicle[]> {
   const { data } = await apiClient.get<Vehicle[]>(BASE, {
-    params: { search: filter.search || undefined, status: filter.status, type: filter.type },
+    params: {
+      search: filter.search || undefined,
+      status: filter.status,
+      type: filter.type,
+      ownerCompanyId: filter.ownerCompanyId,
+      ownerMissing: filter.ownerMissing ? true : undefined,
+      currentUserCompanyId: filter.currentUserCompanyId,
+    },
   });
   return data;
 }
@@ -33,7 +40,9 @@ export async function updateVehicle(id: string, details: VehicleDetailsInput): P
 }
 
 export async function changeVehicleStatus(id: string, status: VehicleStatus): Promise<Vehicle> {
-  const { data } = await apiClient.put<Vehicle>(`${BASE}/${id}/status`, { status });
+  const { data } = await apiClient.put<Vehicle>(`${BASE}/${id}/status`, {
+    status,
+  });
   return data;
 }
 

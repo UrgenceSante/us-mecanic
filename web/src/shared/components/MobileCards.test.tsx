@@ -49,6 +49,8 @@ const vehicles = [
     typeName: "Ambulance",
     status: "Active",
     currentMileage: 85000,
+    owner: { id: "c1", name: "Société Nord", isActive: true },
+    currentUser: { company: { id: "c1", name: "Société Nord", isActive: true }, source: "Owner" },
   },
 ] as unknown as Vehicle[];
 
