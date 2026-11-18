@@ -4,25 +4,22 @@ import type { Company } from "../../companies/types/company";
 
 interface VehicleOwnerLineProps {
   owner: Company | null;
-  retired: boolean;
   onFill: () => void;
 }
 
-/** Propriétaire dans l'en-tête de la fiche ; sorti du parc sans propriétaire : bouton pour le renseigner. */
-export default function VehicleOwnerLine({ owner, retired, onFill }: VehicleOwnerLineProps) {
+/** Propriétaire dans l'en-tête de la fiche ; sans propriétaire : bouton pour le renseigner. */
+export default function VehicleOwnerLine({ owner, onFill }: VehicleOwnerLineProps) {
   if (owner) {
-    return <Typography>{`Propriétaire : ${owner.name}${owner.isActive ? "" : " (inactive)"}`}</Typography>;
+    return <Typography>{`Propriétaire : ${owner.name}${owner.isActive ? "" : " (désactivée)"}`}</Typography>;
   }
   return (
     <>
       <Typography color="warning.main">Propriétaire à renseigner</Typography>
-      {retired && (
-        <div>
-          <Button startIcon={<EditIcon />} onClick={onFill}>
-            Renseigner le propriétaire
-          </Button>
-        </div>
-      )}
+      <div>
+        <Button startIcon={<EditIcon />} onClick={onFill}>
+          Renseigner le propriétaire
+        </Button>
+      </div>
     </>
   );
 }

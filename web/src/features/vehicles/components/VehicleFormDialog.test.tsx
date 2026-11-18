@@ -78,7 +78,7 @@ describe("VehicleFormDialog", () => {
       <VehicleFormDialog
         open
         initialValues={{ ...emptyVehicleForm, licensePlate: "AB-123-CD", ownerCompanyId: "old" }}
-        currentOwner={{ id: "old", name: "Ancienne société" }}
+        currentOwner={{ id: "old", name: "Ancienne société", isActive: false }}
         submitting={false}
         error={null}
         onSubmit={onSubmit}
@@ -87,7 +87,7 @@ describe("VehicleFormDialog", () => {
     );
 
     const select = screen.getByRole("combobox", { name: "Société propriétaire" });
-    expect(select).toHaveTextContent("Ancienne société (inactive)");
+    expect(select).toHaveTextContent("Ancienne société (désactivée)");
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ ownerCompanyId: "old" }));
 
@@ -127,5 +127,48 @@ describe("VehicleFormDialog", () => {
       <VehicleFormDialog open submitting={false} error={error} onSubmit={vi.fn()} onClose={vi.fn()} />,
     );
     expect(screen.getByText(/Le propriétaire ne peut pas être retiré/)).toBeInTheDocument();
+  });
+
+  it("sorti du parc : enregistrement bloqué tant que le propriétaire est vide, sans option vide", () => {
+    render(
+      <VehicleFormDialog
+        open
+        ownerOnly
+        initialValues={{ ...emptyVehicleForm, licensePlate: "AB-123-CD" }}
+        submitting={false}
+        error={null}
+        onSubmit={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    expect(screen.getByText("Choisissez la société propriétaire pour enregistrer")).toBeInTheDocument();
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: /Société propriétaire/ }));
+    expect(screen.queryByRole("option", { name: "À renseigner" })).not.toBeInTheDocument();
+  });
+
+  it("vehicle.retired : bandeau en modification normale, message du champ en mode propriétaire seul", () => {
+    const error = Object.assign(new Error("x"), {
+      isAxiosError: true,
+      response: { data: { code: "vehicle.retired" } },
+    });
+    const { unmount } = render(
+      <VehicleFormDialog open submitting={false} error={error} onSubmit={vi.fn()} onClose={vi.fn()} />,
+    );
+    expect(screen.getByText(/sorti du parc : il ne peut plus être modifié/)).toBeInTheDocument();
+    unmount();
+    render(
+      <VehicleFormDialog
+        open
+        ownerOnly
+        initialValues={{ ...emptyVehicleForm, licensePlate: "AB-123-CD", ownerCompanyId: "c1" }}
+        submitting={false}
+        error={error}
+        onSubmit={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText(/il ne peut plus être modifié/)).not.toBeInTheDocument();
+    expect(screen.getByText("Choisissez la société propriétaire pour enregistrer")).toBeInTheDocument();
   });
 });

@@ -1,4 +1,5 @@
 import { MenuItem, TextField } from "@mui/material";
+import type { Company } from "../types/company";
 import { useCompanies } from "../api/companyQueries";
 
 interface CompanySelectProps {
@@ -11,7 +12,7 @@ interface CompanySelectProps {
   /** Propose l'entrée « aucune » (faux quand la valeur ne peut plus être vidée). */
   allowEmpty?: boolean;
   /** Société actuelle, conservée affichée même inactive. */
-  current?: { id: string; name: string } | null;
+  current?: Company | null;
   required?: boolean;
   error?: boolean;
   helperText?: string;
@@ -24,7 +25,7 @@ export default function CompanySelect(props: CompanySelectProps) {
   const companies = useCompanies(false);
 
   const options = companies.data ?? [];
-  const orphan = current && !options.some((c) => c.id === current.id) ? current : null;
+  const orphan = current && !current.isActive ? current : null;
   // Tant que la liste charge, la valeur sélectionnée doit rester valide pour MUI.
   const known = value === "" || options.some((c) => c.id === value) || orphan?.id === value;
 
@@ -39,9 +40,21 @@ export default function CompanySelect(props: CompanySelectProps) {
       autoFocus={autoFocus}
       value={known ? value : ""}
       onChange={(e) => onChange(e.target.value)}
+      slotProps={{
+        inputLabel: { shrink: true },
+        select: {
+          displayEmpty: true,
+          renderValue: (selected) => {
+            const id = selected as string;
+            if (id === "") return emptyLabel;
+            if (orphan?.id === id) return `${orphan.name} (désactivée)`;
+            return options.find((c) => c.id === id)?.name ?? "";
+          },
+        },
+      }}
     >
       {allowEmpty && <MenuItem value="">{emptyLabel}</MenuItem>}
-      {orphan && <MenuItem value={orphan.id}>{`${orphan.name} (inactive)`}</MenuItem>}
+      {orphan && <MenuItem value={orphan.id}>{`${orphan.name} (désactivée)`}</MenuItem>}
       {options.map((c) => (
         <MenuItem key={c.id} value={c.id}>
           {c.name}

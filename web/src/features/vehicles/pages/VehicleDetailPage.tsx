@@ -78,7 +78,7 @@ export default function VehicleDetailPage() {
           </Button>
         )}
       </Stack>
-      <VehicleOwnerLine owner={data.owner} retired={data.status === "Retired"} onFill={() => setEditing(true)} />
+      <VehicleOwnerLine owner={data.owner} onFill={() => setEditing(true)} />
 
       <ImmobilizingProblemBanner vehicleId={data.id} />
 

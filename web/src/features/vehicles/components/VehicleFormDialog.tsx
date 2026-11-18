@@ -10,8 +10,9 @@ import {
 } from "@mui/material";
 import { useState, type FormEvent } from "react";
 import CompanySelect from "../../companies/components/CompanySelect";
+import type { Company } from "../../companies/types/company";
 import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
-import { vehicleErrorMessage, vehicleOwnerErrorMessage } from "../api/vehicleErrors";
+import { ownerFieldFeedback } from "../api/vehicleErrors";
 import { emptyVehicleForm, type VehicleFormValues } from "./vehicleForm";
 
 interface VehicleFormDialogProps {
@@ -21,7 +22,7 @@ interface VehicleFormDialogProps {
   /** Type actuel du véhicule en modification : reste affiché même s'il est désactivé. */
   currentType?: { id: string; name: string } | null;
   /** Propriétaire actuel en modification : reste affiché même si sa société est inactive. */
-  currentOwner?: { id: string; name: string } | null;
+  currentOwner?: Company | null;
   /** Véhicule sorti du parc sans propriétaire : seul le propriétaire est éditable. */
   ownerOnly?: boolean;
   submitting: boolean;
@@ -33,13 +34,13 @@ interface VehicleFormDialogProps {
 
 export default function VehicleFormDialog(props: VehicleFormDialogProps) {
   const { open, initialValues, currentType, currentOwner, ownerOnly = false, submitting, error, onSubmit, onClose } = props;
-  const ownerError = vehicleOwnerErrorMessage(error);
-  const generalError = error && !ownerError ? vehicleErrorMessage(error) : null;
   // Une fois un propriétaire posé, on ne peut plus le vider.
   const ownerRemovable = !initialValues?.ownerCompanyId;
   const lock = ownerOnly;
   const isEdit = initialValues !== undefined;
   const [values, setValues] = useState<VehicleFormValues>(initialValues ?? emptyVehicleForm);
+  const ownerMissing = ownerOnly && values.ownerCompanyId === "";
+  const feedback = ownerFieldFeedback(error, ownerOnly, ownerMissing);
 
   const field = (name: keyof VehicleFormValues) => ({
     name,
@@ -62,7 +63,7 @@ export default function VehicleFormDialog(props: VehicleFormDialogProps) {
             {ownerOnly && (
               <Alert severity="info">Véhicule sorti du parc : seul le propriétaire peut être renseigné.</Alert>
             )}
-            {generalError && <Alert severity="error">{generalError}</Alert>}
+            {feedback.banner && <Alert severity="error">{feedback.banner}</Alert>}
             <TextField
               label="Immatriculation"
               placeholder="AB-123-CD"
@@ -99,18 +100,18 @@ export default function VehicleFormDialog(props: VehicleFormDialogProps) {
               value={values.ownerCompanyId}
               onChange={(ownerCompanyId) => setValues((current) => ({ ...current, ownerCompanyId }))}
               emptyLabel="À renseigner"
-              allowEmpty={ownerRemovable}
+              allowEmpty={ownerRemovable && !ownerOnly}
               current={currentOwner}
               required={ownerOnly}
-              error={ownerError !== null}
-              helperText={ownerError ?? undefined}
+              error={feedback.hasError}
+              helperText={feedback.helperText}
               autoFocus={ownerOnly}
             />
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Annuler</Button>
-          <Button type="submit" variant="contained" disabled={submitting}>
+          <Button type="submit" variant="contained" disabled={submitting || ownerMissing}>
             Enregistrer
           </Button>
         </DialogActions>

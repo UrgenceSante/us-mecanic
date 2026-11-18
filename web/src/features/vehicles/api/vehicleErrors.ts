@@ -23,3 +23,26 @@ export function vehicleErrorMessage(error: unknown): string {
   const code = companyErrorCode(error);
   return (code && messages[code]) || problemMessage(error);
 }
+
+export interface OwnerFieldFeedback {
+  /** Texte d'aide ou d'erreur du champ propriétaire. */
+  helperText: string | undefined;
+  hasError: boolean;
+  /** Message du bandeau pour les erreurs étrangères au champ propriétaire. */
+  banner: string | null;
+}
+
+const CHOOSE_OWNER = "Choisissez la société propriétaire pour enregistrer";
+
+/** Répartit une erreur d'enregistrement entre le champ propriétaire et le bandeau. */
+export function ownerFieldFeedback(error: unknown, ownerOnly: boolean, ownerMissing: boolean): OwnerFieldFeedback {
+  const ownerError = vehicleOwnerErrorMessage(error);
+  // Propriétaire seul : « sorti du parc » est contradictoire, on invite à choisir la société.
+  const retired = ownerOnly && companyErrorCode(error) === "vehicle.retired";
+  const hasError = ownerError !== null || retired;
+  return {
+    helperText: ownerError ?? (retired || ownerMissing ? CHOOSE_OWNER : undefined),
+    hasError,
+    banner: error && !hasError ? vehicleErrorMessage(error) : null,
+  };
+}
