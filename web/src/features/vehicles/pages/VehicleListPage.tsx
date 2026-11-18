@@ -8,7 +8,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
-import { problemMessage } from "../../../shared/api/problemMessage";
 import { useRegisterVehicle, useVehicles } from "../api/vehicleQueries";
 import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
 import useBelow from "../../../shared/hooks/useBelow";
@@ -151,7 +150,7 @@ export default function VehicleListPage() {
         <VehicleFormDialog
           open
           submitting={register.isPending}
-          error={register.isError ? problemMessage(register.error) : null}
+          error={register.isError ? register.error : null}
           onSubmit={handleCreate}
           onClose={closeDialog}
         />

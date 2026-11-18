@@ -14,11 +14,12 @@ interface VehicleTypeSelectProps {
   includeInactive?: boolean;
   size?: "small" | "medium";
   minWidth?: number;
+  disabled?: boolean;
 }
 
 /** Sélecteur de type : types actifs uniquement (sauf `includeInactive`), plus le type actuel s'il est désactivé. */
 export default function VehicleTypeSelect(props: VehicleTypeSelectProps) {
-  const { label = "Type", value, onChange, emptyLabel, current, includeInactive = false, size, minWidth } = props;
+  const { label = "Type", value, onChange, emptyLabel, current, includeInactive = false, size, minWidth, disabled } = props;
   const types = useVehicleTypes(includeInactive);
 
   const options = (types.data ?? []).map((t) => ({ id: t.id, name: t.isActive ? t.name : `${t.name} (désactivé)` }));
@@ -31,6 +32,7 @@ export default function VehicleTypeSelect(props: VehicleTypeSelectProps) {
       select
       label={label}
       size={size}
+      disabled={disabled}
       fullWidth={minWidth === undefined}
       value={known ? value : ""}
       onChange={(e) => onChange(e.target.value)}

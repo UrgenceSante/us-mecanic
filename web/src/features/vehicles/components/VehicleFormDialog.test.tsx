@@ -9,6 +9,15 @@ vi.mock("../../vehicle-types/api/vehicleTypeQueries", () => ({
   }),
 }));
 
+vi.mock("../../companies/api/companyQueries", () => ({
+  useCompanies: () => ({
+    data: [
+      { id: "c1", name: "Ambulances Nord", isActive: true },
+      { id: "c2", name: "Pompes Funèbres Sud", isActive: true },
+    ],
+  }),
+}));
+
 import VehicleFormDialog from "./VehicleFormDialog";
 import { emptyVehicleForm } from "./vehicleForm";
 
@@ -30,7 +39,7 @@ describe("VehicleFormDialog", () => {
         open
         initialValues={{ ...emptyVehicleForm, licensePlate: "AB-123-CD" }}
         submitting={false}
-        error="Le VIN doit comporter 17 caractères"
+        error={new Error("Le VIN doit comporter 17 caractères")}
         onSubmit={vi.fn()}
         onClose={vi.fn()}
       />,
@@ -61,5 +70,62 @@ describe("VehicleFormDialog", () => {
     fireEvent.mouseDown(screen.getByRole("combobox", { name: "Type" }));
     expect(screen.getByRole("option", { name: "Ambulance" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "VSL" })).toBeInTheDocument();
+  });
+
+  it("renvoie toujours ownerCompanyId, propose les sociétés actives et ne permet pas de vider le propriétaire", () => {
+    const onSubmit = vi.fn();
+    render(
+      <VehicleFormDialog
+        open
+        initialValues={{ ...emptyVehicleForm, licensePlate: "AB-123-CD", ownerCompanyId: "old" }}
+        currentOwner={{ id: "old", name: "Ancienne société" }}
+        submitting={false}
+        error={null}
+        onSubmit={onSubmit}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const select = screen.getByRole("combobox", { name: "Société propriétaire" });
+    expect(select).toHaveTextContent("Ancienne société (inactive)");
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ ownerCompanyId: "old" }));
+
+    fireEvent.mouseDown(select);
+    expect(screen.getByRole("option", { name: "Ambulances Nord" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "À renseigner" })).not.toBeInTheDocument();
+  });
+
+  it("autorise un propriétaire vide à la création", () => {
+    render(<VehicleFormDialog open submitting={false} error={null} onSubmit={vi.fn()} onClose={vi.fn()} />);
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "Société propriétaire" }));
+    expect(screen.getByRole("option", { name: "À renseigner" })).toBeInTheDocument();
+  });
+
+  it("véhicule sorti du parc : seul le propriétaire est éditable", () => {
+    render(
+      <VehicleFormDialog
+        open
+        ownerOnly
+        initialValues={{ ...emptyVehicleForm, licensePlate: "AB-123-CD", brand: "Renault" }}
+        submitting={false}
+        error={null}
+        onSubmit={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText("Marque")).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: /Société propriétaire/ })).not.toHaveAttribute("aria-disabled", "true");
+  });
+
+  it("affiche l'erreur de propriétaire à côté du champ", () => {
+    const error = Object.assign(new Error("x"), {
+      isAxiosError: true,
+      response: { data: { code: "vehicle.owner_cannot_be_removed" } },
+    });
+    render(
+      <VehicleFormDialog open submitting={false} error={error} onSubmit={vi.fn()} onClose={vi.fn()} />,
+    );
+    expect(screen.getByText(/Le propriétaire ne peut pas être retiré/)).toBeInTheDocument();
   });
 });

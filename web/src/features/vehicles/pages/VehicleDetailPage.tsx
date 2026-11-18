@@ -18,6 +18,7 @@ import VehicleProblems from "../../issues/components/VehicleProblems";
 import VehicleExpenses from "../../costs/components/VehicleExpenses";
 import VehicleLoans from "../../costs/components/VehicleLoans";
 import VehicleFormDialog from "../components/VehicleFormDialog";
+import VehicleOwnerLine from "../components/VehicleOwnerLine";
 import VehicleStatusActions from "../components/VehicleStatusActions";
 import VehicleStatusChip from "../components/VehicleStatusChip";
 import { formatDateOnly, toDetailsInput, toFormValues, type VehicleFormValues } from "../components/vehicleForm";
@@ -77,6 +78,7 @@ export default function VehicleDetailPage() {
           </Button>
         )}
       </Stack>
+      <VehicleOwnerLine owner={data.owner} retired={data.status === "Retired"} onFill={() => setEditing(true)} />
 
       <ImmobilizingProblemBanner vehicleId={data.id} />
 
@@ -115,8 +117,10 @@ export default function VehicleDetailPage() {
           open
           initialValues={toFormValues(data)}
           currentType={data.typeId && data.typeName ? { id: data.typeId, name: data.typeName } : null}
+          currentOwner={data.owner}
+          ownerOnly={data.status === "Retired"}
           submitting={update.isPending}
-          error={update.isError ? problemMessage(update.error) : null}
+          error={update.isError ? update.error : null}
           onSubmit={handleUpdate}
           onClose={closeDialog}
         />
