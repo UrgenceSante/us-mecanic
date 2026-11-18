@@ -21,6 +21,9 @@ internal sealed class InMemoryRentalRepository : IRentalRepository
     public Task<IReadOnlyList<Rental>> ListCoveringAsync(DateOnly day, IReadOnlyCollection<Guid>? vehicleIds, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Rental>>([.. Saved.Where(r => r.Covers(day) && (vehicleIds is null || vehicleIds.Contains(r.VehicleId)))]);
 
+    public Task<IReadOnlyList<Rental>> ListOverlappingAsync(DateOnly firstDay, DateOnly lastDay, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Rental>>([.. Saved.Where(r => r.Overlaps(firstDay, lastDay))]);
+
     public Task<bool> HasCurrentOrUpcomingAsync(Guid vehicleId, Guid tenantCompanyId, DateOnly today, CancellationToken cancellationToken) =>
         Task.FromResult(Saved.Exists(r => r.VehicleId == vehicleId && r.TenantCompanyId == tenantCompanyId && r.IsCurrentOrUpcoming(today)));
 

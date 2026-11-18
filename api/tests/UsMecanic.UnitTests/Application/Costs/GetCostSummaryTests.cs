@@ -15,6 +15,7 @@ public class GetCostSummaryTests
     private readonly InMemoryExpenseCategoryRepository _categories = new();
     private readonly InMemoryLoanRepository _loans = new();
     private readonly InMemoryMileageReadingRepository _mileage = new();
+    private readonly InMemoryRentalRepository _rentals = new();
     private readonly FixedClock _clock = new();
     private readonly Vehicle _vehicle;
 
@@ -23,7 +24,7 @@ public class GetCostSummaryTests
         _vehicle = _vehicles.Seed("AB-123-CD");
     }
 
-    private GetCostSummary UseCase => new(new MileageVehicleGuard(_vehicles), new CostLineReader(_interventions, _expenses, _categories, _loans), _mileage);
+    private GetCostSummary UseCase => new(new MileageVehicleGuard(_vehicles), new CostLineReader(_interventions, _expenses, _categories, _loans), _mileage, new CostCompanyScope(_vehicles, _rentals));
 
     private static CostSummaryQuery Query(string from, string to, string? granularity = "month", Guid? vehicleId = null) =>
         new(
@@ -260,5 +261,76 @@ public class GetCostSummaryTests
         Assert.Equal(100m, costPerKm.Cost);
         Assert.Equal(1, costPerKm.ExcludedVehicles);
         Assert.Equal(5100m, result.Value.Total);
+    }
+
+    private Vehicle SeedOwned(string plate, Guid ownerId) =>
+        _vehicles.Seed(plate, InMemoryVehicleRepository.EmptyDetails with { OwnerCompanyId = ownerId });
+
+    [Fact]
+    public async Task Le_filtre_proprietaire_porte_sur_le_proprietaire_actuel_quelle_que_soit_la_date()
+    {
+        var ownerA = Guid.NewGuid();
+        var owned = SeedOwned("EF-456-GH", ownerA);
+        AddIntervention(owned.Id, "2026-03-15", 100m);
+        AddIntervention(_vehicle.Id, "2026-03-15", 40m);
+        AddLoan(owned.Id, "2026-03-10", 1, 300m);
+
+        var result = await UseCase.ExecuteAsync(Query("2026-01-01", "2026-12-31") with { OwnerCompanyId = ownerA }, CancellationToken.None);
+
+        Assert.Equal(400m, result.Value.Total);
+    }
+
+    [Fact]
+    public async Task Le_filtre_locataire_ne_garde_que_les_depenses_datees_pendant_la_location_et_exclut_les_emprunts()
+    {
+        var ownerA = Guid.NewGuid();
+        var lesseeB = Guid.NewGuid();
+        var vehicle = SeedOwned("EF-456-GH", ownerA);
+        _rentals.Seed(vehicle.Id, lesseeB, Day("2026-03-01"), Day("2026-03-31"));
+        _rentals.Seed(vehicle.Id, Guid.NewGuid(), Day("2026-05-01"), null);
+        AddIntervention(vehicle.Id, "2026-03-31", 100m);
+        AddIntervention(vehicle.Id, "2026-04-01", 50m);
+        AddIntervention(vehicle.Id, "2026-05-10", 25m);
+        AddLoan(vehicle.Id, "2026-03-10", 1, 300m);
+
+        var result = await UseCase.ExecuteAsync(Query("2026-01-01", "2026-12-31") with { LesseeCompanyId = lesseeB }, CancellationToken.None);
+
+        Assert.Equal(100m, result.Value.Total);
+        Assert.False(result.Value.CostPerKm.Computable);
+        Assert.Equal(CostPerKmCalculator.LesseeFilterReason, result.Value.CostPerKm.Reason);
+    }
+
+    [Fact]
+    public async Task Les_deux_filtres_et_le_vehicule_se_combinent()
+    {
+        var ownerA = Guid.NewGuid();
+        var lesseeB = Guid.NewGuid();
+        var rented = SeedOwned("EF-456-GH", ownerA);
+        var other = SeedOwned("IJ-789-KL", Guid.NewGuid());
+        _rentals.Seed(rented.Id, lesseeB, Day("2026-03-01"), null);
+        _rentals.Seed(other.Id, lesseeB, Day("2026-03-01"), null);
+        AddIntervention(rented.Id, "2026-03-15", 100m);
+        AddIntervention(other.Id, "2026-03-15", 70m);
+
+        var both = await UseCase.ExecuteAsync(Query("2026-01-01", "2026-12-31") with { OwnerCompanyId = ownerA, LesseeCompanyId = lesseeB }, CancellationToken.None);
+        var onVehicle = await UseCase.ExecuteAsync(Query("2026-01-01", "2026-12-31", vehicleId: other.Id) with { OwnerCompanyId = ownerA }, CancellationToken.None);
+
+        Assert.Equal(100m, both.Value.Total);
+        Assert.Equal(0m, onVehicle.Value.Total);
+    }
+
+    [Fact]
+    public async Task Le_cout_au_km_reste_calcule_avec_le_seul_filtre_proprietaire()
+    {
+        var ownerA = Guid.NewGuid();
+        var owned = SeedOwned("EF-456-GH", ownerA);
+        AddIntervention(owned.Id, "2026-03-15", 100m);
+        _mileage.Seed(owned.Id, Day("2026-03-01"), 1000);
+        _mileage.Seed(owned.Id, Day("2026-03-20"), 1500);
+
+        var result = await UseCase.ExecuteAsync(Query("2026-01-01", "2026-12-31") with { OwnerCompanyId = ownerA }, CancellationToken.None);
+
+        Assert.True(result.Value.CostPerKm.Computable);
+        Assert.Equal(0.2m, result.Value.CostPerKm.Value);
     }
 }

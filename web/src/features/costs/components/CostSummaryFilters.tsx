@@ -1,5 +1,6 @@
-import { Button, MenuItem, Stack, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Box, Button, MenuItem, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import FrenchDateField from "../../../shared/components/FrenchDateField";
+import CompanySelect from "../../companies/components/CompanySelect";
 import { useVehicles } from "../../vehicles/api/vehicleQueries";
 import type { CostSummaryParams } from "../types/costSummary";
 import { type PeriodShortcut, periodShortcutLabels, shortcutRange } from "./costSummaryFormat";
@@ -40,6 +41,27 @@ export default function CostSummaryFilters({ value, onChange }: Props) {
             </MenuItem>
           ))}
         </TextField>
+      </Stack>
+      <Stack direction={{ xs: "column", sm: "row" }} gap={2} alignItems={{ sm: "flex-start" }}>
+        <Box sx={{ minWidth: { sm: 240 } }}>
+          <CompanySelect
+            label="Société propriétaire"
+            emptyLabel="Toutes"
+            value={value.ownerCompanyId}
+            onChange={(ownerCompanyId) => set({ ownerCompanyId })}
+          />
+        </Box>
+        <Box sx={{ minWidth: { sm: 240 } }}>
+          <CompanySelect
+            label="Société locataire"
+            emptyLabel="Toutes"
+            value={value.lesseeCompanyId}
+            onChange={(lesseeCompanyId) => set({ lesseeCompanyId })}
+          />
+          <Typography variant="caption" color="text.secondary">
+            Locataire : dépenses datées pendant une location ; les emprunts restent au propriétaire
+          </Typography>
+        </Box>
       </Stack>
       <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
         {shortcuts.map((s) => (

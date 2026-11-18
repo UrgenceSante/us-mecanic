@@ -12,6 +12,12 @@ public static class CostPerKmCalculator
 {
     public const int Decimals = 2;
 
+    /// <summary>Raison renvoyée avec le filtre locataire : les relevés ne sont pas découpés par location.</summary>
+    public const string LesseeFilterReason = "Non calculé avec le filtre locataire";
+
+    /// <summary>Coût au km avec le filtre locataire : jamais calculé (règle R9).</summary>
+    public static readonly CostPerKmDto NotComputedForLessee = new(0, 0m, null, false, 0, LesseeFilterReason);
+
     /// <param name="lines">Toutes les dépenses de la période (emprunts compris), avec leur véhicule.</param>
     /// <param name="readings">Relevés dont la date est dans la période.</param>
     /// <param name="singleVehicle">La demande porte sur un seul véhicule : aucune exclusion n'est comptée.</param>

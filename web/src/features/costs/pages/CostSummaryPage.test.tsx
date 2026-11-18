@@ -10,6 +10,15 @@ vi.mock("../../vehicles/api/vehicleQueries", () => ({
   useVehicles: () => ({ data: [{ id: "v1", licensePlate: "AB-123-CD" }] }),
 }));
 
+vi.mock("../../companies/api/companyQueries", () => ({
+  useCompanies: () => ({
+    data: [
+      { id: "c1", name: "Société A", isActive: true },
+      { id: "c2", name: "Société B", isActive: true },
+    ],
+  }),
+}));
+
 function renderPage(url = "/costs") {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
@@ -95,5 +104,25 @@ describe("CostSummaryPage", () => {
     });
     renderPage();
     expect(await screen.findByText(/doit précéder/)).toBeInTheDocument();
+  });
+
+  it("transmet les filtres société, explique la règle et n'affiche pas le coût au km", async () => {
+    api.getCostSummary.mockResolvedValue(
+      summary({
+        costPerKm: { kilometers: 0, cost: 0, value: null, computable: false, excludedVehicles: 0, reason: "Non calculé avec le filtre locataire" },
+      }),
+    );
+    renderPage();
+    expect(await screen.findByText(/Locataire : dépenses datées pendant une location/)).toBeInTheDocument();
+
+    fireEvent.mouseDown(screen.getByLabelText("Société propriétaire"));
+    fireEvent.click(await screen.findByRole("option", { name: "Société A" }));
+    fireEvent.mouseDown(screen.getByLabelText("Société locataire"));
+    fireEvent.click(await screen.findByRole("option", { name: "Société B" }));
+
+    await waitFor(() =>
+      expect(api.getCostSummary).toHaveBeenLastCalledWith(expect.objectContaining({ ownerCompanyId: "c1", lesseeCompanyId: "c2" })),
+    );
+    expect(await screen.findByText("Non calculé avec le filtre locataire")).toBeInTheDocument();
   });
 });

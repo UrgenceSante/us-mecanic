@@ -29,6 +29,8 @@ export interface CostPerKm {
   value: number | null;
   computable: boolean;
   excludedVehicles: number;
+  /** Motif lorsque le calcul est écarté (filtre locataire). */
+  reason?: string | null;
 }
 
 export interface CostSummary {
@@ -48,4 +50,8 @@ export interface CostSummaryParams {
   to: string;
   granularity: CostGranularity;
   vehicleId: string;
+  /** Société propriétaire actuelle ("" pour toutes). */
+  ownerCompanyId: string;
+  /** Société locataire à la date de la dépense ("" pour toutes). */
+  lesseeCompanyId: string;
 }

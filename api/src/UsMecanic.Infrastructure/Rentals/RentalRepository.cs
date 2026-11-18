@@ -28,6 +28,11 @@ internal sealed class RentalRepository(UsMecanicDbContext db) : IRentalRepositor
         return await query.ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Rental>> ListOverlappingAsync(DateOnly firstDay, DateOnly lastDay, CancellationToken cancellationToken) =>
+        await db.Rentals.AsNoTracking()
+            .Where(r => r.StartDate <= lastDay && (r.EndDate == null || r.EndDate >= firstDay))
+            .ToListAsync(cancellationToken);
+
     public Task<bool> HasCurrentOrUpcomingAsync(Guid vehicleId, Guid tenantCompanyId, DateOnly today, CancellationToken cancellationToken) =>
         db.Rentals.AnyAsync(
             r => r.VehicleId == vehicleId && r.TenantCompanyId == tenantCompanyId && (r.EndDate == null || r.EndDate >= today),
