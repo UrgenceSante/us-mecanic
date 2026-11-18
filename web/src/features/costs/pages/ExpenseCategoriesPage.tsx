@@ -1,8 +1,8 @@
 import PageTitle from "../../../shared/components/PageTitle";
+import ActiveStatusChip from "../../shared/components/ActiveStatusChip";
 import {
   Alert,
   Button,
-  Chip,
   CircularProgress,
   IconButton,
   Paper,
@@ -99,11 +99,7 @@ export default function ExpenseCategoriesPage() {
                 <TableRow key={category.id}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>
-                    <Chip
-                      size="small"
-                      label={category.isActive ? "Actif" : "Désactivé"}
-                      color={category.isActive ? "success" : "default"}
-                    />
+                    <ActiveStatusChip isActive={category.isActive} />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Renommer">

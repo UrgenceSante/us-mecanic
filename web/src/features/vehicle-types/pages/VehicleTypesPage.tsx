@@ -1,8 +1,8 @@
 import PageTitle from "../../../shared/components/PageTitle";
+import ActiveStatusChip from "../../shared/components/ActiveStatusChip";
 import {
   Alert,
   Button,
-  Chip,
   IconButton,
   Paper,
   Stack,
@@ -93,11 +93,7 @@ export default function VehicleTypesPage() {
                 <TableRow key={type.id}>
                   <TableCell>{type.name}</TableCell>
                   <TableCell>
-                    <Chip
-                      size="small"
-                      label={type.isActive ? "Actif" : "Désactivé"}
-                      color={type.isActive ? "success" : "default"}
-                    />
+                    <ActiveStatusChip isActive={type.isActive} />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Renommer">

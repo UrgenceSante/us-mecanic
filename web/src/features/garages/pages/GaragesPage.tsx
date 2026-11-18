@@ -1,8 +1,8 @@
 import PageTitle from "../../../shared/components/PageTitle";
+import ActiveStatusChip from "../../shared/components/ActiveStatusChip";
 import {
   Alert,
   Button,
-  Chip,
   IconButton,
   Paper,
   Stack,
@@ -88,11 +88,7 @@ export default function GaragesPage() {
                 <TableRow key={garage.id}>
                   <TableCell>{garage.name}</TableCell>
                   <TableCell>
-                    <Chip
-                      size="small"
-                      label={garage.isActive ? "Actif" : "Désactivé"}
-                      color={garage.isActive ? "success" : "default"}
-                    />
+                    <ActiveStatusChip isActive={garage.isActive} />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Renommer">

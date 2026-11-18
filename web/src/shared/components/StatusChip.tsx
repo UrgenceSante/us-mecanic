@@ -3,6 +3,9 @@ import type { ReactElement } from "react";
 
 export type StatusTone = "success" | "warning" | "error" | "info" | "neutral";
 
+// Le « info » MUI (#0288d1) n'atteint que 4,0:1 sur blanc : version assombrie (7,6:1).
+const infoSx = { color: "#01579b", borderColor: "#01579b", "& .MuiChip-icon": { color: "#01579b" } };
+
 export interface StatusChipProps {
   tone: StatusTone;
   icon: ReactElement;
@@ -22,7 +25,8 @@ export default function StatusChip({ tone, icon, label, tooltip, category = "Sta
     <Chip
       size="small"
       variant={variant}
-      color={tone === "neutral" ? "default" : tone}
+      color={tone === "neutral" || tone === "info" ? "default" : tone}
+      sx={tone === "info" ? infoSx : undefined}
       icon={icon}
       label={label}
       aria-label={`${category} : ${label}`}
