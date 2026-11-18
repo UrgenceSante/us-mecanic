@@ -5,7 +5,7 @@ using UsMecanic.Domain.Costs;
 namespace UsMecanic.Application.Costs.Summary;
 
 /// <summary>Synthèse des coûts d'un véhicule ou du parc, par mois ou par année.</summary>
-public sealed class GetCostSummary(MileageVehicleGuard guard, CostLineReader reader, IMileageReadingRepository readings)
+public sealed class GetCostSummary(MileageVehicleGuard guard, CostLineReader reader, IMileageReadingRepository readings, CostCompanyScope scope)
 {
     public async Task<Result<CostSummaryDto>> ExecuteAsync(CostSummaryQuery query, CancellationToken cancellationToken)
     {
@@ -31,7 +31,11 @@ public sealed class GetCostSummary(MileageVehicleGuard guard, CostLineReader rea
 
         var lines = await reader.ReadAsync(from, to, query.VehicleId, cancellationToken);
         var inPeriod = await readings.ListInPeriodAsync(from, to, query.VehicleId, cancellationToken);
-        var costPerKm = CostPerKmCalculator.Compute(lines, inPeriod, query.VehicleId.HasValue);
+        var scoped = await scope.ApplyAsync(lines, inPeriod, from, to, query.OwnerCompanyId, query.LesseeCompanyId, cancellationToken);
+        var costPerKm = query.LesseeCompanyId.HasValue
+            ? CostPerKmCalculator.NotComputedForLessee
+            : CostPerKmCalculator.Compute(scoped.Lines, scoped.Readings, query.VehicleId.HasValue);
+        lines = scoped.Lines;
         return Result<CostSummaryDto>.Success(CostAggregator.Build(from, to, granularity, query.VehicleId, lines, costPerKm));
     }
 
