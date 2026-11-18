@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using UsMecanic.Domain.Companies;
 using UsMecanic.Domain.Vehicles;
 
 namespace UsMecanic.Infrastructure.Persistence.Configurations;
@@ -31,6 +32,12 @@ internal sealed class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.HasOne<VehicleType>()
             .WithMany()
             .HasForeignKey(v => v.TypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Propriétaire facultatif ; une société référencée ne peut pas être supprimée (elle est seulement désactivée).
+        builder.HasOne<Company>()
+            .WithMany()
+            .HasForeignKey(v => v.OwnerCompanyId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(v => v.CreatedAt);

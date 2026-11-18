@@ -134,7 +134,8 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         imported.FirstRegistrationDate ?? current.FirstRegistrationDate,
         imported.Vin ?? current.Vin,
         string.IsNullOrWhiteSpace(imported.InternalNumber) ? current.InternalNumber : imported.InternalNumber,
-        imported.TypeId ?? current.TypeId);
+        imported.TypeId ?? current.TypeId,
+        current.OwnerCompanyId); // l'import ne touche pas au propriétaire (US9)
 
     private static VehicleImportLineResult Error(int line, string? plate, DomainError error) =>
         new(line, plate, ImportOutcome.Error, error.Code, error.Message);

@@ -13,6 +13,9 @@ public static class VehicleErrors
     public static readonly DomainError Retired =
         DomainError.Conflict("vehicle.retired", "Le véhicule est sorti du parc : il ne peut plus être modifié.");
 
+    public static readonly DomainError OwnerCannotBeRemoved =
+        new("vehicle.owner_cannot_be_removed", "Le propriétaire ne peut pas être retiré, choisissez une autre société.");
+
     public static readonly DomainError FirstRegistrationInFuture =
         new("vehicle.first_registration_in_future", "La date de mise en circulation ne peut pas être dans le futur.");
 
