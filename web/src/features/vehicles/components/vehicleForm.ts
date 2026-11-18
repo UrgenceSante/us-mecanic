@@ -10,6 +10,8 @@ export interface VehicleFormValues {
   internalNumber: string;
   /** Id du type, chaîne vide si aucun. */
   typeId: string;
+  /** Id de la société propriétaire, chaîne vide si aucune. */
+  ownerCompanyId: string;
 }
 
 export const emptyVehicleForm: VehicleFormValues = {
@@ -20,6 +22,7 @@ export const emptyVehicleForm: VehicleFormValues = {
   vin: "",
   internalNumber: "",
   typeId: "",
+  ownerCompanyId: "",
 };
 
 export function toFormValues(vehicle: Vehicle): VehicleFormValues {
@@ -31,6 +34,7 @@ export function toFormValues(vehicle: Vehicle): VehicleFormValues {
     vin: vehicle.vin ?? "",
     internalNumber: vehicle.internalNumber ?? "",
     typeId: vehicle.typeId ?? "",
+    ownerCompanyId: vehicle.owner?.id ?? "",
   };
 }
 
@@ -44,6 +48,7 @@ export function toDetailsInput(values: VehicleFormValues): VehicleDetailsInput {
     vin: orNull(values.vin),
     internalNumber: orNull(values.internalNumber),
     typeId: orNull(values.typeId),
+    ownerCompanyId: orNull(values.ownerCompanyId),
   };
 }
 

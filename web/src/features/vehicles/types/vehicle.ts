@@ -1,4 +1,13 @@
+import type { Company } from "../../companies/types/company";
+
 export type VehicleStatus = "Active" | "Immobilized" | "Retired";
+
+export type VehicleUserSource = "Tenant" | "Owner" | "NotSet";
+
+export interface VehicleUser {
+  company: Company | null;
+  source: VehicleUserSource;
+}
 
 export interface Vehicle {
   id: string;
@@ -12,6 +21,10 @@ export interface Vehicle {
   typeId: string | null;
   typeName: string | null;
   status: VehicleStatus;
+  /** Société propriétaire, null si non renseignée (reste renvoyée même désactivée). */
+  owner: Company | null;
+  /** Utilisateur actuel : locataire, sinon propriétaire, sinon non renseigné. */
+  currentUser: VehicleUser;
   /** Km actuel (relevé le plus récent par date), null sans relevé. */
   currentMileage: number | null;
   /** Date ISO AAAA-MM-JJ du km actuel. */
@@ -37,6 +50,8 @@ export interface VehicleDetailsInput {
   internalNumber: string | null;
   /** Toujours envoyé : le PUT remplace tout, un typeId absent efface le type. */
   typeId: string | null;
+  /** Toujours envoyé : une fois posé, le propriétaire ne peut plus être vidé (l'API refuse null). */
+  ownerCompanyId: string | null;
 }
 
 export interface RegisterVehicleCommand {
