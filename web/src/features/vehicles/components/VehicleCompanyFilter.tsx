@@ -24,7 +24,7 @@ export default function VehicleCompanyFilter({ label, value, onChange, allowMiss
       size="small"
       value={known ? value : ""}
       onChange={(e) => onChange(e.target.value)}
-      sx={{ minWidth: 200 }}
+      sx={{ minWidth: 170, flex: { xs: "1 1 40%", md: "0 0 auto" } }}
     >
       <MenuItem value="">Tous</MenuItem>
       {allowMissing && <MenuItem value={OWNER_MISSING}>À renseigner</MenuItem>}

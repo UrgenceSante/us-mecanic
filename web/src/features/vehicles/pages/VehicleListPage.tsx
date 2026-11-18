@@ -1,6 +1,6 @@
 import PageTitle from "../../../shared/components/PageTitle";
-import { Button, Link as MuiLink, MenuItem, Paper, Stack, TextField } from "@mui/material";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { Button, Paper, Stack } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import { frFR } from "@mui/x-data-grid/locales";
 import AddIcon from "@mui/icons-material/Add";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -9,93 +9,24 @@ import { Link, useNavigate } from "react-router";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { useRegisterVehicle, useVehicles } from "../api/vehicleQueries";
-import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
-import UrgencyBadge from "../../../shared/components/UrgencyBadge";
+import useVehicleListFilters from "../hooks/useVehicleListFilters";
+import VehicleListFilters from "../components/VehicleListFilters";
 import useBelow from "../../../shared/hooks/useBelow";
-import VehicleCompanyFilter, { OWNER_MISSING } from "../components/VehicleCompanyFilter";
 import VehicleCards from "../components/VehicleCards";
 import VehicleFormDialog from "../components/VehicleFormDialog";
-import VehicleStatusChip from "../components/VehicleStatusChip";
-import { currentUserLabel } from "../components/vehicleUserLabel";
-import { formatDateOnly, toRegisterCommand, type VehicleFormValues } from "../components/vehicleForm";
-import { vehicleStatusLabels, type Vehicle, type VehicleStatus } from "../types/vehicle";
-
-/** Colonnes secondaires masquées sur tablette (sous `md`) pour laisser la place au statut et aux alertes. */
-const tabletHidden = { ownerName: false, currentUserName: false, internalNumber: false, brand: false, model: false, firstRegistrationDate: false };
-
-const columns: GridColDef<Vehicle>[] = [
-  {
-    field: "licensePlate",
-    headerName: "Immatriculation",
-    width: 130,
-    // Vrai lien : seul moyen d'ouvrir la fiche au clavier (le clic sur la ligne reste disponible).
-    renderCell: (params) => (
-      <MuiLink component={Link} to={`/vehicles/${params.row.id}`} onClick={(e) => e.stopPropagation()}>
-        {params.value}
-      </MuiLink>
-    ),
-  },
-  {
-    field: "status",
-    headerName: "Statut",
-    width: 150,
-    renderCell: (params) => <VehicleStatusChip status={params.value} />,
-  },
-  {
-    field: "alerts",
-    headerName: "Alertes",
-    width: 190,
-    sortable: false,
-    renderCell: (params) => <UrgencyBadge alerts={params.row.alerts} />,
-  },
-  { field: "internalNumber", headerName: "N° interne", width: 100 },
-  { field: "typeName", headerName: "Type", width: 120 },
-  {
-    field: "ownerName",
-    headerName: "Propriétaire",
-    width: 160,
-    valueGetter: (_value, row) => row.owner?.name ?? "À renseigner",
-  },
-  {
-    field: "currentUserName",
-    headerName: "Utilisateur actuel",
-    width: 180,
-    valueGetter: (_value, row) => currentUserLabel(row),
-  },
-  { field: "brand", headerName: "Marque", flex: 1, minWidth: 100 },
-  { field: "model", headerName: "Modèle", flex: 1, minWidth: 100 },
-  {
-    field: "firstRegistrationDate",
-    headerName: "Mise en circulation",
-    width: 140,
-    valueFormatter: (value: string | null) => formatDateOnly(value),
-  },
-  {
-    field: "currentMileage",
-    headerName: "Km actuel",
-    type: "number",
-    width: 120,
-    valueFormatter: (value: number | null) => (value == null ? "" : `${value.toLocaleString("fr-FR")} km`),
-  },
-];
+import NoVehicleFound from "../components/NoVehicleFound";
+import { desktopHiddenColumns, tabletHiddenColumns, vehicleColumns } from "../components/vehicleColumns";
+import { toRegisterCommand, type VehicleFormValues } from "../components/vehicleForm";
 
 export default function VehicleListPage() {
   const navigate = useNavigate();
   const { notifySuccess } = useNotifSnack();
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<VehicleStatus | "">("");
-  const [type, setType] = useState("");
-  const [owner, setOwner] = useState("");
-  const [currentUser, setCurrentUser] = useState("");
   const [creating, setCreating] = useState(false);
   const compact = useBelow("sm");
   const tablet = useBelow("md");
-
-  const vehicles = useVehicles({ search, status: status || undefined, type: type || undefined,
-    ownerCompanyId: owner && owner !== OWNER_MISSING ? owner : undefined,
-    ownerMissing: owner === OWNER_MISSING,
-    currentUserCompanyId: currentUser || undefined,
-  });
+  const desktopNarrow = useBelow("xl");
+  const { values, setters, filter, filtered, reset: resetFilters } = useVehicleListFilters();
+  const vehicles = useVehicles(filter);
   const register = useRegisterVehicle();
 
   const handleCreate = (values: VehicleFormValues) =>
@@ -123,52 +54,21 @@ export default function VehicleListPage() {
         </Button>
       </Stack>
 
-      <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
-        <TextField
-          label="Rechercher"
-          placeholder="Immatriculation, marque, modèle, n° interne"
-          size="small"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{ flex: 1 }}
-        />
-        <TextField
-          select
-          label="Statut"
-          size="small"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as VehicleStatus | "")}
-          sx={{ minWidth: 180 }}
-        >
-          <MenuItem value="">Tous</MenuItem>
-          {Object.entries(vehicleStatusLabels).map(([value, label]) => (
-            <MenuItem key={value} value={value}>
-              {label}
-            </MenuItem>
-          ))}
-        </TextField>
-        <VehicleTypeSelect
-          value={type}
-          onChange={setType}
-          emptyLabel="Tous"
-          includeInactive
-          size="small"
-          minWidth={180}
-        />
-        <VehicleCompanyFilter label="Propriétaire" value={owner} onChange={setOwner} allowMissing />
-        <VehicleCompanyFilter label="Utilisateur actuel" value={currentUser} onChange={setCurrentUser} />
-      </Stack>
+      <VehicleListFilters values={values} setters={setters} />
 
       {vehicles.isError ? (
         <ErrorHandler error={vehicles.error} />
       ) : compact ? (
-        <VehicleCards vehicles={vehicles.data ?? []} loading={vehicles.isLoading} />
+        <VehicleCards vehicles={vehicles.data ?? []} loading={vehicles.isLoading} filtered={filtered} onReset={resetFilters} />
       ) : (
         <Paper>
           <DataGrid
             rows={vehicles.data ?? []}
-            columns={columns}
-            columnVisibilityModel={tablet ? tabletHidden : {}}
+            columns={vehicleColumns}
+            columnVisibilityModel={tablet ? tabletHiddenColumns : desktopNarrow ? desktopHiddenColumns : {}}
+            slots={{
+              noRowsOverlay: () => <NoVehicleFound filtered={filtered} onReset={resetFilters} />,
+            }}
             loading={vehicles.isLoading}
             onRowClick={(params) => navigate(`/vehicles/${params.id}`)}
             localeText={frFR.components.MuiDataGrid.defaultProps.localeText}

@@ -1,13 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { RegisterVehicleCommand, VehicleDetailsInput, VehicleFilter, VehicleStatus } from "../types/vehicle";
-import {
-  changeVehicleStatus,
-  getVehicle,
-  importVehicles,
-  listVehicles,
-  registerVehicle,
-  updateVehicle,
-} from "./vehiclesApi";
+import { changeVehicleStatus, getVehicle, importVehicles, listVehicles, registerVehicle, updateVehicle } from "./vehiclesApi";
 
 export const vehicleKeys = {
   all: ["vehicles"] as const,
@@ -26,11 +19,18 @@ export const vehicleKeys = {
 };
 
 export function useVehicles(filter: VehicleFilter) {
-  return useQuery({ queryKey: vehicleKeys.list(filter), queryFn: () => listVehicles(filter) });
+  return useQuery({
+    queryKey: vehicleKeys.list(filter),
+    queryFn: () => listVehicles(filter),
+  });
 }
 
 export function useVehicle(id: string) {
-  return useQuery({ queryKey: vehicleKeys.detail(id), queryFn: () => getVehicle(id), enabled: id !== "" });
+  return useQuery({
+    queryKey: vehicleKeys.detail(id),
+    queryFn: () => getVehicle(id),
+    enabled: id !== "",
+  });
 }
 
 /** Toute écriture invalide l'ensemble des requêtes véhicules (listes et fiches). */
@@ -41,7 +41,10 @@ function useInvalidateVehicles() {
 
 export function useRegisterVehicle() {
   const onSuccess = useInvalidateVehicles();
-  return useMutation({ mutationFn: (command: RegisterVehicleCommand) => registerVehicle(command), onSuccess });
+  return useMutation({
+    mutationFn: (command: RegisterVehicleCommand) => registerVehicle(command),
+    onSuccess,
+  });
 }
 
 export function useUpdateVehicle(id: string) {

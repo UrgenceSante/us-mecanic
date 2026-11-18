@@ -5,46 +5,72 @@ import { describe, expect, it, vi } from "vitest";
 const { useVehicles } = vi.hoisted(() => ({ useVehicles: vi.fn() }));
 vi.mock("../api/vehicleQueries", () => ({
   useVehicles,
-  useRegisterVehicle: () => ({ mutate: vi.fn(), reset: vi.fn(), isPending: false, isError: false }),
+  useRegisterVehicle: () => ({
+    mutate: vi.fn(),
+    reset: vi.fn(),
+    isPending: false,
+    isError: false,
+  }),
 }));
 const vehiclesResult = {
-    isLoading: false,
-    isError: false,
-    data: [
-      {
-        id: "v1",
-        licensePlate: "AB-123-CD",
-        internalNumber: null,
-        typeName: "VSL",
-        brand: "Renault",
-        model: "Master",
-        firstRegistrationDate: null,
-        currentMileage: 1000,
-        status: "Active",
-      },
-    ],
-  };
+  isLoading: false,
+  isError: false,
+  data: [
+    {
+      id: "v1",
+      licensePlate: "AB-123-CD",
+      internalNumber: null,
+      typeName: "VSL",
+      brand: "Renault",
+      model: "Master",
+      firstRegistrationDate: null,
+      currentMileage: 1000,
+      status: "Active",
+    },
+  ],
+};
 useVehicles.mockReturnValue(vehiclesResult);
 // Le DataGrid réel importe du CSS que Node ne sait pas charger : on rend les cellules à la main.
 vi.mock("@mui/x-data-grid", () => ({
-  DataGrid: ({ rows, columns }: { rows: { id: string }[]; columns: { field: string; renderCell?: (p: unknown) => unknown }[] }) => (
+  DataGrid: ({
+    rows,
+    columns,
+  }: {
+    rows: { id: string }[];
+    columns: { field: string; renderCell?: (p: unknown) => unknown }[];
+  }) => (
     <div>
       {rows.map((row) => (
-        <div key={row.id}>{columns.find((c) => c.field === "licensePlate")?.renderCell?.({ row, value: (row as Record<string, unknown>).licensePlate }) as never}</div>
+        <div key={row.id}>
+          {
+            columns
+              .find((c) => c.field === "licensePlate")
+              ?.renderCell?.({
+                row,
+                value: (row as Record<string, unknown>).licensePlate,
+              }) as never
+          }
+        </div>
       ))}
     </div>
   ),
 }));
-vi.mock("@mui/x-data-grid/locales", () => ({ frFR: { components: { MuiDataGrid: { defaultProps: { localeText: {} } } } } }));
+vi.mock("@mui/x-data-grid/locales", () => ({
+  frFR: { components: { MuiDataGrid: { defaultProps: { localeText: {} } } } },
+}));
 vi.mock("../components/VehicleCompanyFilter", () => ({
   OWNER_MISSING: "none",
   default: ({ label, onChange, allowMissing }: { label: string; onChange: (v: string) => void; allowMissing?: boolean }) => (
     <button onClick={() => onChange(allowMissing ? "none" : "c1")}>{label}</button>
   ),
 }));
-vi.mock("../../vehicle-types/components/VehicleTypeSelect", () => ({ default: () => null }));
+vi.mock("../../vehicle-types/components/VehicleTypeSelect", () => ({
+  default: () => null,
+}));
 vi.mock("../../../shared/hooks/useBelow", () => ({ default: () => false }));
-vi.mock("../../../hooks/useNotifSnack", () => ({ default: () => ({ notifySuccess: vi.fn() }) }));
+vi.mock("../../../hooks/useNotifSnack", () => ({
+  default: () => ({ notifySuccess: vi.fn() }),
+}));
 
 import VehicleListPage from "./VehicleListPage";
 
@@ -69,7 +95,11 @@ describe("VehicleListPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Propriétaire" }));
     fireEvent.click(screen.getByRole("button", { name: "Utilisateur actuel" }));
     expect(useVehicles).toHaveBeenLastCalledWith(
-      expect.objectContaining({ ownerCompanyId: undefined, ownerMissing: true, currentUserCompanyId: "c1" }),
+      expect.objectContaining({
+        ownerCompanyId: undefined,
+        ownerMissing: true,
+        currentUserCompanyId: "c1",
+      }),
     );
   });
 });

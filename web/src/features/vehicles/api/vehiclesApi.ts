@@ -40,7 +40,9 @@ export async function updateVehicle(id: string, details: VehicleDetailsInput): P
 }
 
 export async function changeVehicleStatus(id: string, status: VehicleStatus): Promise<Vehicle> {
-  const { data } = await apiClient.put<Vehicle>(`${BASE}/${id}/status`, { status });
+  const { data } = await apiClient.put<Vehicle>(`${BASE}/${id}/status`, {
+    status,
+  });
   return data;
 }
 
