@@ -13,7 +13,8 @@ public sealed record VehicleImportLineResult(
     string? LicensePlate,
     ImportOutcome Outcome,
     string? ErrorCode = null,
-    string? Message = null);
+    string? Message = null,
+    string? Owner = null);
 
 /// <summary>Bilan d'un import. En simulation (<see cref="DryRun"/>), rien n'est enregistré.</summary>
 public sealed record VehicleImportReport(bool DryRun, IReadOnlyList<VehicleImportLineResult> Lines)

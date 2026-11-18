@@ -24,6 +24,9 @@ internal sealed class InMemoryRentalRepository : IRentalRepository
     public Task<bool> HasCurrentOrUpcomingAsync(Guid vehicleId, Guid tenantCompanyId, DateOnly today, CancellationToken cancellationToken) =>
         Task.FromResult(Saved.Exists(r => r.VehicleId == vehicleId && r.TenantCompanyId == tenantCompanyId && r.IsCurrentOrUpcoming(today)));
 
+    public Task<IReadOnlyList<Rental>> ListCurrentOrUpcomingAsync(DateOnly today, IReadOnlyCollection<Guid> vehicleIds, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Rental>>([.. Saved.Where(r => vehicleIds.Contains(r.VehicleId) && r.IsCurrentOrUpcoming(today))]);
+
     public void Add(Rental rental) => _pending.Add(rental);
 
     public void Remove(Rental rental) => Saved.Remove(rental);

@@ -124,8 +124,11 @@ catégories…) sont réutilisés par nom s'ils existent. Pour rejouer la démo,
 Écran **Parc → Importer** (ou `POST /api/vehicles/import?dryRun=true|false`, fichier en multipart).
 Fichier CSV avec en-tête, séparateur `;` ou `,`, UTF-8 ou Windows-1252 (export Excel) :
 seule la colonne `Immatriculation` est obligatoire ; `Marque`, `Modèle`, `Mise en circulation`
-(JJ/MM/AAAA), `VIN` et `Indicatif` sont facultatives. Les véhicules sont rapprochés par immatriculation :
+(JJ/MM/AAAA), `VIN`, `Indicatif` et `Propriétaire` sont facultatives. Les véhicules sont rapprochés par immatriculation :
 un véhicule connu est mis à jour, une cellule vide n'efface pas la valeur existante.
+`Propriétaire` est le nom d'une société active, sans tenir compte de la casse ; un nom inconnu ou une société
+désactivée met la ligne en erreur (aucune société n'est créée), sauf si elle est déjà le propriétaire du véhicule ;
+une société locataire en cours ou à venir du véhicule est refusée. Le bilan indique le propriétaire appliqué.
 Modèle : [docs/modele-import-vehicules.csv](docs/modele-import-vehicules.csv).
 
 ## Configuration du front au runtime
