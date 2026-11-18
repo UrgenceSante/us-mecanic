@@ -59,6 +59,7 @@ app.MapDeadlineTypeEndpoints();
 app.MapDeadlineThresholdsEndpoints();
 app.MapMileageReadingEndpoints();
 app.MapLoanEndpoints();
+app.MapRentalEndpoints();
 app.MapCostSummaryEndpoints();
 app.MapVehicleDeadlineEndpoints();
 app.MapDashboardEndpoints();

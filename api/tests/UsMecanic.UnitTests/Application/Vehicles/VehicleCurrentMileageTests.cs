@@ -9,7 +9,7 @@ public class VehicleCurrentMileageTests
     private readonly InMemoryMileageReadingRepository _readings = new();
     private readonly VehicleTypeLookup _lookup;
 
-    public VehicleCurrentMileageTests() => _lookup = new VehicleTypeLookup(new InMemoryVehicleTypeRepository(), _readings, new VehicleOwnerLookup(new InMemoryCompanyRepository()));
+    public VehicleCurrentMileageTests() => _lookup = new VehicleTypeLookup(new InMemoryVehicleTypeRepository(), _readings, new VehicleOwnerLookup(new InMemoryCompanyRepository(), new InMemoryRentalRepository(), new FixedClock().Calendar));
 
     [Fact]
     public async Task La_fiche_expose_le_km_et_la_date_du_releve_le_plus_recent()

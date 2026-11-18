@@ -30,7 +30,7 @@ public sealed class RegisterVehicle(IVehicleRepository repository, VehicleTypeLo
             return Result<VehicleDto>.Failure(typeError);
         }
 
-        var ownerError = await ownerLookup.CheckAssignableAsync(details.Value.OwnerCompanyId, null, cancellationToken);
+        var ownerError = await ownerLookup.CheckAssignableAsync(details.Value.OwnerCompanyId, null, null, cancellationToken);
         if (ownerError is not null)
         {
             return Result<VehicleDto>.Failure(ownerError);
