@@ -289,13 +289,15 @@ public class GetCostSummaryTests
         _rentals.Seed(vehicle.Id, lesseeB, Day("2026-03-01"), Day("2026-03-31"));
         _rentals.Seed(vehicle.Id, Guid.NewGuid(), Day("2026-05-01"), null);
         AddIntervention(vehicle.Id, "2026-03-31", 100m);
+        AddIntervention(vehicle.Id, "2026-03-01", 10m);
+        AddIntervention(vehicle.Id, "2026-02-28", 5m);
         AddIntervention(vehicle.Id, "2026-04-01", 50m);
         AddIntervention(vehicle.Id, "2026-05-10", 25m);
         AddLoan(vehicle.Id, "2026-03-10", 1, 300m);
 
         var result = await UseCase.ExecuteAsync(Query("2026-01-01", "2026-12-31") with { LesseeCompanyId = lesseeB }, CancellationToken.None);
 
-        Assert.Equal(100m, result.Value.Total);
+        Assert.Equal(110m, result.Value.Total);
         Assert.False(result.Value.CostPerKm.Computable);
         Assert.Equal(CostPerKmCalculator.LesseeFilterReason, result.Value.CostPerKm.Reason);
     }

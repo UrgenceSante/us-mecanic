@@ -11,10 +11,11 @@ vi.mock("../../vehicles/api/vehicleQueries", () => ({
 }));
 
 vi.mock("../../companies/api/companyQueries", () => ({
-  useCompanies: () => ({
+  useCompanies: (includeInactive: boolean) => ({
     data: [
       { id: "c1", name: "Société A", isActive: true },
       { id: "c2", name: "Société B", isActive: true },
+      ...(includeInactive ? [{ id: "c3", name: "Société C", isActive: false }] : []),
     ],
   }),
 }));
@@ -113,16 +114,18 @@ describe("CostSummaryPage", () => {
       }),
     );
     renderPage();
-    expect(await screen.findByText(/Locataire : dépenses datées pendant une location/)).toBeInTheDocument();
+    expect(await screen.findByText(/Ne compte que les dépenses faites pendant une location/)).toBeInTheDocument();
 
     fireEvent.mouseDown(screen.getByLabelText("Société propriétaire"));
     fireEvent.click(await screen.findByRole("option", { name: "Société A" }));
     fireEvent.mouseDown(screen.getByLabelText("Société locataire"));
-    fireEvent.click(await screen.findByRole("option", { name: "Société B" }));
+    expect(await screen.findByRole("option", { name: "Société C (désactivée)" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("option", { name: "Société B" }));
 
     await waitFor(() =>
       expect(api.getCostSummary).toHaveBeenLastCalledWith(expect.objectContaining({ ownerCompanyId: "c1", lesseeCompanyId: "c2" })),
     );
     expect(await screen.findByText("Non calculé avec le filtre locataire")).toBeInTheDocument();
+    expect(screen.getByText("Retirez le filtre locataire pour le calculer")).toBeInTheDocument();
   });
 });
