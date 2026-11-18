@@ -12,14 +12,16 @@ import { useRegisterVehicle, useVehicles } from "../api/vehicleQueries";
 import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
 import UrgencyBadge from "../../../shared/components/UrgencyBadge";
 import useBelow from "../../../shared/hooks/useBelow";
+import VehicleCompanyFilter, { OWNER_MISSING } from "../components/VehicleCompanyFilter";
 import VehicleCards from "../components/VehicleCards";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import VehicleStatusChip from "../components/VehicleStatusChip";
+import { currentUserLabel } from "../components/vehicleUserLabel";
 import { formatDateOnly, toRegisterCommand, type VehicleFormValues } from "../components/vehicleForm";
 import { vehicleStatusLabels, type Vehicle, type VehicleStatus } from "../types/vehicle";
 
 /** Colonnes secondaires masquées sur tablette (sous `md`) pour laisser la place au statut et aux alertes. */
-const tabletHidden = { internalNumber: false, brand: false, model: false, firstRegistrationDate: false };
+const tabletHidden = { ownerName: false, currentUserName: false, internalNumber: false, brand: false, model: false, firstRegistrationDate: false };
 
 const columns: GridColDef<Vehicle>[] = [
   {
@@ -48,6 +50,18 @@ const columns: GridColDef<Vehicle>[] = [
   },
   { field: "internalNumber", headerName: "N° interne", width: 100 },
   { field: "typeName", headerName: "Type", width: 120 },
+  {
+    field: "ownerName",
+    headerName: "Propriétaire",
+    width: 160,
+    valueGetter: (_value, row) => row.owner?.name ?? "À renseigner",
+  },
+  {
+    field: "currentUserName",
+    headerName: "Utilisateur actuel",
+    width: 180,
+    valueGetter: (_value, row) => currentUserLabel(row),
+  },
   { field: "brand", headerName: "Marque", flex: 1, minWidth: 100 },
   { field: "model", headerName: "Modèle", flex: 1, minWidth: 100 },
   {
@@ -71,11 +85,17 @@ export default function VehicleListPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<VehicleStatus | "">("");
   const [type, setType] = useState("");
+  const [owner, setOwner] = useState("");
+  const [currentUser, setCurrentUser] = useState("");
   const [creating, setCreating] = useState(false);
   const compact = useBelow("sm");
   const tablet = useBelow("md");
 
-  const vehicles = useVehicles({ search, status: status || undefined, type: type || undefined });
+  const vehicles = useVehicles({ search, status: status || undefined, type: type || undefined,
+    ownerCompanyId: owner && owner !== OWNER_MISSING ? owner : undefined,
+    ownerMissing: owner === OWNER_MISSING,
+    currentUserCompanyId: currentUser || undefined,
+  });
   const register = useRegisterVehicle();
 
   const handleCreate = (values: VehicleFormValues) =>
@@ -135,6 +155,8 @@ export default function VehicleListPage() {
           size="small"
           minWidth={180}
         />
+        <VehicleCompanyFilter label="Propriétaire" value={owner} onChange={setOwner} allowMissing />
+        <VehicleCompanyFilter label="Utilisateur actuel" value={currentUser} onChange={setCurrentUser} />
       </Stack>
 
       {vehicles.isError ? (

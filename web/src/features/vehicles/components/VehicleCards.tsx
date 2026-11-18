@@ -2,6 +2,7 @@ import { CircularProgress, Stack, Typography } from "@mui/material";
 import ListCard from "../../../shared/components/ListCard";
 import UrgencyBadge from "../../../shared/components/UrgencyBadge";
 import type { Vehicle } from "../types/vehicle";
+import { currentUserLabel } from "./vehicleUserLabel";
 import VehicleStatusChip from "./VehicleStatusChip";
 
 interface VehicleCardsProps {
@@ -34,6 +35,12 @@ export default function VehicleCards({ vehicles, loading = false }: VehicleCards
             <Typography variant="body2" color="text.secondary">
               {v.typeName ?? "Type non renseigné"}
               {v.currentMileage == null ? "" : ` · ${v.currentMileage.toLocaleString("fr-FR")} km`}
+            </Typography>
+            <Typography variant="body2" color={v.owner ? "text.secondary" : "warning.main"}>
+              {`Propriétaire : ${v.owner?.name ?? "à renseigner"}`}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {`Utilisateur : ${currentUserLabel(v)}`}
             </Typography>
             <UrgencyBadge alerts={v.alerts} />
           </Stack>

@@ -14,9 +14,9 @@ internal static class VehicleEndpoints
     {
         var vehicles = app.MapGroup("/api/vehicles").WithTags("Véhicules");
 
-        vehicles.MapGet("/", async (string? search, VehicleStatus? status, Guid? type, ListVehicles useCase, CancellationToken ct) =>
-                TypedResults.Ok(await useCase.ExecuteAsync(new VehicleFilter(search, status, type), ct)))
-            .WithSummary("Liste du parc, filtrable par texte, statut et type");
+        vehicles.MapGet("/", async (string? search, VehicleStatus? status, Guid? type, Guid? ownerCompanyId, bool? ownerMissing, Guid? currentUserCompanyId, ListVehicles useCase, CancellationToken ct) =>
+                TypedResults.Ok(await useCase.ExecuteAsync(new VehicleFilter(search, status, type, ownerCompanyId, ownerMissing ?? false, currentUserCompanyId), ct)))
+            .WithSummary("Liste du parc, filtrable par texte, statut, type, société propriétaire (ownerMissing=true : sans propriétaire) et société utilisatrice du jour");
 
         vehicles.MapGet("/{id:guid}", async (Guid id, GetVehicle useCase, CancellationToken ct) =>
                 (await useCase.ExecuteAsync(id, ct)).ToOk())

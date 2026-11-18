@@ -48,6 +48,26 @@ public class VehicleRentalOwnerTests
     }
 
     [Fact]
+    public async Task Filtre_la_liste_par_proprietaire_sans_proprietaire_et_utilisateur_actuel()
+    {
+        var orphan = _vehicles.Seed("EF-456-GH");
+        _rentals.Seed(_vehicle.Id, _tenant.Id, Today.AddDays(-3), null);
+        var list = new ListVehicles(_vehicles, _lookup, NoAlerts.Lookup());
+
+        var byOwner = await list.ExecuteAsync(new VehicleFilter(OwnerCompanyId: _owner.Id), CancellationToken.None);
+        var missing = await list.ExecuteAsync(new VehicleFilter(OwnerMissing: true), CancellationToken.None);
+        var byTenant = await list.ExecuteAsync(new VehicleFilter(CurrentUserCompanyId: _tenant.Id), CancellationToken.None);
+        var byOwnerUser = await list.ExecuteAsync(new VehicleFilter(CurrentUserCompanyId: _owner.Id), CancellationToken.None);
+        var combined = await list.ExecuteAsync(new VehicleFilter(OwnerCompanyId: _owner.Id, CurrentUserCompanyId: _tenant.Id), CancellationToken.None);
+
+        Assert.Equal([_vehicle.Id], byOwner.Select(v => v.Id));
+        Assert.Equal([orphan.Id], missing.Select(v => v.Id));
+        Assert.Equal([_vehicle.Id], byTenant.Select(v => v.Id));
+        Assert.Empty(byOwnerUser);
+        Assert.Equal([_vehicle.Id], combined.Select(v => v.Id));
+    }
+
+    [Fact]
     public async Task Une_location_terminee_ou_prevue_laisse_le_proprietaire_comme_utilisateur()
     {
         _rentals.Seed(_vehicle.Id, _tenant.Id, Today.AddDays(-30), Today.AddDays(-1));

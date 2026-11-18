@@ -40,6 +40,12 @@ export interface VehicleFilter {
   status?: VehicleStatus;
   /** Id du type de véhicule. */
   type?: string;
+  /** Id de la société propriétaire. */
+  ownerCompanyId?: string;
+  /** Véhicules sans propriétaire (« À renseigner »). */
+  ownerMissing?: boolean;
+  /** Id de la société utilisatrice du jour (locataire en cours, sinon propriétaire). */
+  currentUserCompanyId?: string;
 }
 
 export interface VehicleDetailsInput {

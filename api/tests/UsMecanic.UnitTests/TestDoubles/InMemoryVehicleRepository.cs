@@ -22,7 +22,8 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
         Task.FromResult<IReadOnlyList<Vehicle>>([.. Saved.Where(v => licensePlates.Contains(v.LicensePlate))]);
 
     public Task<IReadOnlyList<Vehicle>> ListAsync(VehicleFilter filter, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<Vehicle>>([.. Saved.Where(v => (filter.Status is null || v.Status == filter.Status) && (filter.TypeId is null || v.TypeId == filter.TypeId))]);
+        Task.FromResult<IReadOnlyList<Vehicle>>([.. Saved.Where(v => (filter.Status is null || v.Status == filter.Status) && (filter.TypeId is null || v.TypeId == filter.TypeId)
+            && (filter.OwnerCompanyId is null || v.OwnerCompanyId == filter.OwnerCompanyId) && (!filter.OwnerMissing || v.OwnerCompanyId is null))]);
 
     public void Add(Vehicle vehicle) => _pending.Add(vehicle);
 
