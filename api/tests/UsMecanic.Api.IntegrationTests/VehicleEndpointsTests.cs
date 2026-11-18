@@ -41,6 +41,19 @@ public class VehicleEndpointsTests : IClassFixture<ApiFactory>
         return (await response.Content.ReadFromJsonAsync<VehicleDto>(Json))!;
     }
 
+    [Theory]
+    [InlineData("{\"licensePlate\":\"AB-123-CD\"}")]
+    [InlineData("{}")]
+    public async Task Creation_sans_bloc_details_renvoie_400_en_problem_details(string body)
+    {
+        using var content = new StringContent(body, Encoding.UTF8, "application/json");
+
+        var response = await _client.PostAsync(Vehicles, content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
     [Fact]
     public async Task Les_vehicules_exigent_une_authentification()
     {
