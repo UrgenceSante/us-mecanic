@@ -12,6 +12,7 @@ describe("vehicleForm", () => {
       vin: "  ",
       internalNumber: "AMB-1",
       typeId: "",
+      ownerCompanyId: "",
     });
 
     expect(command).toEqual({
@@ -23,6 +24,7 @@ describe("vehicleForm", () => {
         vin: null,
         internalNumber: "AMB-1",
         typeId: null,
+        ownerCompanyId: null,
       },
     });
   });
@@ -37,6 +39,8 @@ describe("vehicleForm", () => {
       vin: null,
       internalNumber: null,
       typeId: "t1",
+      owner: null,
+      currentUser: { company: null, source: "NotSet" },
       typeName: "VSL",
       status: "Active",
       currentMileage: null,
@@ -45,7 +49,7 @@ describe("vehicleForm", () => {
       updatedAt: "",
     };
 
-    expect(toFormValues(vehicle)).toMatchObject({ licensePlate: "AB-123-CD", brand: "", model: "Master", typeId: "t1" });
+    expect(toFormValues(vehicle)).toMatchObject({ licensePlate: "AB-123-CD", brand: "", model: "Master", typeId: "t1", ownerCompanyId: "" });
   });
 
   it("formate une date sans décalage de fuseau", () => {
