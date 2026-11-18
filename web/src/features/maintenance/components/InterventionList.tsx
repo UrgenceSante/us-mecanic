@@ -2,7 +2,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button, Chip, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { Fragment } from "react";
-import { formatEuro } from "../../../shared/format/formatEuro";
+import Amount from "../../../shared/components/Amount";
 import { formatKm } from "../../mileage/types/format";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import type { Intervention } from "../types/intervention";
@@ -35,9 +35,7 @@ export default function InterventionList({ interventions, onDelete, onEditAmount
                 )}
               </Stack>
               {i.amount != null && (
-                <Typography fontWeight={500} sx={{ whiteSpace: "nowrap" }}>
-                  {formatEuro(i.amount)}
-                </Typography>
+                <Amount value={i.amount} fontWeight={500} />
               )}
               {i.amount == null && onEditAmount && (
                 <Button

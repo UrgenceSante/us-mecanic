@@ -2,7 +2,7 @@ import ActionsHeaderCell from "../../../shared/components/ActionsHeaderCell";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, useMediaQuery, useTheme } from "@mui/material";
-import { formatEuro } from "../../../shared/format/formatEuro";
+import Amount from "../../../shared/components/Amount";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import LoanCards from "./LoanCards";
 import { loanEndMonth, type Loan } from "../types/loan";
@@ -38,8 +38,12 @@ export default function LoanList({ loans, onEdit, onDelete }: LoanListProps) {
           {loans.map((loan) => (
             <TableRow key={loan.id}>
               <TableCell>{loan.lender}</TableCell>
-              <TableCell align="right">{formatEuro(loan.borrowedAmount)}</TableCell>
-              <TableCell align="right">{formatEuro(loan.monthlyPayment)}</TableCell>
+              <TableCell align="right">
+                <Amount value={loan.borrowedAmount} />
+              </TableCell>
+              <TableCell align="right">
+                <Amount value={loan.monthlyPayment} />
+              </TableCell>
               <TableCell>{formatDateOnly(loan.startDate)}</TableCell>
               <TableCell align="right">{loan.durationMonths} mois</TableCell>
               <TableCell>{loanEndMonth(loan.startDate, loan.durationMonths)}</TableCell>

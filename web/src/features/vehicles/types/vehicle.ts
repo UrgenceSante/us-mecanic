@@ -16,6 +16,8 @@ export interface Vehicle {
   currentMileage: number | null;
   /** Date ISO AAAA-MM-JJ du km actuel. */
   currentMileageDate: string | null;
+  /** Alertes calculées par la liste du parc (absentes de la fiche). */
+  alerts?: { overdueDeadlines: number; immobilizingProblem: boolean } | null;
   createdAt: string;
   updatedAt: string;
 }

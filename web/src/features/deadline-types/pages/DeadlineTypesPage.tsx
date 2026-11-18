@@ -1,8 +1,8 @@
 import PageTitle from "../../../shared/components/PageTitle";
+import ActiveStatusChip from "../../../shared/components/ActiveStatusChip";
 import {
   Alert,
   Button,
-  Chip,
   IconButton,
   Paper,
   Stack,
@@ -125,11 +125,7 @@ export default function DeadlineTypesPage() {
                   <TableCell>{formatPeriodicity(type)}</TableCell>
                   <TableCell>{formatThresholds(type)}</TableCell>
                   <TableCell>
-                    <Chip
-                      size="small"
-                      label={type.isActive ? "Actif" : "Désactivé"}
-                      color={type.isActive ? "success" : "default"}
-                    />
+                    <ActiveStatusChip isActive={type.isActive} />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Modifier">

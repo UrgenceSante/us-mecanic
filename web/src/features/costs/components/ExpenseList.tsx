@@ -1,8 +1,9 @@
 import ActionsHeaderCell from "../../../shared/components/ActionsHeaderCell";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, useMediaQuery, useTheme } from "@mui/material";
-import { formatEuro } from "../../../shared/format/formatEuro";
+import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Stack, useMediaQuery, useTheme } from "@mui/material";
+import Amount from "../../../shared/components/Amount";
+import ExpenseStatusChips from "./ExpenseStatusChips";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import { isManualExpense, type Expense } from "../types/expense";
 import ExpenseCards from "./ExpenseCards";
@@ -32,18 +33,18 @@ export default function ExpenseList({ expenses, editable, onEdit, onDelete }: Ex
         </TableHead>
         <TableBody>
           {expenses.map((expense) => (
-            <TableRow key={expense.id} sx={expense.isPlanned ? { opacity: 0.7 } : undefined}>
+            <TableRow key={expense.id} sx={expense.isPlanned ? { "& td": { color: "text.secondary" } } : undefined}>
               <TableCell>
-                {formatDateOnly(expense.date)} {expense.isPlanned && <Chip size="small" label="Prévue" color="info" sx={{ marginLeft: 1 }} />}
-                {!isManualExpense(expense) && (
-                  <Tooltip title="Importée automatiquement">
-                    <Chip size="small" variant="outlined" label="Importée" sx={{ marginLeft: 1 }} />
-                  </Tooltip>
-                )}
+                <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+                  {formatDateOnly(expense.date)}
+                  <ExpenseStatusChips expense={expense} />
+                </Stack>
               </TableCell>
               <TableCell>{expense.categoryName ?? "Sans catégorie"}</TableCell>
               <TableCell>{expense.label}</TableCell>
-              <TableCell align="right">{formatEuro(expense.amount)}</TableCell>
+              <TableCell align="right">
+                <Amount value={expense.amount} />
+              </TableCell>
               {editable && (
                 <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                   {isManualExpense(expense) && (

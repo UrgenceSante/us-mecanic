@@ -1,7 +1,9 @@
 import ActionsHeaderCell from "../../../shared/components/ActionsHeaderCell";
-import { Button, Link as MuiLink, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import { IconButton, Link as MuiLink, Table, TableBody, TableCell, TableHead, TableRow, Tooltip } from "@mui/material";
 import { Link } from "react-router";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
+import DeadlineGapText from "../../vehicle-deadlines/components/DeadlineGapText";
 import DeadlineStatusChip from "../../vehicle-deadlines/components/DeadlineStatusChip";
 import useBelow from "../../../shared/hooks/useBelow";
 import { formatKm, internalNumberSuffix } from "../types/format";
@@ -23,6 +25,7 @@ export default function DashboardDeadlineTable({ deadlines, onComplete }: Dashbo
           <TableCell>Véhicule</TableCell>
           <TableCell>Type d'échéance</TableCell>
           <TableCell>Statut</TableCell>
+          <TableCell>Écart</TableCell>
           <TableCell>Échéance (date)</TableCell>
           <TableCell>Échéance (km)</TableCell>
           <TableCell>Km actuel</TableCell>
@@ -42,17 +45,21 @@ export default function DashboardDeadlineTable({ deadlines, onComplete }: Dashbo
             <TableCell>
               <DeadlineStatusChip status={d.status} isClosed={false} />
             </TableCell>
+            <TableCell>
+              <DeadlineGapText dueDate={d.dueDate} dueKm={d.dueKm} currentKm={d.currentKm} status={d.status} />
+            </TableCell>
             <TableCell>{formatDateOnly(d.dueDate)}</TableCell>
             <TableCell>{formatKm(d.dueKm)}</TableCell>
             <TableCell>{formatKm(d.currentKm)}</TableCell>
             <TableCell align="right">
-              <Button
-                size="small"
-                aria-label={`Marquer réalisée : ${d.deadlineType.name} ${d.vehicle.licensePlate}`}
-                onClick={() => onComplete(d)}
-              >
-                Marquer réalisée
-              </Button>
+              <Tooltip title="Marquer réalisée">
+                <IconButton
+                  aria-label={`Marquer réalisée : ${d.deadlineType.name} ${d.vehicle.licensePlate}`}
+                  onClick={() => onComplete(d)}
+                >
+                  <TaskAltIcon />
+                </IconButton>
+              </Tooltip>
             </TableCell>
           </TableRow>
         ))}

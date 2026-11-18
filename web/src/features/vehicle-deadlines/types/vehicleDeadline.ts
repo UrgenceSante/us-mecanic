@@ -1,5 +1,3 @@
-import type { ChipProps } from "@mui/material";
-
 export type DeadlineStatus = "UpToDate" | "DueSoon" | "Overdue";
 
 export interface VehicleDeadline {
@@ -43,10 +41,4 @@ export const deadlineStatusLabels: Record<DeadlineStatus, string> = {
   UpToDate: "À jour",
   DueSoon: "Proche",
   Overdue: "Dépassée",
-};
-
-export const deadlineStatusColors: Record<DeadlineStatus, ChipProps["color"]> = {
-  UpToDate: "success",
-  DueSoon: "warning",
-  Overdue: "error",
 };

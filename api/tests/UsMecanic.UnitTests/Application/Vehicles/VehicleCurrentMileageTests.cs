@@ -46,7 +46,7 @@ public class VehicleCurrentMileageTests
         _readings.Seed(first.Id, new DateOnly(2026, 9, 10), 10_400);
         _readings.Seed(second.Id, new DateOnly(2026, 8, 1), 55_000);
 
-        var list = await new ListVehicles(_vehicles, _lookup).ExecuteAsync(new VehicleFilter(), CancellationToken.None);
+        var list = await new ListVehicles(_vehicles, _lookup, NoAlerts.Lookup()).ExecuteAsync(new VehicleFilter(), CancellationToken.None);
 
         Assert.Equal(1, _readings.CurrentByVehicleCalls);
         Assert.Equal(10_400, list.Single(v => v.Id == first.Id).CurrentMileage);

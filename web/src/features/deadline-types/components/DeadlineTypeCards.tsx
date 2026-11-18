@@ -1,7 +1,8 @@
 import BlockIcon from "@mui/icons-material/Block";
+import ActiveStatusChip from "../../../shared/components/ActiveStatusChip";
 import EditIcon from "@mui/icons-material/Edit";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
-import { Chip, IconButton, Stack, Typography } from "@mui/material";
+import { IconButton, Stack, Typography } from "@mui/material";
 import ListCard from "../../../shared/components/ListCard";
 import type { DeadlineType } from "../types/deadlineType";
 import { formatPeriodicity, formatThresholds } from "../types/format";
@@ -29,11 +30,7 @@ export default function DeadlineTypeCards({ types, deactivating, onEdit, onAssig
               <Stack gap={0.5}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
                   <Typography fontWeight="bold">{type.name}</Typography>
-                  <Chip
-                    size="small"
-                    label={type.isActive ? "Actif" : "Désactivé"}
-                    color={type.isActive ? "success" : "default"}
-                  />
+                  <ActiveStatusChip isActive={type.isActive} />
                 </Stack>
                 <Typography variant="body2" color="text.secondary">
                   {summary.filter(Boolean).join(" · ")}
