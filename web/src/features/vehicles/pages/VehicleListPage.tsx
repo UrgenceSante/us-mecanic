@@ -11,6 +11,7 @@ import useNotifSnack from "../../../hooks/useNotifSnack";
 import { problemMessage } from "../../../shared/api/problemMessage";
 import { useRegisterVehicle, useVehicles } from "../api/vehicleQueries";
 import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
+import UrgencyBadge from "../../../shared/components/UrgencyBadge";
 import useBelow from "../../../shared/hooks/useBelow";
 import VehicleCards from "../components/VehicleCards";
 import VehicleFormDialog from "../components/VehicleFormDialog";
@@ -52,6 +53,13 @@ const columns: GridColDef<Vehicle>[] = [
     headerName: "Statut",
     width: 140,
     renderCell: (params) => <VehicleStatusChip status={params.value} />,
+  },
+  {
+    field: "alerts",
+    headerName: "Alertes",
+    width: 280,
+    sortable: false,
+    renderCell: (params) => <UrgencyBadge alerts={params.row.alerts} />,
   },
 ];
 

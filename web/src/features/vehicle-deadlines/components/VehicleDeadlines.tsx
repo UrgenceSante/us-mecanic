@@ -73,7 +73,7 @@ export default function VehicleDeadlines({ vehicleId, status, currentMileage }: 
         {deadlines.data && deadlines.data.length > 0 && (
           <List dense aria-label="Échéances du véhicule">
             {deadlines.data.map((d) => (
-              <DeadlineRow key={d.id} deadline={d} canComplete={!retired} onComplete={setCompleting} />
+              <DeadlineRow key={d.id} deadline={d} canComplete={!retired} currentMileage={currentMileage} onComplete={setCompleting} />
             ))}
           </List>
         )}

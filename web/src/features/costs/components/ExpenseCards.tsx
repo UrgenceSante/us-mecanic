@@ -1,7 +1,8 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { Chip, IconButton, Paper, Stack, Tooltip, Typography } from "@mui/material";
-import { formatEuro } from "../../../shared/format/formatEuro";
+import { IconButton, Paper, Stack, Typography } from "@mui/material";
+import Amount from "../../../shared/components/Amount";
+import ExpenseStatusChips from "./ExpenseStatusChips";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import { isManualExpense, type Expense } from "../types/expense";
 
@@ -24,13 +25,8 @@ export default function ExpenseCards({ expenses, editable, onEdit, onDelete }: E
           <Stack direction="row" alignItems="flex-start" gap={1}>
             <Stack flexGrow={1} gap={0.5} minWidth={0}>
               <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
-                <Typography fontWeight="bold">{formatEuro(expense.amount)}</Typography>
-                {expense.isPlanned && <Chip size="small" label="Prévue" color="info" />}
-                {!isManualExpense(expense) && (
-                  <Tooltip title="Importée automatiquement">
-                    <Chip size="small" variant="outlined" label="Importée" />
-                  </Tooltip>
-                )}
+                <Amount value={expense.amount} fontWeight="bold" />
+                <ExpenseStatusChips expense={expense} />
               </Stack>
               <Typography variant="body2">
                 {formatDateOnly(expense.date)} · {expense.categoryName ?? "Sans catégorie"}

@@ -1,6 +1,7 @@
 import { Button, ListItem, ListItemText, Stack } from "@mui/material";
 import { formatDateOnly } from "../../vehicles/components/vehicleForm";
 import type { VehicleDeadline } from "../types/vehicleDeadline";
+import DeadlineGapText from "./DeadlineGapText";
 import DeadlineStatusChip from "./DeadlineStatusChip";
 
 const formatKm = (km: number) => `${km.toLocaleString("fr-FR")} km`;
@@ -16,10 +17,12 @@ interface DeadlineRowProps {
   deadline: VehicleDeadline;
   /** Action « Marquer réalisée » disponible (échéance en cours, véhicule dans le parc). */
   canComplete: boolean;
+  /** Km actuel du véhicule, pour l'écart kilométrique. */
+  currentMileage: number | null;
   onComplete: (deadline: VehicleDeadline) => void;
 }
 
-export default function DeadlineRow({ deadline: d, canComplete, onComplete }: DeadlineRowProps) {
+export default function DeadlineRow({ deadline: d, canComplete, currentMileage, onComplete }: DeadlineRowProps) {
   const next = summary("Prochaine", "Aucune prochaine échéance", d.dueDate, d.dueKm);
   const last = summary("Dernière réalisation", "Jamais réalisée", d.lastDoneDate, d.lastDoneKm);
   return (
@@ -42,7 +45,8 @@ export default function DeadlineRow({ deadline: d, canComplete, onComplete }: De
         }
         secondary={
           <>
-            {next}
+            {next}{" "}
+            <DeadlineGapText dueDate={d.dueDate} dueKm={d.dueKm} currentKm={currentMileage} status={d.status} />
             <br />
             {last}
           </>

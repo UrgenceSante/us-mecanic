@@ -1,6 +1,11 @@
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ErrorIcon from "@mui/icons-material/Error";
+import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import type { ReactElement } from "react";
+import StatusChip, { type StatusTone } from "../../../shared/components/StatusChip";
 import {
   Alert,
-  Chip,
   Stack,
   Table,
   TableBody,
@@ -19,12 +24,12 @@ const outcomeLabels: Record<ImportOutcome, string> = {
   Error: "Erreur",
 };
 
-const outcomeColors = {
-  Created: "success",
-  Updated: "info",
-  Unchanged: "default",
-  Error: "error",
-} as const;
+const outcomeChips: Record<ImportOutcome, { tone: StatusTone; icon: ReactElement }> = {
+  Created: { tone: "success", icon: <AddCircleIcon /> },
+  Updated: { tone: "info", icon: <PublishedWithChangesIcon /> },
+  Unchanged: { tone: "neutral", icon: <RemoveCircleOutlineIcon /> },
+  Error: { tone: "error", icon: <ErrorIcon /> },
+};
 
 export default function ImportReportView({ report }: { report: VehicleImportReport }) {
   const lines = [...report.lines].sort(
@@ -54,7 +59,7 @@ export default function ImportReportView({ report }: { report: VehicleImportRepo
                 <TableCell>{line.line}</TableCell>
                 <TableCell>{line.licensePlate ?? "-"}</TableCell>
                 <TableCell>
-                  <Chip size="small" color={outcomeColors[line.outcome]} label={outcomeLabels[line.outcome]} />
+                  <StatusChip {...outcomeChips[line.outcome]} category="Résultat" label={outcomeLabels[line.outcome]} />
                 </TableCell>
                 <TableCell>{line.message ?? ""}</TableCell>
               </TableRow>

@@ -44,7 +44,7 @@ export function deadlineGap({ dueDate, dueKm, currentKm, status }: DeadlineGapIn
   }
   if (kmLeft !== null && kmLeft <= 0) {
     overdueBy.push("km");
-    parts.push(kmLeft === 0 ? "(km atteint)" : `de ${km(-kmLeft)}`);
+    parts.push(`de ${km(-kmLeft)}`);
   }
   if (overdueBy.length > 0) return { text: `dépassée ${parts.join(" et ")}`, overdueBy };
 

@@ -7,7 +7,7 @@ import StatusChip, { type StatusTone } from "../../../shared/components/StatusCh
 import { blockingLevelLabels } from "../types/labels";
 import type { BlockingLevel } from "../types/problem";
 
-export const blockingLevelChips: Record<BlockingLevel, { tone: StatusTone; icon: ReactElement }> = {
+const blockingLevelChips: Record<BlockingLevel, { tone: StatusTone; icon: ReactElement }> = {
   Immobilizing: { tone: "error", icon: <BlockIcon /> },
   Unanalyzed: { tone: "warning", icon: <HelpOutlineIcon /> },
   OverdueAction: { tone: "warning", icon: <AlarmIcon /> },

@@ -1,5 +1,5 @@
 import PageTitle from "../../../shared/components/PageTitle";
-import ActiveStatusChip from "../../shared/components/ActiveStatusChip";
+import ActiveStatusChip from "../../../shared/components/ActiveStatusChip";
 import {
   Alert,
   Button,

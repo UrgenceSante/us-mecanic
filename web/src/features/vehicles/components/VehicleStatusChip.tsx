@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 import StatusChip, { type StatusTone } from "../../../shared/components/StatusChip";
 import { vehicleStatusLabels, type VehicleStatus } from "../types/vehicle";
 
-export const vehicleStatusChips: Record<VehicleStatus, { tone: StatusTone; icon: ReactElement }> = {
+const vehicleStatusChips: Record<VehicleStatus, { tone: StatusTone; icon: ReactElement }> = {
   Active: { tone: "success", icon: <CheckCircleIcon /> },
   Immobilized: { tone: "error", icon: <BlockIcon /> },
   Retired: { tone: "neutral", icon: <ArchiveIcon /> },

@@ -11,7 +11,7 @@ import {
   TableRow,
   Tooltip,
 } from "@mui/material";
-import ActiveStatusChip from "../../shared/components/ActiveStatusChip";
+import ActiveStatusChip from "../../../shared/components/ActiveStatusChip";
 import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";

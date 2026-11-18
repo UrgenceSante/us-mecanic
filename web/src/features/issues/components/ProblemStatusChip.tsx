@@ -6,7 +6,7 @@ import StatusChip, { type StatusTone } from "../../../shared/components/StatusCh
 import { problemStatusLabels } from "../types/labels";
 import type { ProblemStatus } from "../types/problem";
 
-export const problemStatusChips: Record<ProblemStatus, { tone: StatusTone; icon: ReactElement }> = {
+const problemStatusChips: Record<ProblemStatus, { tone: StatusTone; icon: ReactElement }> = {
   Reported: { tone: "warning", icon: <ReportProblemIcon /> },
   Analyzed: { tone: "info", icon: <FindInPageIcon /> },
   Resolved: { tone: "success", icon: <CheckCircleIcon /> },

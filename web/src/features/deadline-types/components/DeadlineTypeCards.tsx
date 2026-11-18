@@ -1,5 +1,5 @@
 import BlockIcon from "@mui/icons-material/Block";
-import ActiveStatusChip from "../../shared/components/ActiveStatusChip";
+import ActiveStatusChip from "../../../shared/components/ActiveStatusChip";
 import EditIcon from "@mui/icons-material/Edit";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { IconButton, Stack, Typography } from "@mui/material";

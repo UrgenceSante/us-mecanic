@@ -7,7 +7,7 @@ import type { ReactElement } from "react";
 import StatusChip, { type StatusTone } from "../../../shared/components/StatusChip";
 import { deadlineStatusLabels, type DeadlineStatus } from "../types/vehicleDeadline";
 
-export const deadlineStatusChips: Record<DeadlineStatus, { tone: StatusTone; icon: ReactElement }> = {
+const deadlineStatusChips: Record<DeadlineStatus, { tone: StatusTone; icon: ReactElement }> = {
   UpToDate: { tone: "success", icon: <CheckCircleIcon /> },
   DueSoon: { tone: "warning", icon: <ScheduleIcon /> },
   Overdue: { tone: "error", icon: <ErrorIcon /> },
