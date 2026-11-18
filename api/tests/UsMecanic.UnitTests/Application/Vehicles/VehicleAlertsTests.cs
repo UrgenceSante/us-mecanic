@@ -20,7 +20,7 @@ public class VehicleAlertsTests
     private async Task<IReadOnlyList<VehicleDto>> ListAsync()
     {
         var alerts = new VehicleAlertsLookup(_deadlines, _types, new InMemoryDeadlineThresholdsRepository(), _problems, new FixedClock().Calendar);
-        var lookup = new VehicleTypeLookup(new InMemoryVehicleTypeRepository(), _readings, new VehicleOwnerLookup(new InMemoryCompanyRepository()));
+        var lookup = new VehicleTypeLookup(new InMemoryVehicleTypeRepository(), _readings, new VehicleOwnerLookup(new InMemoryCompanyRepository(), new InMemoryRentalRepository(), new FixedClock().Calendar));
         return await new ListVehicles(_vehicles, lookup, alerts).ExecuteAsync(new VehicleFilter(), CancellationToken.None);
     }
 

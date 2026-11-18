@@ -12,6 +12,7 @@ using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
 using UsMecanic.Application.Problems;
 using UsMecanic.Application.Problems.References;
+using UsMecanic.Application.Rentals;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
@@ -23,6 +24,7 @@ using UsMecanic.Infrastructure.Maintenance;
 using UsMecanic.Infrastructure.Mileage;
 using UsMecanic.Infrastructure.Persistence;
 using UsMecanic.Infrastructure.Problems;
+using UsMecanic.Infrastructure.Rentals;
 using UsMecanic.Infrastructure.Vehicles;
 
 namespace UsMecanic.Infrastructure;
@@ -54,6 +56,7 @@ public static class DependencyInjection
         services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
         services.AddScoped<IDocumentCategoryRepository, DocumentCategoryRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<IRentalRepository, RentalRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped(typeof(IProblemReferenceRepository<>), typeof(ProblemReferenceRepository<>));
         services.AddScoped<IInterventionRepository, InterventionRepository>();

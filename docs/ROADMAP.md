@@ -96,7 +96,7 @@ locations datées entre sociétés. Aucune migration ne modifie de données exis
 - [x] Propriétaire du véhicule (API) : colonne nullable sans reprise, contrôles (non vidé, pas un locataire en cours),
       réponse véhicule avec propriétaire et utilisateur actuel
 - [x] Propriétaire dans le formulaire et la fiche véhicule, mention « Propriétaire à renseigner »
-- [ ] Locations (API) : création, fin, modification, suppression ; règles (chevauchement, locataire ≠ propriétaire,
+- [x] Locations (API) : création, fin, modification, suppression ; règles (chevauchement, locataire ≠ propriétaire,
       fin ≥ début, sorti du parc) ; utilisateur à une date
 - [ ] Section « Propriétaire et locations » de la fiche véhicule : utilisateur actuel, historique, actions
 - [ ] Parc : colonnes et filtres Propriétaire (dont « À renseigner ») et Utilisateur actuel (API et front)

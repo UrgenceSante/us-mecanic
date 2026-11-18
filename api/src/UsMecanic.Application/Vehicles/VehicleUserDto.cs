@@ -19,13 +19,4 @@ public enum VehicleUserSource
 public sealed record VehicleUserDto(CompanyDto? Company, VehicleUserSource Source)
 {
     public static VehicleUserDto NotSet { get; } = new(null, VehicleUserSource.NotSet);
-
-    /// <summary>
-    /// Règle R4 : le locataire, sinon le propriétaire, sinon non renseigné.
-    /// Le locataire sera fourni par les locations (issue #209) ; il vaut null d'ici là.
-    /// </summary>
-    public static VehicleUserDto Resolve(CompanyDto? owner, CompanyDto? tenant) =>
-        tenant is not null ? new(tenant, VehicleUserSource.Tenant)
-        : owner is not null ? new(owner, VehicleUserSource.Owner)
-        : NotSet;
 }

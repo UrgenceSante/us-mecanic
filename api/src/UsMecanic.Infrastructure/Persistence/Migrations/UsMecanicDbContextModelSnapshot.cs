@@ -717,6 +717,40 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.ToTable("problem_natures", (string)null);
                 });
 
+            modelBuilder.Entity("UsMecanic.Domain.Rentals.Rental", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<Guid>("TenantCompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_company_id");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_rentals");
+
+                    b.HasIndex("TenantCompanyId")
+                        .HasDatabaseName("ix_rentals_tenant_company_id");
+
+                    b.HasIndex("VehicleId", "StartDate")
+                        .HasDatabaseName("ix_rentals_vehicle_id_start_date");
+
+                    b.ToTable("rentals", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Vehicles.Vehicle", b =>
                 {
                     b.Property<Guid>("Id")
@@ -960,6 +994,23 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_problem_actions_problem_action_types_type_id");
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Rentals.Rental", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("TenantCompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_rentals_companies_tenant_company_id");
+
+                    b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_rentals_vehicles_vehicle_id");
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Vehicles.Vehicle", b =>
