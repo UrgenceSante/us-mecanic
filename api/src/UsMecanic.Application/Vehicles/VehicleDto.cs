@@ -6,6 +6,7 @@ namespace UsMecanic.Application.Vehicles;
 /// <summary>
 /// Vue d'un véhicule. <c>TypeName</c> reste renseigné même si le type a été désactivé.
 /// <c>CurrentMileage</c> et <c>CurrentMileageDate</c> viennent du relevé le plus récent (null sans relevé).
+/// <c>Alerts</c> n'est renseigné que par la liste du parc (null ailleurs).
 /// </summary>
 public sealed record VehicleDto(
     Guid Id,
@@ -21,7 +22,8 @@ public sealed record VehicleDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     int? CurrentMileage,
-    DateOnly? CurrentMileageDate)
+    DateOnly? CurrentMileageDate,
+    VehicleAlertsDto? Alerts = null)
 {
     /// <summary>Société propriétaire (null si non renseignée) ; reste affichée même désactivée.</summary>
     public Companies.CompanyDto? Owner { get; init; }

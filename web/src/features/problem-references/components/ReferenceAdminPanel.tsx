@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Chip,
   IconButton,
   Paper,
   Stack,
@@ -12,6 +11,7 @@ import {
   TableRow,
   Tooltip,
 } from "@mui/material";
+import ActiveStatusChip from "../../../shared/components/ActiveStatusChip";
 import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
@@ -90,11 +90,7 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
                 <TableRow key={item.id}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>
-                    <Chip
-                      size="small"
-                      label={item.isActive ? "Actif" : "Désactivé"}
-                      color={item.isActive ? "success" : "default"}
-                    />
+                    <ActiveStatusChip isActive={item.isActive} />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Renommer">

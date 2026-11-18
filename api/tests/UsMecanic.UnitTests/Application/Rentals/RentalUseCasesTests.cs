@@ -132,6 +132,17 @@ public class RentalUseCasesTests
     }
 
     [Fact]
+    public async Task Refuse_une_location_sans_fin_qui_commence_avant_une_location_future()
+    {
+        _rentals.Seed(_vehicle.Id, _tenant.Id, FixedClock.DefaultToday.AddDays(30), Mar31.AddYears(1));
+
+        var result = await Add().ExecuteAsync(_vehicle.Id, Input(Feb1, null), CancellationToken.None);
+
+        Assert.Equal("rental.overlap", result.Error?.Code);
+        Assert.Single(_rentals.Saved);
+    }
+
+    [Fact]
     public async Task Chevauchement_avec_une_location_sans_fin()
     {
         _rentals.Seed(_vehicle.Id, _tenant.Id, Feb1, null);

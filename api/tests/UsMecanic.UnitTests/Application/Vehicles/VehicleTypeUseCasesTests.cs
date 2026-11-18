@@ -122,7 +122,7 @@ public class VehicleTypeUseCasesTests
         var typed = _vehicles.Seed("AB-123-CD", new VehicleDetails(null, null, null, null, null, type.Id));
         _vehicles.Seed("EF-456-GH");
 
-        var list = await new ListVehicles(_vehicles, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository(), new VehicleOwnerLookup(new InMemoryCompanyRepository(), new InMemoryRentalRepository(), new FixedClock().Calendar)))
+        var list = await new ListVehicles(_vehicles, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository(), new VehicleOwnerLookup(new InMemoryCompanyRepository(), new InMemoryRentalRepository(), new FixedClock().Calendar)), NoAlerts.Lookup())
             .ExecuteAsync(new VehicleFilter(TypeId: type.Id), CancellationToken.None);
 
         var found = Assert.Single(list);

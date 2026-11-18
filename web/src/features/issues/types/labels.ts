@@ -12,10 +12,3 @@ export const blockingLevelLabels: Record<BlockingLevel, string> = {
   OverdueAction: "Action en retard",
   Other: "Autre",
 };
-
-export const blockingLevelColors: Record<BlockingLevel, "error" | "warning" | "info" | "default"> = {
-  Immobilizing: "error",
-  Unanalyzed: "warning",
-  OverdueAction: "info",
-  Other: "default",
-};

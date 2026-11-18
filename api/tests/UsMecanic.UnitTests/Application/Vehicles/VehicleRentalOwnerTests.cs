@@ -39,7 +39,7 @@ public class VehicleRentalOwnerTests
         _vehicles.Seed("EF-456-GH", InMemoryVehicleRepository.EmptyDetails with { OwnerCompanyId = _owner.Id });
 
         var dto = await new GetVehicle(_vehicles, _lookup).ExecuteAsync(_vehicle.Id, CancellationToken.None);
-        var list = await new ListVehicles(_vehicles, _lookup).ExecuteAsync(new VehicleFilter(), CancellationToken.None);
+        var list = await new ListVehicles(_vehicles, _lookup, NoAlerts.Lookup()).ExecuteAsync(new VehicleFilter(), CancellationToken.None);
 
         Assert.Equal(VehicleUserSource.Tenant, dto.Value.CurrentUser.Source);
         Assert.Equal(_tenant.Id, dto.Value.CurrentUser.Company?.Id);

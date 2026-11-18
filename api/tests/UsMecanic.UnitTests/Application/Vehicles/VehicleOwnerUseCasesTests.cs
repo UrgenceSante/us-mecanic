@@ -117,7 +117,7 @@ public class VehicleOwnerUseCasesTests
         _vehicles.Seed("AB-123-CD", InMemoryVehicleRepository.EmptyDetails with { OwnerCompanyId = company.Id });
         _vehicles.Seed("EF-456-GH");
 
-        var list = await new ListVehicles(_vehicles, _lookup).ExecuteAsync(new VehicleFilter(), CancellationToken.None);
+        var list = await new ListVehicles(_vehicles, _lookup, NoAlerts.Lookup()).ExecuteAsync(new VehicleFilter(), CancellationToken.None);
 
         Assert.Equal(company.Id, list.Single(v => v.LicensePlate == "AB-123-CD").Owner?.Id);
         Assert.Equal(VehicleUserSource.NotSet, list.Single(v => v.LicensePlate == "EF-456-GH").CurrentUser.Source);
