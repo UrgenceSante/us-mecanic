@@ -17,4 +17,7 @@ public static class ImportErrors
 
     public static readonly DomainError InvalidDate =
         new("import.invalid_date", "Date de mise en circulation invalide (formats acceptés : JJ/MM/AAAA ou AAAA-MM-JJ).");
+
+    public static DomainError UnknownCompany(string name) =>
+        new("import.unknown_company", $"Société inconnue ou inactive : {name}");
 }

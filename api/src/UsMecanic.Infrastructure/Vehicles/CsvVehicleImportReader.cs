@@ -16,7 +16,7 @@ internal sealed class CsvVehicleImportReader : IVehicleImportReader
         "import.missing_plate_column",
         "Colonne « immatriculation » introuvable dans l'en-tête du fichier.");
 
-    private enum Column { Plate, Brand, Model, FirstRegistration, Vin, InternalNumber }
+    private enum Column { Plate, Brand, Model, FirstRegistration, Vin, InternalNumber, Owner }
 
     /// <summary>Intitulés reconnus, sous forme normalisée (cf. <see cref="NormalizeHeader"/>).</summary>
     private static readonly Dictionary<string, Column> HeaderAliases = new (Column Column, string[] Names)[]
@@ -27,6 +27,7 @@ internal sealed class CsvVehicleImportReader : IVehicleImportReader
         (Column.FirstRegistration, ["miseencirculation", "datemiseencirculation", "datedemiseencirculation", "mec", "firstregistrationdate"]),
         (Column.Vin, ["vin", "numeroserie", "numerodeserie", "nserie", "ndeserie"]),
         (Column.InternalNumber, ["numerointerne", "ninterne", "indicatif", "numeroparc", "internalnumber"]),
+        (Column.Owner, ["proprietaire", "societeproprietaire", "societe", "owner"]),
     }.SelectMany(alias => alias.Names.Select(name => (name, alias.Column))).ToDictionary(alias => alias.name, alias => alias.Column);
 
     private static readonly Dictionary<char, char> AccentFolding = "àâäáãéèêëíîïìóôöòõúûüùçñÿ"
@@ -60,7 +61,7 @@ internal sealed class CsvVehicleImportReader : IVehicleImportReader
                     : null;
 
             return new VehicleImportRow(record.Line, Get(Column.Plate), Get(Column.Brand), Get(Column.Model),
-                Get(Column.FirstRegistration), Get(Column.Vin), Get(Column.InternalNumber));
+                Get(Column.FirstRegistration), Get(Column.Vin), Get(Column.InternalNumber), Get(Column.Owner));
         });
 
         return Result<IReadOnlyList<VehicleImportRow>>.Success([.. rows]);

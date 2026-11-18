@@ -1,4 +1,5 @@
 using System.Globalization;
+using UsMecanic.Application.Companies;
 using UsMecanic.Domain.Common;
 using UsMecanic.Domain.Vehicles;
 
@@ -10,7 +11,7 @@ namespace UsMecanic.Application.Vehicles.Import;
 /// à partir de plusieurs sources. Les lignes valides sont enregistrées même si d'autres sont en erreur ;
 /// la simulation permet de vérifier le bilan avant.
 /// </summary>
-public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleRepository repository, TimeProvider clock, BusinessCalendar calendar)
+public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleRepository repository, ICompanyRepository companies, TimeProvider clock, BusinessCalendar calendar)
 {
     private static readonly string[] DateFormats = ["dd/MM/yyyy", "d/M/yyyy", "yyyy-MM-dd"];
 
@@ -36,7 +37,10 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         }
 
         var results = new List<VehicleImportLineResult>();
-        var validRows = Validate(rows, results);
+        var activeCompanies = rows.Any(row => !string.IsNullOrWhiteSpace(row.Owner))
+            ? (await companies.ListAsync(includeInactive: false, cancellationToken)).ToDictionary(c => c.Name.Trim(), c => c.Id, StringComparer.OrdinalIgnoreCase)
+            : [];
+        var validRows = Validate(rows, activeCompanies, results);
 
         var existing = (await repository.GetByPlatesAsync([.. validRows.Select(row => row.Plate)], cancellationToken))
             .ToDictionary(vehicle => vehicle.LicensePlate);
@@ -52,14 +56,14 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         return Result<VehicleImportReport>.Success(new VehicleImportReport(dryRun, [.. results.OrderBy(r => r.Line)]));
     }
 
-    private static List<ValidRow> Validate(IReadOnlyList<VehicleImportRow> rows, List<VehicleImportLineResult> errors)
+    private static List<ValidRow> Validate(IReadOnlyList<VehicleImportRow> rows, Dictionary<string, Guid> activeCompanies, List<VehicleImportLineResult> errors)
     {
         var valid = new List<ValidRow>();
         var seen = new HashSet<LicensePlate>();
 
         foreach (var row in rows)
         {
-            var parsed = Parse(row);
+            var parsed = Parse(row, activeCompanies);
             if (parsed.IsSuccess && !seen.Add(parsed.Value.Plate))
             {
                 parsed = Result<ValidRow>.Failure(ImportErrors.DuplicatePlate);
@@ -78,7 +82,7 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         return valid;
     }
 
-    private static Result<ValidRow> Parse(VehicleImportRow row)
+    private static Result<ValidRow> Parse(VehicleImportRow row, Dictionary<string, Guid> activeCompanies)
     {
         var plate = LicensePlate.Create(row.LicensePlate);
         if (plate.IsFailure)
@@ -97,7 +101,19 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
             firstRegistration = date;
         }
 
-        var details = new VehicleDetailsInput(row.Brand, row.Model, firstRegistration, row.Vin, row.InternalNumber).ToDetails();
+        Guid? ownerId = null;
+        if (!string.IsNullOrWhiteSpace(row.Owner))
+        {
+            var name = row.Owner.Trim();
+            if (!activeCompanies.TryGetValue(name, out var id))
+            {
+                return Result<ValidRow>.Failure(ImportErrors.UnknownCompany(name));
+            }
+
+            ownerId = id;
+        }
+
+        var details = new VehicleDetailsInput(row.Brand, row.Model, firstRegistration, row.Vin, row.InternalNumber, OwnerCompanyId: ownerId).ToDetails();
         return details.IsSuccess
             ? Result<ValidRow>.Success(new ValidRow(row.Line, plate.Value, details.Value))
             : Result<ValidRow>.Failure(details.Error!);
@@ -135,7 +151,7 @@ public sealed class ImportVehicles(IVehicleImportReader reader, IVehicleReposito
         imported.Vin ?? current.Vin,
         string.IsNullOrWhiteSpace(imported.InternalNumber) ? current.InternalNumber : imported.InternalNumber,
         imported.TypeId ?? current.TypeId,
-        current.OwnerCompanyId); // l'import ne touche pas au propriétaire (US9)
+        imported.OwnerCompanyId ?? current.OwnerCompanyId); // cellule vide : le propriétaire existant est conservé
 
     private static VehicleImportLineResult Error(int line, string? plate, DomainError error) =>
         new(line, plate, ImportOutcome.Error, error.Code, error.Message);

@@ -8,6 +8,7 @@ namespace UsMecanic.UnitTests.Application.Vehicles;
 public class ImportVehiclesTests
 {
     private readonly InMemoryVehicleRepository _repository = new();
+    private readonly InMemoryCompanyRepository _companies = new();
     private readonly FixedClock _clock = new();
 
     private sealed class StubReader(params VehicleImportRow[] rows) : IVehicleImportReader
@@ -18,7 +19,7 @@ public class ImportVehiclesTests
 
     private async Task<VehicleImportReport> ImportAsync(bool dryRun, params VehicleImportRow[] rows)
     {
-        var useCase = new ImportVehicles(new StubReader(rows), _repository, _clock, _clock.Calendar);
+        var useCase = new ImportVehicles(new StubReader(rows), _repository, _companies, _clock, _clock.Calendar);
         var result = await useCase.ExecuteAsync(Stream.Null, dryRun, CancellationToken.None);
         Assert.True(result.IsSuccess, result.Error?.Message);
         return result.Value;
@@ -110,10 +111,54 @@ public class ImportVehiclesTests
     [Fact]
     public async Task Refuse_un_fichier_vide()
     {
-        var useCase = new ImportVehicles(new StubReader(), _repository, _clock, _clock.Calendar);
+        var useCase = new ImportVehicles(new StubReader(), _repository, _companies, _clock, _clock.Calendar);
 
         var result = await useCase.ExecuteAsync(Stream.Null, false, CancellationToken.None);
 
         Assert.Equal(ImportErrors.Empty, result.Error);
+    }
+
+    [Fact]
+    public async Task Rapproche_le_proprietaire_par_nom_sans_tenir_compte_de_la_casse()
+    {
+        var company = _companies.Seed("Ambulances Nord");
+        var existing = _repository.Seed("EF-456-GH");
+
+        var report = await ImportAsync(false,
+            new VehicleImportRow(2, "AB-123-CD", Owner: "  ambulances NORD "),
+            new VehicleImportRow(3, "EF-456-GH", Owner: "Ambulances Nord"));
+
+        Assert.Equal(1, report.Created);
+        Assert.Equal(1, report.Updated);
+        Assert.Equal(company.Id, _repository.Saved.Single(v => v.LicensePlate.Value == "AB-123-CD").OwnerCompanyId);
+        Assert.Equal(company.Id, existing.OwnerCompanyId);
+    }
+
+    [Fact]
+    public async Task Met_en_erreur_une_societe_inconnue_ou_inactive_sans_la_creer()
+    {
+        _companies.Seed("Ancienne société", active: false);
+
+        var report = await ImportAsync(false,
+            new VehicleImportRow(2, "AB-123-CD", Owner: "Inconnue"),
+            new VehicleImportRow(3, "EF-456-GH", Owner: "Ancienne société"));
+
+        Assert.Equal(2, report.Errors);
+        Assert.All(report.Lines, l => Assert.Equal(ImportErrors.UnknownCompany("x").Code, l.ErrorCode));
+        Assert.Equal("Société inconnue ou inactive : Inconnue", report.Lines[0].Message);
+        Assert.Empty(_repository.Saved);
+        Assert.Single(_companies.Saved);
+    }
+
+    [Fact]
+    public async Task Une_cellule_proprietaire_vide_conserve_le_proprietaire_existant()
+    {
+        var company = _companies.Seed("Ambulances Nord");
+        var existing = _repository.Seed("AB-123-CD", new VehicleDetails("Renault", null, null, null, null, null, company.Id));
+
+        var report = await ImportAsync(false, new VehicleImportRow(2, "AB-123-CD", Model: "Master"));
+
+        Assert.Equal(ImportOutcome.Updated, Assert.Single(report.Lines).Outcome);
+        Assert.Equal(company.Id, existing.OwnerCompanyId);
     }
 }

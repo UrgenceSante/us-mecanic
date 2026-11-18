@@ -44,7 +44,7 @@ export default function VehicleImportPage() {
             </li>
             <li>
               Colonnes facultatives : <b>Marque</b>, <b>Modèle</b>, <b>Mise en circulation</b> (JJ/MM/AAAA),{" "}
-              <b>VIN</b> (ou N° de série), <b>Indicatif</b> (ou N° interne). Les autres colonnes sont ignorées.
+              <b>VIN</b> (ou N° de série), <b>Indicatif</b> (ou N° interne), <b>Propriétaire</b> (nom d'une société active). Les autres colonnes sont ignorées.
             </li>
             <li>
               Un véhicule déjà connu est mis à jour ; une cellule vide ne remplace pas une valeur existante.

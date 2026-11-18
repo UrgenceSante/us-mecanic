@@ -8,4 +8,5 @@ public sealed record VehicleImportRow(
     string? Model = null,
     string? FirstRegistrationDate = null,
     string? Vin = null,
-    string? InternalNumber = null);
+    string? InternalNumber = null,
+    string? Owner = null);
