@@ -104,7 +104,7 @@ locations datées entre sociétés. Aucune migration ne modifie de données exis
 - [ ] Synthèse des coûts : filtres Société propriétaire et Société locataire (API et front)
 - [ ] Tableau de bord : filtre Société (propriétaire ou utilisateur actuel)
 - [ ] Passe `ux` de la phase (ordinateur, iPad, téléphone) et corrections prioritaires
-- [ ] (Could) Sociétés fictives et locations dans le script de démonstration
+- [x] (Could) Sociétés fictives et locations dans le script de démonstration
 
 ## Phase 6 — Documents
 

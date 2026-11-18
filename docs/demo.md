@@ -71,7 +71,15 @@ Variante : `DM-009-AA` (Kangoo, transport PSL) est aussi immobilisé, avec un gr
 
 Message clé : le coût au kilomètre est calculé à partir des relevés, sans saisie supplémentaire. Carburant et péages arriveront avec les connecteurs (voir les limites).
 
-### Étape 5 — Administration (1 min)
+### Étape 5 — Sociétés et locations (1 min)
+
+1. Ouvrir **Parc** : trois sociétés fictives (Ambulances Démo, Pompes Funèbres Démo, Transport PSL Démo) possèdent les véhicules selon leur type. Filtrer par **Propriétaire**, y compris sur l'option des véhicules sans propriétaire (`DM-011-AA`, « Propriétaire à renseigner »). La page **Sociétés** (menu Administration) liste les trois sociétés.
+2. Ouvrir la fiche de `DM-004-AA` (VSL) : la section **Propriétaire et locations** montre une location en cours, sans date de fin, à Pompes Funèbres Démo. Cliquer sur **Terminer** pour la clore à la date du jour.
+3. Dans la même section, `DM-001-AA` montre une location terminée et `DM-007-AA` une location prévue. Le filtre **Utilisateur actuel** du parc suit les locations en cours.
+
+Message clé : le parc d'un groupe de sociétés se pilote au même endroit, avec le propriétaire et l'utilisateur actuel de chaque véhicule. La synthèse des coûts par société n'est pas encore disponible dans l'interface (US7) : ne pas la présenter.
+
+### Étape 6 — Administration (1 min)
 
 1. Sur ordinateur, ouvrir le menu **Administration** ; sur mobile, le tiroir latéral (section « Administration »).
 2. Montrer **Types de véhicule** (Ambulance, VSL, Corbillard, Véhicule funéraire, Transport PSL), **Types d'échéance** (Désinfection, Chaîne du froid, Agrément ARS…), **Garages**, **Catégories de dépense** et **Référentiels problèmes** (natures, éléments, acteurs, types d'action, contraintes).

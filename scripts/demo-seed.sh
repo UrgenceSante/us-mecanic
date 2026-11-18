@@ -118,6 +118,19 @@ for c in "Nettoyage-désinfection" "Équipement médical" "Pneumatiques" "Péage
   CATEGORY[$c]=$(ensure /api/expense-categories "$c")
 done
 
+step "Sociétés fictives"
+declare -A COMPANY
+for c in "Ambulances Démo" "Pompes Funèbres Démo" "Transport PSL Démo"; do COMPANY[$c]=$(ensure /api/companies "$c"); done
+# Société propriétaire selon le type ; le véhicule 11 (sorti du parc) reste sans propriétaire (« Propriétaire à renseigner »).
+owner_of() {
+  case "$1" in
+    Ambulance | VSL) printf '%s' "${COMPANY[Ambulances Démo]}" ;;
+    Corbillard | "Véhicule funéraire") printf '%s' "${COMPANY[Pompes Funèbres Démo]}" ;;
+    "Transport PSL") printf '%s' "${COMPANY[Transport PSL Démo]}" ;;
+    *) printf '' ;;
+  esac
+}
+
 # --- Véhicules ----------------------------------------------------------------------------------
 # n | type | marque | modèle | âge (ans) | km il y a 12 mois | km par mois
 # | décalage d'échéance du CT (jours, <0 = dépassée) | idem assurance | km restants avant l'entretien (<0 = dépassé)
@@ -143,9 +156,11 @@ while IFS='|' read -r n type brand model age base inc ct ins left; do
   OFF_INS[$n]=$ins
   KM_LEFT[$n]=$left
   INC[$n]=$inc
-  VID[$n]=$(post /api/vehicles "$(jq -nc --arg p "$plate" --arg b "$brand" --arg m "$model" --arg d "$(dt "-$age years -3 months")" \
+  owner=$(owner_of "$type")
+  if ((n == 11)); then owner=''; fi
+  VID[$n]=$(post /api/vehicles "$(jq -nc --arg o "$owner" --arg p "$plate" --arg b "$brand" --arg m "$model" --arg d "$(dt "-$age years -3 months")" \
     --arg vin "$(printf 'VFDM%013d' "$n")" --arg i "$(printf 'DEMO-%02d' "$n")" --arg t "${VTYPE[$type]}" \
-    '{licensePlate: $p, details: {brand: $b, model: $m, firstRegistrationDate: $d, vin: $vin, internalNumber: $i, typeId: $t}}')")
+    '{licensePlate: $p, details: ({brand: $b, model: $m, firstRegistrationDate: $d, vin: $vin, internalNumber: $i, typeId: $t} + (if $o == "" then {} else {ownerCompanyId: $o} end))}')")
   info "$plate $type $brand $model"
   CUR[$n]=$base
   for month in 12 11 10 9 8 7 6 5 4 3 2 1 0; do # un relevé par mois, du plus ancien à aujourd'hui
@@ -295,6 +310,21 @@ done <<'EOT'
 7|Crédit-bail Démo|58000.00|980.00|8|60
 9|Banque Démo|24000.00|450.00|6|60
 10|Financement Démo Auto|21000.00|395.00|30|60
+EOT
+
+# --- Locations ----------------------------------------------------------------------------------
+# N | société locataire | début (jours, <0 passé) | fin (jours, ou « - » : sans date de fin, à terminer à la main)
+# Terminée (DM-001), en cours sans fin pour montrer « Terminer » (DM-004), prévue (DM-007).
+step "Locations entre sociétés (terminée, en cours, prévue)"
+while IFS='|' read -r n tenant start end; do
+  if [[ "$end" == "-" ]]; then end_json=null; else end_json=$(dq "$(off "$end")"); fi
+  api POST "/api/vehicles/${VID[$n]}/rentals" "$(jq -nc --arg t "${COMPANY[$tenant]}" --arg s "$(dt "$(off "$start")")" --argjson e "$end_json" \
+    '{tenantCompanyId: $t, startDate: $s, endDate: $e}')" >/dev/null
+  info "${PLATE[$n]} loué à $tenant"
+done <<'EOT'
+1|Transport PSL Démo|-60|-30
+4|Pompes Funèbres Démo|-10|-
+7|Ambulances Démo|15|30
 EOT
 
 # --- Statut final -------------------------------------------------------------------------------
