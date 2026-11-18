@@ -22,6 +22,9 @@ public interface IRentalRepository
     /// <summary>La société loue ce véhicule en ce moment ou à partir d'une date future (location non terminée au jour donné).</summary>
     Task<bool> HasCurrentOrUpcomingAsync(Guid vehicleId, Guid tenantCompanyId, DateOnly today, CancellationToken cancellationToken);
 
+    /// <summary>Locations en cours ou à venir (non terminées au jour donné) des véhicules demandés, en une seule requête.</summary>
+    Task<IReadOnlyList<Rental>> ListCurrentOrUpcomingAsync(DateOnly today, IReadOnlyCollection<Guid> vehicleIds, CancellationToken cancellationToken);
+
     void Add(Rental rental);
 
     void Remove(Rental rental);

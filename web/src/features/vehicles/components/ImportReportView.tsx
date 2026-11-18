@@ -50,6 +50,7 @@ export default function ImportReportView({ report }: { report: VehicleImportRepo
               <TableCell>Ligne</TableCell>
               <TableCell>Immatriculation</TableCell>
               <TableCell>Résultat</TableCell>
+              <TableCell>Propriétaire</TableCell>
               <TableCell>Détail</TableCell>
             </TableRow>
           </TableHead>
@@ -61,6 +62,7 @@ export default function ImportReportView({ report }: { report: VehicleImportRepo
                 <TableCell>
                   <StatusChip {...outcomeChips[line.outcome]} category="Résultat" label={outcomeLabels[line.outcome]} />
                 </TableCell>
+                <TableCell>{line.owner ?? "-"}</TableCell>
                 <TableCell>{line.message ?? ""}</TableCell>
               </TableRow>
             ))}

@@ -38,6 +38,14 @@ internal sealed class RentalRepository(UsMecanicDbContext db) : IRentalRepositor
             r => r.VehicleId == vehicleId && r.TenantCompanyId == tenantCompanyId && (r.EndDate == null || r.EndDate >= today),
             cancellationToken);
 
+    public async Task<IReadOnlyList<Rental>> ListCurrentOrUpcomingAsync(DateOnly today, IReadOnlyCollection<Guid> vehicleIds, CancellationToken cancellationToken)
+    {
+        var ids = vehicleIds.ToArray();
+        return await db.Rentals.AsNoTracking()
+            .Where(r => ids.Contains(r.VehicleId) && (r.EndDate == null || r.EndDate >= today))
+            .ToListAsync(cancellationToken);
+    }
+
     public void Add(Rental rental) => db.Rentals.Add(rental);
 
     public void Remove(Rental rental) => db.Rentals.Remove(rental);
