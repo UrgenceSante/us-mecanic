@@ -16,6 +16,7 @@ export const mainNavItems: NavItem[] = [
 export const adminNavItems: NavItem[] = [
   { label: "Types de véhicule", to: "/vehicle-types" },
   { label: "Types d'échéance", to: "/deadline-types" },
+  { label: "Sociétés", to: "/companies" },
   { label: "Garages", to: "/garages" },
   { label: "Catégories de dépense", to: "/expense-categories" },
   { label: "Référentiels problèmes", to: "/problem-references" },

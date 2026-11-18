@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UsMecanic.Application.Companies;
 using UsMecanic.Application.Costs.ExpenseCategories;
 using UsMecanic.Application.Costs.Expenses;
 using UsMecanic.Application.Costs.Loans;
@@ -14,6 +15,7 @@ using UsMecanic.Application.Problems.References;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
+using UsMecanic.Infrastructure.Companies;
 using UsMecanic.Infrastructure.Costs;
 using UsMecanic.Infrastructure.Deadlines;
 using UsMecanic.Infrastructure.Documents;
@@ -51,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<IGarageRepository, GarageRepository>();
         services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
         services.AddScoped<IDocumentCategoryRepository, DocumentCategoryRepository>();
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped(typeof(IProblemReferenceRepository<>), typeof(ProblemReferenceRepository<>));
         services.AddScoped<IInterventionRepository, InterventionRepository>();

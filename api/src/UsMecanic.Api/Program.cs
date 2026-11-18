@@ -51,6 +51,7 @@ app.MapGarageEndpoints();
 app.MapExpenseCategoryEndpoints();
 app.MapExpenseEndpoints();
 app.MapDocumentCategoryEndpoints();
+app.MapCompanyEndpoints();
 app.MapProblemReferenceEndpoints();
 app.MapInterventionEndpoints();
 app.MapProblemEndpoints();
