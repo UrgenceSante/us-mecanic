@@ -73,6 +73,7 @@ export interface VehicleImportLine {
   outcome: ImportOutcome;
   errorCode: string | null;
   message: string | null;
+  owner: string | null;
 }
 
 export interface VehicleImportReport {
