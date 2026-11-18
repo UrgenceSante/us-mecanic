@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using UsMecanic.Application.Companies;
 using UsMecanic.Application.Costs.ExpenseCategories;
 using UsMecanic.Application.Costs.Expenses;
 using UsMecanic.Application.Costs.Loans;
@@ -35,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<ImportVehicles>();
         services.AddScoped<VehicleTypeLookup>();
         services.AddScoped<VehicleAlertsLookup>();
+        services.AddScoped<VehicleOwnerLookup>();
 
         services.AddScoped<ListVehicleTypes>();
         services.AddScoped<CreateVehicleType>();
@@ -54,6 +56,10 @@ public static class DependencyInjection
         services.AddScoped<CreateDocumentCategory>();
         services.AddScoped<RenameDocumentCategory>();
         services.AddScoped<DeactivateDocumentCategory>();
+        services.AddScoped<ListCompanies>();
+        services.AddScoped<CreateCompany>();
+        services.AddScoped<RenameCompany>();
+        services.AddScoped<DeactivateCompany>();
 
         services.AddScoped<ExpenseDtoFactory>();
         services.AddScoped<ListExpenses>();

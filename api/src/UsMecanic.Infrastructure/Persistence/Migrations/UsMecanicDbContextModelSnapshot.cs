@@ -22,6 +22,32 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("UsMecanic.Domain.Companies.Company", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_companies");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_companies_name");
+
+                    b.ToTable("companies", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Costs.Expense", b =>
                 {
                     b.Property<Guid>("Id")
@@ -726,6 +752,10 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("model");
 
+                    b.Property<Guid?>("OwnerCompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_company_id");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -751,6 +781,9 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.HasIndex("LicensePlate")
                         .IsUnique()
                         .HasDatabaseName("ix_vehicles_license_plate");
+
+                    b.HasIndex("OwnerCompanyId")
+                        .HasDatabaseName("ix_vehicles_owner_company_id");
 
                     b.HasIndex("TypeId")
                         .HasDatabaseName("ix_vehicles_type_id");
@@ -931,6 +964,12 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("UsMecanic.Domain.Vehicles.Vehicle", b =>
                 {
+                    b.HasOne("UsMecanic.Domain.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerCompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_vehicles_companies_owner_company_id");
+
                     b.HasOne("UsMecanic.Domain.Vehicles.VehicleType", null)
                         .WithMany()
                         .HasForeignKey("TypeId")

@@ -92,8 +92,8 @@ Spec : `docs/specs/phase-5b-societes-locations.md`.
 Sociétés du groupe (ambulances, pompes funèbres, transport PSL…), société propriétaire de chaque véhicule,
 locations datées entre sociétés. Aucune migration ne modifie de données existantes.
 
-- [ ] Référentiel « Sociétés » : API (créer, renommer, désactiver), écran « Administration »
-- [ ] Propriétaire du véhicule (API) : colonne nullable sans reprise, contrôles (non vidé, pas un locataire en cours),
+- [x] Référentiel « Sociétés » : API (créer, renommer, désactiver), écran « Administration »
+- [x] Propriétaire du véhicule (API) : colonne nullable sans reprise, contrôles (non vidé, pas un locataire en cours),
       réponse véhicule avec propriétaire et utilisateur actuel
 - [ ] Propriétaire dans le formulaire et la fiche véhicule, mention « Propriétaire à renseigner »
 - [ ] Locations (API) : création, fin, modification, suppression ; règles (chevauchement, locataire ≠ propriétaire,

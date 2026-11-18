@@ -25,6 +25,12 @@ public sealed record VehicleDto(
     DateOnly? CurrentMileageDate,
     VehicleAlertsDto? Alerts = null)
 {
+    /// <summary>Société propriétaire (null si non renseignée) ; reste affichée même désactivée.</summary>
+    public Companies.CompanyDto? Owner { get; init; }
+
+    /// <summary>Utilisateur actuel : locataire en cours, sinon propriétaire, sinon non renseigné.</summary>
+    public VehicleUserDto CurrentUser { get; init; } = VehicleUserDto.NotSet;
+
     public static VehicleDto From(Vehicle vehicle, string? typeName, CurrentMileage? mileage) => new(
         vehicle.Id,
         vehicle.LicensePlate.Value,

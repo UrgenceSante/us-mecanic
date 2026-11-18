@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UsMecanic.Domain.Companies;
 using UsMecanic.Domain.Costs;
 using UsMecanic.Domain.Deadlines;
 using UsMecanic.Domain.Documents;
@@ -22,6 +23,8 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
     public DbSet<Expense> Expenses => Set<Expense>();
 
     public DbSet<DocumentCategory> DocumentCategories => Set<DocumentCategory>();
+
+    public DbSet<Company> Companies => Set<Company>();
 
     public DbSet<Intervention> Interventions => Set<Intervention>();
 

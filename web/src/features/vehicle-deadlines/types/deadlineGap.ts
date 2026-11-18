@@ -17,7 +17,8 @@ export interface DeadlineGap {
 }
 
 const DAY_MS = 86_400_000;
-const km = (n: number) => `${n.toLocaleString("fr-FR")} km`;
+const NBSP = "\u00a0";
+const km = (n: number) => `${n.toLocaleString("fr-FR")}${NBSP}km`;
 
 /** Date du jour (AAAA-MM-JJ) à l'heure de Paris, calendrier métier de l'API. */
 export function todayInParis(now: Date = new Date()): string {
@@ -40,7 +41,7 @@ export function deadlineGap({ dueDate, dueKm, currentKm, status }: DeadlineGapIn
 
   if (days !== null && days < 0) {
     overdueBy.push("date");
-    parts.push(`depuis ${-days} j`);
+    parts.push(`depuis ${-days}${NBSP}j`);
   }
   if (kmLeft !== null && kmLeft <= 0) {
     overdueBy.push("km");
@@ -48,7 +49,7 @@ export function deadlineGap({ dueDate, dueKm, currentKm, status }: DeadlineGapIn
   }
   if (overdueBy.length > 0) return { text: `dépassée ${parts.join(" et ")}`, overdueBy };
 
-  if (days !== null) parts.push(days === 0 ? "aujourd'hui" : `dans ${days} j`);
+  if (days !== null) parts.push(days === 0 ? "aujourd'hui" : `dans ${days}${NBSP}j`);
   if (kmLeft !== null) parts.push(`dans ${km(kmLeft)}`);
   return parts.length > 0 ? { text: parts.join(" ou "), overdueBy } : null;
 }

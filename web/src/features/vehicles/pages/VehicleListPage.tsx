@@ -19,11 +19,14 @@ import VehicleStatusChip from "../components/VehicleStatusChip";
 import { formatDateOnly, toRegisterCommand, type VehicleFormValues } from "../components/vehicleForm";
 import { vehicleStatusLabels, type Vehicle, type VehicleStatus } from "../types/vehicle";
 
+/** Colonnes secondaires masquées sur tablette (sous `md`) pour laisser la place au statut et aux alertes. */
+const tabletHidden = { internalNumber: false, brand: false, model: false, firstRegistrationDate: false };
+
 const columns: GridColDef<Vehicle>[] = [
   {
     field: "licensePlate",
     headerName: "Immatriculation",
-    width: 140,
+    width: 130,
     // Vrai lien : seul moyen d'ouvrir la fiche au clavier (le clic sur la ligne reste disponible).
     renderCell: (params) => (
       <MuiLink component={Link} to={`/vehicles/${params.row.id}`} onClick={(e) => e.stopPropagation()}>
@@ -31,35 +34,35 @@ const columns: GridColDef<Vehicle>[] = [
       </MuiLink>
     ),
   },
-  { field: "internalNumber", headerName: "N° interne", width: 120 },
-  { field: "typeName", headerName: "Type", width: 140 },
-  { field: "brand", headerName: "Marque", flex: 1, minWidth: 120 },
-  { field: "model", headerName: "Modèle", flex: 1, minWidth: 120 },
+  {
+    field: "status",
+    headerName: "Statut",
+    width: 150,
+    renderCell: (params) => <VehicleStatusChip status={params.value} />,
+  },
+  {
+    field: "alerts",
+    headerName: "Alertes",
+    width: 190,
+    sortable: false,
+    renderCell: (params) => <UrgencyBadge alerts={params.row.alerts} />,
+  },
+  { field: "internalNumber", headerName: "N° interne", width: 100 },
+  { field: "typeName", headerName: "Type", width: 120 },
+  { field: "brand", headerName: "Marque", flex: 1, minWidth: 100 },
+  { field: "model", headerName: "Modèle", flex: 1, minWidth: 100 },
   {
     field: "firstRegistrationDate",
     headerName: "Mise en circulation",
-    width: 160,
+    width: 140,
     valueFormatter: (value: string | null) => formatDateOnly(value),
   },
   {
     field: "currentMileage",
     headerName: "Km actuel",
     type: "number",
-    width: 130,
+    width: 120,
     valueFormatter: (value: number | null) => (value == null ? "" : `${value.toLocaleString("fr-FR")} km`),
-  },
-  {
-    field: "status",
-    headerName: "Statut",
-    width: 140,
-    renderCell: (params) => <VehicleStatusChip status={params.value} />,
-  },
-  {
-    field: "alerts",
-    headerName: "Alertes",
-    width: 280,
-    sortable: false,
-    renderCell: (params) => <UrgencyBadge alerts={params.row.alerts} />,
   },
 ];
 
@@ -71,6 +74,7 @@ export default function VehicleListPage() {
   const [type, setType] = useState("");
   const [creating, setCreating] = useState(false);
   const compact = useBelow("sm");
+  const tablet = useBelow("md");
 
   const vehicles = useVehicles({ search, status: status || undefined, type: type || undefined });
   const register = useRegisterVehicle();
@@ -143,6 +147,7 @@ export default function VehicleListPage() {
           <DataGrid
             rows={vehicles.data ?? []}
             columns={columns}
+            columnVisibilityModel={tablet ? tabletHidden : {}}
             loading={vehicles.isLoading}
             onRowClick={(params) => navigate(`/vehicles/${params.id}`)}
             localeText={frFR.components.MuiDataGrid.defaultProps.localeText}

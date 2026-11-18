@@ -2,6 +2,7 @@ using UsMecanic.Application.Deadlines;
 using UsMecanic.Application.Problems;
 using UsMecanic.Domain.Deadlines;
 using UsMecanic.Domain.Problems;
+using UsMecanic.Domain.Vehicles;
 
 namespace UsMecanic.Application.Vehicles;
 
@@ -34,7 +35,10 @@ public sealed class VehicleAlertsLookup(
 
         return [.. vehicles.Select(v => v with
         {
-            Alerts = new VehicleAlertsDto(overdue.GetValueOrDefault(v.Id), immobilizing.Contains(v.Id)),
+            // Un véhicule sorti du parc n'a plus d'alerte : ses échéances et problèmes ne sont plus suivis.
+            Alerts = v.Status == VehicleStatus.Retired
+                ? new VehicleAlertsDto(0, false)
+                : new VehicleAlertsDto(overdue.GetValueOrDefault(v.Id), immobilizing.Contains(v.Id)),
         })];
     }
 

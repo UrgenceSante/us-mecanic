@@ -7,9 +7,9 @@ import { isManualExpense, type Expense } from "../types/expense";
 export default function ExpenseStatusChips({ expense }: { expense: Expense }) {
   return (
     <>
-      {expense.isPlanned && <StatusChip tone="info" icon={<EventIcon />} label="Prévue" />}
+      {expense.isPlanned && <StatusChip tone="info" icon={<EventIcon />} label="Prévue" category="Planification" />}
       {!isManualExpense(expense) && (
-        <StatusChip tone="neutral" icon={<CloudDownloadIcon />} label="Importée" tooltip="Dépense importée, non modifiable" />
+        <StatusChip tone="neutral" icon={<CloudDownloadIcon />} label="Importée" ariaLabel="Source : importée, non modifiable" tooltip="Dépense importée, non modifiable" />
       )}
     </>
   );

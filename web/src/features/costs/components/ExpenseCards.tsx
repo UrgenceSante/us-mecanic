@@ -21,7 +21,7 @@ export default function ExpenseCards({ expenses, editable, onEdit, onDelete }: E
   return (
     <Stack gap={1}>
       {expenses.map((expense) => (
-        <Paper key={expense.id} variant="outlined" sx={{ padding: 1.5, opacity: expense.isPlanned ? 0.7 : 1 }} data-testid="expense-card">
+        <Paper key={expense.id} variant="outlined" sx={{ padding: 1.5, color: expense.isPlanned ? "text.secondary" : undefined }} data-testid="expense-card">
           <Stack direction="row" alignItems="flex-start" gap={1}>
             <Stack flexGrow={1} gap={0.5} minWidth={0}>
               <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">

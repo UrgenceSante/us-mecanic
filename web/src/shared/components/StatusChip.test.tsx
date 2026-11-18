@@ -71,7 +71,7 @@ describe("UrgencyBadge", () => {
 
   it("affiche le problème immobilisant et le nombre d'échéances dépassées", () => {
     render(<UrgencyBadge alerts={{ overdueDeadlines: 2, immobilizingProblem: true }} />);
-    expect(screen.getByRole("img", { name: "Alerte : Problème immobilisant" })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Alerte : 2 échéances dépassées" })).toBeInTheDocument();
+    const chip = screen.getByRole("img", { name: "Alerte : 2 échéances dépassées, problème immobilisant" });
+    expect(chip).toHaveTextContent("2 éch. · immobilisant");
   });
 });

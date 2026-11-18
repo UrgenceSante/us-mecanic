@@ -10,7 +10,7 @@ namespace UsMecanic.Application.Vehicles;
 /// aux DTO (y compris pour un type désactivé, qui reste affiché sur les véhicules qui l'ont), ainsi que
 /// le km actuel (une seule requête agrégée pour une liste).
 /// </summary>
-public sealed class VehicleTypeLookup(IVehicleTypeRepository types, IMileageReadingRepository mileage)
+public sealed class VehicleTypeLookup(IVehicleTypeRepository types, IMileageReadingRepository mileage, VehicleOwnerLookup owners)
 {
     /// <summary>
     /// Un type doit exister et être actif pour être attribué ; un véhicule peut en revanche conserver
@@ -38,7 +38,7 @@ public sealed class VehicleTypeLookup(IVehicleTypeRepository types, IMileageRead
 
         var type = vehicle.TypeId is { } id ? await types.GetByIdAsync(id, cancellationToken) : null;
         var current = await mileage.GetCurrentAsync(vehicle.Id, cancellationToken);
-        return VehicleDto.From(vehicle, type?.Name, current);
+        return await owners.WithOwnerAsync(VehicleDto.From(vehicle, type?.Name, current), vehicle, cancellationToken);
     }
 
     public async Task<IReadOnlyList<VehicleDto>> ToDtosAsync(IReadOnlyList<Vehicle> vehicles, CancellationToken cancellationToken)
@@ -47,6 +47,7 @@ public sealed class VehicleTypeLookup(IVehicleTypeRepository types, IMileageRead
 
         var names = (await types.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(t => t.Id, t => t.Name);
         var currents = await mileage.GetCurrentByVehicleAsync([.. vehicles.Select(v => v.Id)], cancellationToken);
-        return [.. vehicles.Select(v => VehicleDto.From(v, v.TypeId is { } id ? names.GetValueOrDefault(id) : null, currents.GetValueOrDefault(v.Id)))];
+        var dtos = vehicles.Select(v => VehicleDto.From(v, v.TypeId is { } id ? names.GetValueOrDefault(id) : null, currents.GetValueOrDefault(v.Id)));
+        return await owners.WithOwnersAsync([.. dtos], vehicles, cancellationToken);
     }
 }

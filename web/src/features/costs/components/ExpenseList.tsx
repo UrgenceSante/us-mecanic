@@ -33,7 +33,7 @@ export default function ExpenseList({ expenses, editable, onEdit, onDelete }: Ex
         </TableHead>
         <TableBody>
           {expenses.map((expense) => (
-            <TableRow key={expense.id} sx={expense.isPlanned ? { opacity: 0.7 } : undefined}>
+            <TableRow key={expense.id} sx={expense.isPlanned ? { "& td": { color: "text.secondary" } } : undefined}>
               <TableCell>
                 <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
                   {formatDateOnly(expense.date)}

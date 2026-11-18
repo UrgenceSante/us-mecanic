@@ -6,14 +6,14 @@ const today = "2026-10-01";
 describe("deadlineGap", () => {
   it("dit depuis combien de jours une échéance est dépassée par la date", () => {
     expect(deadlineGap({ dueDate: "2026-09-19", dueKm: null, currentKm: null, status: "Overdue" }, today)).toEqual({
-      text: "dépassée depuis 12 j",
+      text: "dépassée depuis 12\u00a0j",
       overdueBy: ["date"],
     });
   });
 
   it("dit de combien de km une échéance est dépassée", () => {
     const gap = deadlineGap({ dueDate: null, dueKm: 50_000, currentKm: 51_200, status: "Overdue" }, today);
-    expect(gap?.text.replace(/\s/g, " ")).toBe("dépassée de 1 200 km");
+    expect(gap?.text.replace(/[\u00a0\u202f]/g, " ")).toBe("dépassée de 1 200 km");
     expect(gap?.overdueBy).toEqual(["km"]);
   });
 
@@ -24,13 +24,13 @@ describe("deadlineGap", () => {
 
   it("cite les deux critères quand les deux sont dépassés", () => {
     const gap = deadlineGap({ dueDate: "2026-09-30", dueKm: 100, currentKm: 150, status: "Overdue" }, today);
-    expect(gap?.text).toBe("dépassée depuis 1 j et de 50 km");
+    expect(gap?.text).toBe("dépassée depuis 1\u00a0j et de 50\u00a0km");
     expect(gap?.overdueBy).toEqual(["date", "km"]);
   });
 
   it("annonce le délai d'une échéance proche", () => {
     expect(deadlineGap({ dueDate: "2026-10-07", dueKm: null, currentKm: null, status: "DueSoon" }, today)).toEqual({
-      text: "dans 6 j",
+      text: "dans 6\u00a0j",
       overdueBy: [],
     });
     expect(deadlineGap({ dueDate: today, dueKm: null, currentKm: null, status: "DueSoon" }, today)?.text).toBe("aujourd'hui");

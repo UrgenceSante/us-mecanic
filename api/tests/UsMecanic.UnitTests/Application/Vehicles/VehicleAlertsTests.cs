@@ -20,7 +20,7 @@ public class VehicleAlertsTests
     private async Task<IReadOnlyList<VehicleDto>> ListAsync()
     {
         var alerts = new VehicleAlertsLookup(_deadlines, _types, new InMemoryDeadlineThresholdsRepository(), _problems, new FixedClock().Calendar);
-        var lookup = new VehicleTypeLookup(new InMemoryVehicleTypeRepository(), _readings);
+        var lookup = new VehicleTypeLookup(new InMemoryVehicleTypeRepository(), _readings, new VehicleOwnerLookup(new InMemoryCompanyRepository()));
         return await new ListVehicles(_vehicles, lookup, alerts).ExecuteAsync(new VehicleFilter(), CancellationToken.None);
     }
 
@@ -69,6 +69,19 @@ public class VehicleAlertsTests
 
         Assert.Equal(2, list.Single(v => v.Id == vehicle.Id).Alerts?.OverdueDeadlines);
         Assert.Equal(0, list.Single(v => v.Id == other.Id).Alerts?.OverdueDeadlines);
+    }
+
+    [Fact]
+    public async Task Un_vehicule_sorti_du_parc_n_a_aucune_alerte()
+    {
+        var retired = _vehicles.Seed("AB-123-CD");
+        AddDeadline(retired, Today.AddDays(-3));
+        AddProblem(retired, immobilized: true);
+        retired.ChangeStatus(VehicleStatus.Retired, Now);
+
+        var alerts = (await ListAsync()).Single().Alerts;
+
+        Assert.Equal(new VehicleAlertsDto(0, false), alerts);
     }
 
     [Fact]

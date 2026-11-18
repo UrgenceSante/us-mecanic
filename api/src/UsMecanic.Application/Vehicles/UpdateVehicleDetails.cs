@@ -4,7 +4,7 @@ using UsMecanic.Domain.Vehicles;
 namespace UsMecanic.Application.Vehicles;
 
 /// <summary>Modifie les caractéristiques d'un véhicule (hors immatriculation et statut).</summary>
-public sealed class UpdateVehicleDetails(IVehicleRepository repository, VehicleTypeLookup typeLookup, TimeProvider clock, BusinessCalendar calendar)
+public sealed class UpdateVehicleDetails(IVehicleRepository repository, VehicleTypeLookup typeLookup, VehicleOwnerLookup ownerLookup, TimeProvider clock, BusinessCalendar calendar)
 {
     public async Task<Result<VehicleDto>> ExecuteAsync(Guid id, VehicleDetailsInput input, CancellationToken cancellationToken)
     {
@@ -26,6 +26,12 @@ public sealed class UpdateVehicleDetails(IVehicleRepository repository, VehicleT
         if (typeError is not null)
         {
             return Result<VehicleDto>.Failure(typeError);
+        }
+
+        var ownerError = await ownerLookup.CheckAssignableAsync(details.Value.OwnerCompanyId, vehicle.OwnerCompanyId, cancellationToken);
+        if (ownerError is not null)
+        {
+            return Result<VehicleDto>.Failure(ownerError);
         }
 
         var updated = vehicle.UpdateDetails(details.Value, calendar.Today, clock.GetUtcNow());

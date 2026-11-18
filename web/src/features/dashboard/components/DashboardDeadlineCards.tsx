@@ -30,7 +30,7 @@ export default function DashboardDeadlineCards({ deadlines, onComplete }: Props)
               <DeadlineGapText dueDate={d.dueDate} dueKm={d.dueKm} currentKm={d.currentKm} status={d.status} />
             </Stack>
             <Typography variant="body2" color="text.secondary">
-              {[formatDateOnly(d.dueDate), d.dueKm === null ? null : formatKm(d.dueKm)].filter(Boolean).join(" · ")} (actuel : {formatKm(d.currentKm)})
+              {[d.dueDate ? formatDateOnly(d.dueDate) : null, d.dueKm === null ? null : formatKm(d.dueKm)].filter(Boolean).join(" · ")} (actuel : {formatKm(d.currentKm)})
             </Typography>
             <Button
               fullWidth

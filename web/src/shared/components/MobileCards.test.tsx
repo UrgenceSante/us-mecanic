@@ -170,6 +170,17 @@ describe("repli en cartes sur mobile", () => {
     expect(screen.queryByText(/ - /)).not.toBeInTheDocument();
   });
 
+  it("échéances : pas de tiret isolé sans date d'échéance (cartes)", () => {
+    mockMatchMedia(true);
+    render(
+      <MemoryRouter>
+        <DashboardDeadlineTable deadlines={[{ ...deadlines[0], dueDate: null, dueKm: 50_000 }]} onComplete={vi.fn()} />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByText(/^-|^\s*- | - /)).not.toBeInTheDocument();
+    expect(screen.getByText(/50.000.km/)).toBeInTheDocument();
+  });
+
   it("types d'échéance : seuils globaux omis, actions accessibles", () => {
     const type = {
       id: "t1",
