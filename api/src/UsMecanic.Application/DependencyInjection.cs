@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<ListVehicles>();
         services.AddScoped<ImportVehicles>();
         services.AddScoped<VehicleTypeLookup>();
+        services.AddScoped<VehicleAlertsLookup>();
 
         services.AddScoped<ListVehicleTypes>();
         services.AddScoped<CreateVehicleType>();
