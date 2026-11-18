@@ -10,7 +10,8 @@ public sealed record VehicleDetailsInput(
     DateOnly? FirstRegistrationDate,
     string? Vin,
     string? InternalNumber,
-    Guid? TypeId = null)
+    Guid? TypeId = null,
+    Guid? OwnerCompanyId = null)
 {
     public Result<VehicleDetails> ToDetails()
     {
@@ -26,6 +27,6 @@ public sealed record VehicleDetailsInput(
             vin = parsed.Value;
         }
 
-        return Result<VehicleDetails>.Success(new VehicleDetails(Brand, Model, FirstRegistrationDate, vin, InternalNumber, TypeId));
+        return Result<VehicleDetails>.Success(new VehicleDetails(Brand, Model, FirstRegistrationDate, vin, InternalNumber, TypeId, OwnerCompanyId));
     }
 }

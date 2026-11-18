@@ -36,13 +36,19 @@ public sealed class Vehicle
     /// <summary>Type d'utilisation (facultatif) : identifiant d'un <see cref="VehicleType"/>.</summary>
     public Guid? TypeId { get; private set; }
 
+    /// <summary>
+    /// Société propriétaire courante (facultative, sans historique) : identifiant d'une <c>Company</c>.
+    /// Une fois renseignée, elle peut être changée mais jamais vidée.
+    /// </summary>
+    public Guid? OwnerCompanyId { get; private set; }
+
     public VehicleStatus Status { get; private set; } = VehicleStatus.Active;
 
     public DateTimeOffset CreatedAt { get; }
 
     public DateTimeOffset UpdatedAt { get; private set; }
 
-    public VehicleDetails Details => new(Brand, Model, FirstRegistrationDate, Vin, InternalNumber, TypeId);
+    public VehicleDetails Details => new(Brand, Model, FirstRegistrationDate, Vin, InternalNumber, TypeId, OwnerCompanyId);
 
     public static Result<Vehicle> Register(LicensePlate licensePlate, VehicleDetails details, DateOnly today, DateTimeOffset now)
     {
@@ -55,7 +61,7 @@ public sealed class Vehicle
     {
         if (Status == VehicleStatus.Retired)
         {
-            return Result<Vehicle>.Failure(VehicleErrors.Retired);
+            return AssignOwnerWhenRetired(details, now);
         }
 
         return ApplyDetails(details, today, now);
@@ -77,6 +83,26 @@ public sealed class Vehicle
         return Result<Vehicle>.Success(this);
     }
 
+    /// <summary>
+    /// Véhicule sorti du parc : seul le propriétaire peut être saisi, et seulement s'il est vide ;
+    /// les autres champs doivent rester inchangés.
+    /// </summary>
+    private Result<Vehicle> AssignOwnerWhenRetired(VehicleDetails details, DateTimeOffset now)
+    {
+        var otherFieldsUnchanged = Normalize(details) with { OwnerCompanyId = OwnerCompanyId } == Details;
+        if (OwnerCompanyId is not null || details.OwnerCompanyId is null || !otherFieldsUnchanged)
+        {
+            return Result<Vehicle>.Failure(VehicleErrors.Retired);
+        }
+
+        OwnerCompanyId = details.OwnerCompanyId;
+        UpdatedAt = now;
+        return Result<Vehicle>.Success(this);
+    }
+
+    private static VehicleDetails Normalize(VehicleDetails details) =>
+        details with { Brand = Clean(details.Brand), Model = Clean(details.Model), InternalNumber = Clean(details.InternalNumber) };
+
     private Result<Vehicle> ApplyDetails(VehicleDetails details, DateOnly today, DateTimeOffset now)
     {
         if (details.FirstRegistrationDate > today)
@@ -84,22 +110,26 @@ public sealed class Vehicle
             return Result<Vehicle>.Failure(VehicleErrors.FirstRegistrationInFuture);
         }
 
-        var brand = Clean(details.Brand);
-        var model = Clean(details.Model);
-        var internalNumber = Clean(details.InternalNumber);
-        if (new[] { brand, model, internalNumber }.Any(text => text?.Length > MaxTextLength))
+        if (details.OwnerCompanyId is null && OwnerCompanyId is not null)
+        {
+            return Result<Vehicle>.Failure(VehicleErrors.OwnerCannotBeRemoved);
+        }
+
+        var cleaned = Normalize(details);
+        if (new[] { cleaned.Brand, cleaned.Model, cleaned.InternalNumber }.Any(text => text?.Length > MaxTextLength))
         {
             return Result<Vehicle>.Failure(VehicleErrors.FieldTooLong);
         }
 
-        if (Details == details with { Brand = brand, Model = model, InternalNumber = internalNumber })
+        if (Details == cleaned)
         {
             return Result<Vehicle>.Success(this);
         }
 
-        Brand = brand;
-        Model = model;
-        InternalNumber = internalNumber;
+        Brand = cleaned.Brand;
+        Model = cleaned.Model;
+        InternalNumber = cleaned.InternalNumber;
+        OwnerCompanyId = details.OwnerCompanyId;
         FirstRegistrationDate = details.FirstRegistrationDate;
         Vin = details.Vin;
         TypeId = details.TypeId;

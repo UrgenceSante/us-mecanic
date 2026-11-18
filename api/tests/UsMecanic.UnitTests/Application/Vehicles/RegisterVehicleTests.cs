@@ -8,9 +8,10 @@ public class RegisterVehicleTests
 {
     private readonly InMemoryVehicleRepository _repository = new();
     private readonly InMemoryVehicleTypeRepository _types = new();
+    private readonly InMemoryCompanyRepository _companies = new();
     private readonly RegisterVehicle _useCase;
 
-    public RegisterVehicleTests() => _useCase = new RegisterVehicle(_repository, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository()), new FixedClock(), new FixedClock().Calendar);
+    public RegisterVehicleTests() => _useCase = new RegisterVehicle(_repository, new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository(), new VehicleOwnerLookup(_companies)), new VehicleOwnerLookup(_companies), new FixedClock(), new FixedClock().Calendar);
 
     private static RegisterVehicleCommand Command(string plate, string? vin = null, Guid? typeId = null) =>
         new(plate, new VehicleDetailsInput("Renault", "Master", null, vin, null, typeId));
