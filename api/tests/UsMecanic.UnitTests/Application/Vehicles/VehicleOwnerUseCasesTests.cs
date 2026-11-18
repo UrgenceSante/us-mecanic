@@ -15,7 +15,7 @@ public class VehicleOwnerUseCasesTests
 
     public VehicleOwnerUseCasesTests()
     {
-        _owners = new VehicleOwnerLookup(_companies);
+        _owners = new VehicleOwnerLookup(_companies, new InMemoryRentalRepository(), new FixedClock().Calendar);
         _lookup = new VehicleTypeLookup(_types, new InMemoryMileageReadingRepository(), _owners);
     }
 

@@ -12,6 +12,7 @@ using UsMecanic.Application.Maintenance.Interventions;
 using UsMecanic.Application.Mileage;
 using UsMecanic.Application.Problems;
 using UsMecanic.Application.Problems.References;
+using UsMecanic.Application.Rentals;
 using UsMecanic.Application.Vehicles;
 using UsMecanic.Application.Vehicles.Import;
 using UsMecanic.Application.Vehicles.Types;
@@ -36,6 +37,13 @@ public static class DependencyInjection
         services.AddScoped<ImportVehicles>();
         services.AddScoped<VehicleTypeLookup>();
         services.AddScoped<VehicleOwnerLookup>();
+        services.AddScoped<ListRentals>();
+        services.AddScoped<RentalWriteChecker>();
+        services.AddScoped<RentalDtoFactory>();
+        services.AddScoped<AddRental>();
+        services.AddScoped<UpdateRental>();
+        services.AddScoped<EndRental>();
+        services.AddScoped<DeleteRental>();
 
         services.AddScoped<ListVehicleTypes>();
         services.AddScoped<CreateVehicleType>();

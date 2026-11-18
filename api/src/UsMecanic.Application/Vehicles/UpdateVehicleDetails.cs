@@ -28,7 +28,7 @@ public sealed class UpdateVehicleDetails(IVehicleRepository repository, VehicleT
             return Result<VehicleDto>.Failure(typeError);
         }
 
-        var ownerError = await ownerLookup.CheckAssignableAsync(details.Value.OwnerCompanyId, vehicle.OwnerCompanyId, cancellationToken);
+        var ownerError = await ownerLookup.CheckAssignableAsync(details.Value.OwnerCompanyId, vehicle.OwnerCompanyId, vehicle.Id, cancellationToken);
         if (ownerError is not null)
         {
             return Result<VehicleDto>.Failure(ownerError);
