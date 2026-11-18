@@ -3,7 +3,7 @@ using UsMecanic.Domain.Vehicles;
 
 namespace UsMecanic.Application.Vehicles;
 
-public sealed record RegisterVehicleCommand(string LicensePlate, VehicleDetailsInput Details);
+public sealed record RegisterVehicleCommand(string? LicensePlate, VehicleDetailsInput? Details);
 
 /// <summary>Ajoute un véhicule au parc. L'immatriculation doit être unique.</summary>
 public sealed class RegisterVehicle(IVehicleRepository repository, VehicleTypeLookup typeLookup, VehicleOwnerLookup ownerLookup, TimeProvider clock, BusinessCalendar calendar)
@@ -16,6 +16,11 @@ public sealed class RegisterVehicle(IVehicleRepository repository, VehicleTypeLo
         if (plate.IsFailure)
         {
             return Result<VehicleDto>.Failure(plate.Error!);
+        }
+
+        if (command.Details is null)
+        {
+            return Result<VehicleDto>.Failure(VehicleErrors.RequestIncomplete("details"));
         }
 
         var details = command.Details.ToDetails();

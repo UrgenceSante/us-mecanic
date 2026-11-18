@@ -7,6 +7,10 @@ public static class VehicleErrors
     public static readonly DomainError NotFound =
         DomainError.NotFound("vehicle.not_found", "Véhicule introuvable.");
 
+    /// <summary>Corps de requête sans un bloc obligatoire (JSON incomplet).</summary>
+    public static DomainError RequestIncomplete(string field) =>
+        new("request.invalid", $"Requête incomplète : {field} manquant.");
+
     public static readonly DomainError PlateAlreadyExists =
         DomainError.Conflict("vehicle.plate_already_exists", "Un véhicule avec cette immatriculation existe déjà.");
 

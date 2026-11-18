@@ -39,6 +39,15 @@ public class VehicleOwnerUseCasesTests
     }
 
     [Fact]
+    public async Task Refuse_une_requete_sans_bloc_details()
+    {
+        var result = await Register().ExecuteAsync(new RegisterVehicleCommand("AB-123-CD", null), CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("request.invalid", result.Error!.Code);
+    }
+
+    [Fact]
     public async Task Sans_proprietaire_utilisateur_non_renseigne()
     {
         var result = await Register().ExecuteAsync(new RegisterVehicleCommand("AB-123-CD", Input(null)), CancellationToken.None);
