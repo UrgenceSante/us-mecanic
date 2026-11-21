@@ -28,7 +28,4 @@ public static class DocumentErrors
 
     public static readonly DomainError FileTypeUnsupported =
         new("document.file_type_unsupported", "Format de fichier non accepté : seuls les PDF, JPEG et PNG sont acceptés.");
-
-    public static readonly DomainError FileNameRequired =
-        new("document.file_name_required", "Le nom du fichier est obligatoire.");
 }

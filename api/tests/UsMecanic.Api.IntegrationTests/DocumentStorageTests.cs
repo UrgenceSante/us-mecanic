@@ -137,6 +137,21 @@ public class DocumentStorageTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task La_requete_de_liste_des_metadonnees_ne_touche_pas_a_la_table_de_contenu()
+    {
+        await using var scope = _factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<UsMecanicDbContext>();
+
+        var sql = db.Documents.AsNoTracking()
+            .Where(d => d.VehicleId == Guid.NewGuid())
+            .OrderByDescending(d => d.AddedAt)
+            .ToQueryString();
+
+        Assert.Contains("documents", sql, StringComparison.Ordinal);
+        Assert.DoesNotContain("document_contents", sql, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Supprimer_une_intervention_supprime_ses_documents_et_leur_contenu()
     {
         var vehicleId = await CreateVehicleAsync();

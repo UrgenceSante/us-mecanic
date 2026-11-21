@@ -15,6 +15,10 @@ public interface IDocumentStorage
     /// <summary>Lit le contenu entier d'un document ; <c>null</c> s'il n'existe pas.</summary>
     Task<byte[]?> ReadAsync(Guid documentId, CancellationToken cancellationToken);
 
-    /// <summary>Supprime définitivement le contenu d'un document (sans effet s'il n'existe pas).</summary>
+    /// <summary>
+    /// Supprime définitivement le contenu d'un document (sans effet s'il n'existe pas). La suppression est immédiate
+    /// et se fait hors de l'unité de travail. Avec PostgreSQL, supprimer les métadonnées supprime déjà le contenu
+    /// par cascade : cet appel sert aux autres adaptateurs ou à un nettoyage explicite.
+    /// </summary>
     Task DeleteAsync(Guid documentId, CancellationToken cancellationToken);
 }

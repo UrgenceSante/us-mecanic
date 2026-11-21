@@ -130,6 +130,22 @@ public class DocumentFileValidatorTests
         Assert.Equal(new string('a', 254), cleaned);
     }
 
+    [Fact]
+    public void La_troncature_garde_l_extension()
+    {
+        var result = DocumentFileValidator.Validate(Pdf, new string('a', 300) + ".pdf");
+
+        Assert.Equal(new string('a', 251) + ".pdf", result.Value.FileName);
+    }
+
+    [Fact]
+    public void Retire_les_caracteres_de_format_bidirectionnel()
+    {
+        var result = DocumentFileValidator.Validate(Pdf, "facture‮fdp.exe⁦.pdf");
+
+        Assert.Equal("facturefdp.exe.pdf", result.Value.FileName);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -137,9 +153,11 @@ public class DocumentFileValidatorTests
     [InlineData("dossier/")]
     [InlineData("..")]
     [InlineData("\u0001\u0002")]
-    public void Refuse_un_nom_vide_apres_nettoyage(string? original)
+    public void Remplace_un_nom_vide_apres_nettoyage_par_document_et_l_extension_du_type(string? original)
     {
-        Assert.Equal(DocumentErrors.FileNameRequired, DocumentFileValidator.Validate(Pdf, original).Error);
+        Assert.Equal("document.pdf", DocumentFileValidator.Validate(Pdf, original).Value.FileName);
+        Assert.Equal("document.jpg", DocumentFileValidator.Validate(Jpeg, original).Value.FileName);
+        Assert.Equal("document.png", DocumentFileValidator.Validate(Png, original).Value.FileName);
     }
 
     [Fact]
