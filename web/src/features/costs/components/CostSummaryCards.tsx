@@ -39,6 +39,9 @@ function Card({ title, value, notes = [], highlight, fullWidth, fullOnMobile }: 
 }
 
 function perKmCard(perKm: CostPerKm, allFleet: boolean) {
+  if (perKm.reason) {
+    return <Card title="Coût au km" value={perKm.reason} notes={["Retirez le filtre locataire pour le calculer"]} fullWidth />;
+  }
   const notes: string[] = [];
   if (!perKm.computable || perKm.value === null) {
     notes.push("Il faut au moins deux relevés kilométriques sur la période.");

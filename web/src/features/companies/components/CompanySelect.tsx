@@ -17,12 +17,15 @@ interface CompanySelectProps {
   error?: boolean;
   helperText?: string;
   autoFocus?: boolean;
+  /** Propose aussi les sociétés désactivées, suffixées « (désactivée) » (filtres de consultation). */
+  includeInactive?: boolean;
+  size?: "small" | "medium";
 }
 
 /** Sélecteur de société : sociétés actives uniquement, plus la société actuelle si elle est inactive. */
 export default function CompanySelect(props: CompanySelectProps) {
-  const { label, value, onChange, emptyLabel, allowEmpty = true, current, required, error, helperText, autoFocus } = props;
-  const companies = useCompanies(false);
+  const { label, value, onChange, emptyLabel, allowEmpty = true, current, required, error, helperText, autoFocus, includeInactive = false, size } = props;
+  const companies = useCompanies(includeInactive);
 
   const options = companies.data ?? [];
   const orphan = current && !current.isActive ? current : null;
@@ -33,6 +36,7 @@ export default function CompanySelect(props: CompanySelectProps) {
     <TextField
       select
       fullWidth
+      size={size}
       label={label}
       required={required}
       error={error}
@@ -48,7 +52,8 @@ export default function CompanySelect(props: CompanySelectProps) {
             const id = selected as string;
             if (id === "") return emptyLabel;
             if (orphan?.id === id) return `${orphan.name} (désactivée)`;
-            return options.find((c) => c.id === id)?.name ?? "";
+            const found = options.find((c) => c.id === id);
+            return found ? (found.isActive ? found.name : `${found.name} (désactivée)`) : "";
           },
         },
       }}
@@ -57,7 +62,7 @@ export default function CompanySelect(props: CompanySelectProps) {
       {orphan && <MenuItem value={orphan.id}>{`${orphan.name} (désactivée)`}</MenuItem>}
       {options.map((c) => (
         <MenuItem key={c.id} value={c.id}>
-          {c.name}
+          {c.isActive ? c.name : `${c.name} (désactivée)`}
         </MenuItem>
       ))}
     </TextField>

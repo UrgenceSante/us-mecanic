@@ -15,13 +15,15 @@ export default function CostSummaryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [dates, setDates] = useState(() => currentYearRange());
   const [granularity, setGranularity] = useState<CostSummaryParams["granularity"]>("month");
-  const params: CostSummaryParams = { ...dates, granularity, vehicleId: searchParams.get("vehicleId") ?? "" };
+  const [companies, setCompanies] = useState({ ownerCompanyId: "", lesseeCompanyId: "" });
+  const params: CostSummaryParams = { ...dates, ...companies, granularity, vehicleId: searchParams.get("vehicleId") ?? "" };
 
   const summary = useCostSummary(params, params.from !== "" && params.to !== "");
 
   const handleChange = (next: CostSummaryParams) => {
     setDates({ from: next.from, to: next.to });
     setGranularity(next.granularity);
+    setCompanies({ ownerCompanyId: next.ownerCompanyId, lesseeCompanyId: next.lesseeCompanyId });
     if (next.vehicleId !== params.vehicleId) setSearchParams(next.vehicleId ? { vehicleId: next.vehicleId } : {});
   };
 

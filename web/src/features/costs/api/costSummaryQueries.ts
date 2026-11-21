@@ -4,7 +4,13 @@ import { getCostSummary } from "./costSummaryApi";
 
 export const costSummaryKeys = {
   summary: (p: CostSummaryParams) =>
-    ["costs", "summary", { from: p.from, to: p.to, granularity: p.granularity, vehicleId: p.vehicleId }] as const,
+    [
+      "costs",
+      "summary",
+      { from: p.from, to: p.to, granularity: p.granularity, vehicleId: p.vehicleId,
+      ownerCompanyId: p.ownerCompanyId,
+      lesseeCompanyId: p.lesseeCompanyId,
+    }] as const,
 };
 
 export function useCostSummary(params: CostSummaryParams, enabled = true) {
