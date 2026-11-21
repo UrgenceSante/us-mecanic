@@ -66,7 +66,7 @@ internal static class VehicleDocumentEndpoints
 
         // GetBuffer évite une copie : on ne lit que les octets réellement écrits.
         var content = new ReadOnlyMemory<byte>(buffer.GetBuffer(), 0, (int)buffer.Length);
-        var result = await useCase.ExecuteAsync(vehicleId, categoryId, label, file.FileName, content, ct);
+        var result = await useCase.ExecuteAsync(vehicleId, categoryId, label, UnescapeQuoted(file.FileName), content, ct);
         return result.IsSuccess
             ? TypedResults.Created($"/api/vehicles/{vehicleId}/documents/{result.Value.Id}/content", result.Value)
             : result.Error!.ToProblem();
@@ -90,6 +90,11 @@ internal static class VehicleDocumentEndpoints
         http.Response.Headers.ContentSecurityPolicy = "default-src 'none'; style-src 'unsafe-inline'"; // sans sandbox (PDF dans Chrome)
         return TypedResults.File(result.Value.Content, result.Value.ContentType);
     }
+
+    // Le nom du multipart est une quoted-string : on décode seulement \" et \\ (les autres \ restent, pour les
+    // anciens navigateurs qui envoient un chemin Windows). Le validateur garde ensuite le dernier segment du chemin.
+    private static string UnescapeQuoted(string fileName) =>
+        fileName.Replace("\\\"", "\"", StringComparison.Ordinal).Replace("\\\\", "\\", StringComparison.Ordinal);
 
     private sealed class RequestSizeLimitMetadata(long maxBytes) : IRequestSizeLimitMetadata
     {

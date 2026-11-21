@@ -274,8 +274,8 @@ public class VehicleDocumentEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Theory]
-    [InlineData("a\"b.pdf", "\"b.pdf")] // le \ d'échappement du multipart est pris pour un séparateur de chemin
-    [InlineData("\"x\".pdf", "\".pdf")]
+    [InlineData("a\"b.pdf", "a\"b.pdf")] // l'échappement \" de la quoted-string est décodé
+    [InlineData("\"x\".pdf", "\"x\".pdf")]
     [InlineData("ligne\u0007\t.pdf", "ligne.pdf")] // caractères de contrôle retirés
     [InlineData("ligne\r\n.pdf", null)] // CRLF casse l'enveloppe multipart : 400 du framework, jamais 500
     public async Task Aller_retour_avec_des_noms_difficiles_sans_jamais_500(string rawName, string? expected)
