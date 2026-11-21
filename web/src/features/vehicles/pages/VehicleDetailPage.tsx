@@ -17,6 +17,7 @@ import ImmobilizingProblemBanner from "../../issues/components/ImmobilizingProbl
 import VehicleProblems from "../../issues/components/VehicleProblems";
 import VehicleExpenses from "../../costs/components/VehicleExpenses";
 import VehicleLoans from "../../costs/components/VehicleLoans";
+import VehicleDocuments from "../../documents/components/VehicleDocuments";
 import VehicleFormDialog from "../components/VehicleFormDialog";
 import RentalHeaderNotice from "../../rentals/components/RentalHeaderNotice";
 import VehicleRentals from "../../rentals/components/VehicleRentals";
@@ -115,6 +116,8 @@ export default function VehicleDetailPage() {
       <VehicleExpenses vehicleId={data.id} status={data.status} />
 
       <VehicleLoans vehicleId={data.id} status={data.status} />
+
+      <VehicleDocuments vehicleId={data.id} />
 
       <VehicleStatusActions status={data.status} disabled={changeStatus.isPending} onChange={handleStatus} />
 
