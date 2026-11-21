@@ -17,7 +17,7 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -293,6 +293,74 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasFilter("is_closed = false");
 
                     b.ToTable("vehicle_deadlines", (string)null);
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Documents.Document", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("added_at");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("content_type");
+
+                    b.Property<Guid?>("ExpenseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("expense_id");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<Guid?>("InterventionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("intervention_id");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("label");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vehicle_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_documents");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_documents_category_id");
+
+                    b.HasIndex("ExpenseId")
+                        .HasDatabaseName("ix_documents_expense_id");
+
+                    b.HasIndex("InterventionId")
+                        .HasDatabaseName("ix_documents_intervention_id");
+
+                    b.HasIndex("VehicleId", "AddedAt")
+                        .HasDatabaseName("ix_documents_vehicle_id_added_at");
+
+                    b.ToTable("documents", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_documents_attachment", "(category_id IS NOT NULL AND intervention_id IS NULL AND expense_id IS NULL) OR (category_id IS NULL AND ((intervention_id IS NOT NULL) <> (expense_id IS NOT NULL)))");
+                        });
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Documents.DocumentCategory", b =>
@@ -851,6 +919,23 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                     b.ToTable("vehicle_types", (string)null);
                 });
 
+            modelBuilder.Entity("UsMecanic.Infrastructure.Documents.DocumentContentRecord", b =>
+                {
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("content");
+
+                    b.HasKey("DocumentId")
+                        .HasName("pk_document_contents");
+
+                    b.ToTable("document_contents", (string)null);
+                });
+
             modelBuilder.Entity("UsMecanic.Domain.Costs.Expense", b =>
                 {
                     b.HasOne("UsMecanic.Domain.Costs.ExpenseCategory", null)
@@ -892,6 +977,34 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_vehicle_deadlines_vehicles_vehicle_id");
+                });
+
+            modelBuilder.Entity("UsMecanic.Domain.Documents.Document", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Documents.DocumentCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_documents_document_categories_category_id");
+
+                    b.HasOne("UsMecanic.Domain.Costs.Expense", null)
+                        .WithMany()
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_documents_expenses_expense_id");
+
+                    b.HasOne("UsMecanic.Domain.Maintenance.Intervention", null)
+                        .WithMany()
+                        .HasForeignKey("InterventionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_documents_interventions_intervention_id");
+
+                    b.HasOne("UsMecanic.Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_documents_vehicles_vehicle_id");
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Maintenance.Intervention", b =>
@@ -1026,6 +1139,16 @@ namespace UsMecanic.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_vehicles_vehicle_types_type_id");
+                });
+
+            modelBuilder.Entity("UsMecanic.Infrastructure.Documents.DocumentContentRecord", b =>
+                {
+                    b.HasOne("UsMecanic.Domain.Documents.Document", null)
+                        .WithOne()
+                        .HasForeignKey("UsMecanic.Infrastructure.Documents.DocumentContentRecord", "DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_document_contents_documents_document_id");
                 });
 
             modelBuilder.Entity("UsMecanic.Domain.Maintenance.Intervention", b =>

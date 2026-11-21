@@ -112,7 +112,7 @@ Spec : `docs/specs/phase-6-documents.md` (stockage : `docs/decisions/0002-stocka
 Pièces jointes du véhicule (carte grise, attestation d'assurance…) et factures des interventions et dépenses.
 
 - [x] Catégories de document administrables : API, valeurs initiales, écran « Administration »
-- [ ] Stockage des documents : port `IDocumentStorage`, adaptateur PostgreSQL (métadonnées et contenu séparés),
+- [x] Stockage des documents : port `IDocumentStorage`, adaptateur PostgreSQL (métadonnées et contenu séparés),
       contrôles du fichier (PDF / JPEG / PNG par signature, 10 Mo)
 - [ ] Documents du véhicule (API) : ajout, liste avec les factures, ouverture / téléchargement, suppression
 - [ ] Section « Documents » de la fiche véhicule : ajout (fichier ou photo), filtre, ouverture, téléchargement,
