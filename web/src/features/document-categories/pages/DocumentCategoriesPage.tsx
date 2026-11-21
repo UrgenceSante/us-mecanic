@@ -108,7 +108,7 @@ export default function DocumentCategoriesPage() {
                 <TableRow key={category.id}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>
-                    <ActiveStatusChip isActive={category.isActive} />
+                    <ActiveStatusChip isActive={category.isActive} feminine />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Renommer">
@@ -146,6 +146,7 @@ export default function DocumentCategoriesPage() {
           submitting={mutation.isPending}
           error={mutation.isError ? documentCategoryErrorMessage(mutation.error) : null}
           onSubmit={handleSubmit}
+          onEdit={mutation.reset}
           onClose={closeDialog}
         />
       )}

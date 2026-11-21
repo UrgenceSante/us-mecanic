@@ -67,7 +67,7 @@ describe("DocumentCategoriesPage", () => {
 
     expect(await screen.findByText("Carte grise")).toBeInTheDocument();
     expect(api.listDocumentCategories).toHaveBeenCalledWith(true);
-    expect(screen.getByText("Désactivé")).toBeInTheDocument();
+    expect(screen.getByText("Désactivée")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Désactiver Carte grise" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Désactiver Ancienne catégorie" })).not.toBeInTheDocument();
   });

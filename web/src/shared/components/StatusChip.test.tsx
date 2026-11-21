@@ -61,6 +61,11 @@ describe("StatusChip et ses déclinaisons", () => {
     render(<ActiveStatusChip isActive={false} />);
     expect(screen.getByRole("img", { name: "Statut : Désactivé" })).toBeInTheDocument();
   });
+
+  it("Active / Désactivée au féminin", () => {
+    render(<ActiveStatusChip isActive={false} feminine />);
+    expect(screen.getByRole("img", { name: "Statut : Désactivée" })).toBeInTheDocument();
+  });
 });
 
 describe("UrgencyBadge", () => {

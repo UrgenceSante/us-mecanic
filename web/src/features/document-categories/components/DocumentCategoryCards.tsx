@@ -23,7 +23,7 @@ export default function DocumentCategoryCards({ categories, deactivating, onRena
           <Stack gap={0.5}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
               <Typography fontWeight="bold">{category.name}</Typography>
-              <ActiveStatusChip isActive={category.isActive} />
+              <ActiveStatusChip isActive={category.isActive} feminine />
             </Stack>
             <Stack direction="row" justifyContent="flex-end" flexWrap="nowrap">
               <IconButton sx={touchTarget} aria-label={`Renommer ${category.name}`} onClick={() => onRename(category)}>
