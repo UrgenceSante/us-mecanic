@@ -13,6 +13,15 @@ internal sealed class InMemoryExpenseRepository : IExpenseRepository
 
     public int SaveCount { get; private set; }
 
+    /// <summary>Ajoute directement une dépense ponctuelle manuelle enregistrée, à la date donnée.</summary>
+    public Expense SeedFor(Guid vehicleId, DateOnly date)
+    {
+        var now = new DateTimeOffset(date.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        var expense = Expense.CreateManual(vehicleId, ExpenseFamily.OneOff, date, Guid.NewGuid(), 10m, null, now).Value;
+        Saved.Add(expense);
+        return expense;
+    }
+
     public Task<IReadOnlyList<Expense>> ListByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Expense>>(
             [.. Saved.Where(e => e.VehicleId == vehicleId).OrderByDescending(e => e.Date).ThenByDescending(e => e.RecordedAt)]);

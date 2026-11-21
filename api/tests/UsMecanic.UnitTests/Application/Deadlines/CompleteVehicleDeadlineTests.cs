@@ -40,7 +40,7 @@ public class CompleteVehicleDeadlineTests
         {
             var guard = new MileageVehicleGuard(_vehicles);
             var add = new AddIntervention(
-                guard, _garages, _deadlines, _readings, _interventions, new InterventionDtoFactory(_garages, _deadlines, _types), _clock, _clock.Calendar);
+                guard, _garages, _deadlines, _readings, _interventions, new InterventionDtoFactory(_garages, _deadlines, _types, new InMemoryDocuments()), _clock, _clock.Calendar);
             return new CompleteVehicleDeadline(guard, _deadlines, _types, add, Factory);
         }
     }

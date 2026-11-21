@@ -68,6 +68,9 @@ public static class DependencyInjection
         services.AddScoped<DeactivateDocumentCategory>();
         services.AddScoped<AddVehicleDocument>();
         services.AddScoped<ListVehicleDocuments>();
+        services.AddScoped<InvoiceAttachmentLabeler>();
+        services.AddScoped<AddInvoice>();
+        services.AddScoped<ListInvoices>();
         services.AddScoped<GetVehicleDocumentContent>();
         services.AddScoped<DeleteVehicleDocument>();
         services.AddScoped<ListCompanies>();

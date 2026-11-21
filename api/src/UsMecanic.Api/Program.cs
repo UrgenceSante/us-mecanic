@@ -52,6 +52,7 @@ app.MapExpenseCategoryEndpoints();
 app.MapExpenseEndpoints();
 app.MapDocumentCategoryEndpoints();
 app.MapVehicleDocumentEndpoints();
+app.MapInvoiceEndpoints();
 app.MapCompanyEndpoints();
 app.MapProblemReferenceEndpoints();
 app.MapInterventionEndpoints();

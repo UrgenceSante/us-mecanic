@@ -15,6 +15,7 @@ public class ExpenseUseCasesTests
     private readonly InMemoryExpenseCategoryRepository _categories = new();
     private readonly InMemoryExpenseRepository _expenses = new();
     private readonly FixedClock _clock = new();
+    private readonly InMemoryDocuments _documents = new();
     private readonly Vehicle _vehicle;
     private readonly ExpenseCategory _cleaning;
 
@@ -24,7 +25,7 @@ public class ExpenseUseCasesTests
         _cleaning = _categories.Seed("Nettoyage");
     }
 
-    private ExpenseDtoFactory Factory => new(_categories, _clock.Calendar);
+    private ExpenseDtoFactory Factory => new(_categories, _documents, _clock.Calendar);
 
     private AddExpense Add => new(new MileageVehicleGuard(_vehicles), _categories, _expenses, Factory, _clock);
 

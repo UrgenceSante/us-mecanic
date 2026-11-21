@@ -1,17 +1,19 @@
 using UsMecanic.Application.Deadlines;
+using UsMecanic.Application.Documents;
 using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Domain.Maintenance;
 
 namespace UsMecanic.Application.Maintenance.Interventions;
 
 /// <summary>
-/// Construit les DTO du carnet en un nombre constant de requêtes (garages, échéances du véhicule, types) :
+/// Construit les DTO du carnet en un nombre constant de requêtes (garages, échéances du véhicule, types, nombre de documents) :
 /// pas de N+1, quel que soit le nombre d'interventions.
 /// </summary>
 public sealed class InterventionDtoFactory(
     IGarageRepository garages,
     IVehicleDeadlineRepository deadlines,
-    IDeadlineTypeRepository types)
+    IDeadlineTypeRepository types,
+    IDocumentRepository documents)
 {
     public async Task<IReadOnlyList<InterventionDto>> BuildAsync(
         Guid vehicleId, IReadOnlyList<Intervention> interventions, CancellationToken cancellationToken)
@@ -26,6 +28,8 @@ public sealed class InterventionDtoFactory(
         var garagesById = (await garages.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(g => g.Id);
         var typesById = (await types.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(t => t.Id);
         var deadlinesById = (await deadlines.ListByVehicleAsync(vehicleId, cancellationToken)).ToDictionary(d => d.Id);
+
+        var counts = await documents.CountByInterventionAsync(vehicleId, cancellationToken);
 
         return [.. interventions.Select(intervention =>
         {
@@ -50,7 +54,8 @@ public sealed class InterventionDtoFactory(
                 intervention.Work,
                 intervention.RecordedAt,
                 intervention.Amount,
-                [.. done.OrderBy(d => d.TypeName, StringComparer.OrdinalIgnoreCase)]);
+                [.. done.OrderBy(d => d.TypeName, StringComparer.OrdinalIgnoreCase)],
+                counts.GetValueOrDefault(intervention.Id));
         })];
     }
 }

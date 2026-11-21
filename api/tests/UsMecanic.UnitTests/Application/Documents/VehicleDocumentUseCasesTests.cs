@@ -13,9 +13,13 @@ public class VehicleDocumentUseCasesTests
     private readonly InMemoryVehicleRepository _vehicles = new();
     private readonly InMemoryDocumentCategoryRepository _categories = new();
     private readonly InMemoryDocuments _documents = new();
+    private readonly InMemoryInterventionRepository _interventions = new();
+    private readonly InMemoryExpenseRepository _expenses = new();
     private readonly FixedClock _clock = new();
 
     private MileageVehicleGuard Guard => new(_vehicles);
+
+    private ListVehicleDocuments List => new(Guard, _documents, new InvoiceAttachmentLabeler(_interventions, _expenses));
 
     private AddVehicleDocument Add => new(Guard, _categories, _documents, _documents, _clock);
 
@@ -92,7 +96,7 @@ public class VehicleDocumentUseCasesTests
     }
 
     [Fact]
-    public async Task Liste_du_plus_recent_au_plus_ancien_avec_filtre_et_sans_les_factures()
+    public async Task Liste_du_plus_recent_au_plus_ancien_avec_filtre_par_categorie()
     {
         var vehicle = _vehicles.Seed("AB-123-CD");
         var other = _vehicles.Seed("EF-456-GH");
@@ -101,20 +105,38 @@ public class VehicleDocumentUseCasesTests
         var old = _documents.Seed(vehicle.Id, cat1.Id, "old.pdf", FixedClock.Default.AddDays(-2));
         var recent = _documents.Seed(vehicle.Id, cat2.Id, "recent.pdf", FixedClock.Default);
         _documents.Seed(other.Id, cat1.Id, "autre.pdf", FixedClock.Default);
-        _documents.SeedInvoice(vehicle.Id, Guid.NewGuid(), FixedClock.Default.AddDays(-1));
-        var list = new ListVehicleDocuments(Guard, _documents);
+        var invoice = _documents.SeedInvoice(vehicle.Id, Guid.NewGuid(), FixedClock.Default.AddDays(-1));
 
-        var all = await list.ExecuteAsync(vehicle.Id, null, CancellationToken.None);
-        var filtered = await list.ExecuteAsync(vehicle.Id, cat1.Id, CancellationToken.None);
+        var all = await List.ExecuteAsync(vehicle.Id, null, false, CancellationToken.None);
+        var filtered = await List.ExecuteAsync(vehicle.Id, cat1.Id, false, CancellationToken.None);
+        var invoices = await List.ExecuteAsync(vehicle.Id, null, true, CancellationToken.None);
 
-        Assert.Equal([recent.Id, old.Id], all.Value.Select(d => d.Id));
+        Assert.Equal([recent.Id, invoice.Id, old.Id], all.Value.Select(d => d.Id));
         Assert.Equal([old.Id], filtered.Value.Select(d => d.Id));
+        Assert.Equal([invoice.Id], invoices.Value.Select(d => d.Id));
+    }
+
+    [Fact]
+    public async Task Les_factures_portent_leur_rattachement_libelle()
+    {
+        var vehicle = _vehicles.Seed("AB-123-CD");
+        var intervention = _interventions.SeedFor(vehicle.Id, new DateOnly(2026, 3, 5));
+        var expense = _expenses.SeedFor(vehicle.Id, new DateOnly(2026, 4, 9));
+        var forIntervention = _documents.SeedInvoice(vehicle.Id, intervention.Id, FixedClock.Default.AddDays(-1));
+        var forExpense = _documents.SeedExpenseInvoice(vehicle.Id, expense.Id, FixedClock.Default);
+
+        var result = await List.ExecuteAsync(vehicle.Id, null, false, CancellationToken.None);
+
+        var byId = result.Value.ToDictionary(d => d.Id);
+        Assert.Equal("Facture — intervention du 05/03/2026", byId[forIntervention.Id].AttachmentLabel);
+        Assert.Equal(new DateOnly(2026, 3, 5), byId[forIntervention.Id].AttachmentDate);
+        Assert.Equal("Facture — dépense du 09/04/2026", byId[forExpense.Id].AttachmentLabel);
     }
 
     [Fact]
     public async Task La_liste_d_un_vehicule_inconnu_est_en_erreur()
     {
-        var result = await new ListVehicleDocuments(Guard, _documents).ExecuteAsync(Guid.NewGuid(), null, CancellationToken.None);
+        var result = await List.ExecuteAsync(Guid.NewGuid(), null, false, CancellationToken.None);
 
         Assert.Equal(VehicleErrors.NotFound, result.Error);
     }

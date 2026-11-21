@@ -1,10 +1,11 @@
 using UsMecanic.Application.Costs.ExpenseCategories;
+using UsMecanic.Application.Documents;
 using UsMecanic.Domain.Costs;
 
 namespace UsMecanic.Application.Costs.Expenses;
 
-/// <summary>Construit les DTO avec le nom des catégories en une seule requête, quel que soit le nombre de dépenses.</summary>
-public sealed class ExpenseDtoFactory(IExpenseCategoryRepository categories, BusinessCalendar calendar)
+/// <summary>Construit les DTO avec le nom des catégories et le nombre de documents (une requête chacun), quel que soit le nombre de dépenses.</summary>
+public sealed class ExpenseDtoFactory(IExpenseCategoryRepository categories, IDocumentRepository documents, BusinessCalendar calendar)
 {
     public async Task<IReadOnlyList<ExpenseDto>> BuildAsync(IReadOnlyList<Expense> expenses, CancellationToken cancellationToken)
     {
@@ -16,6 +17,7 @@ public sealed class ExpenseDtoFactory(IExpenseCategoryRepository categories, Bus
         }
 
         var names = (await categories.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(c => c.Id, c => c.Name);
+        var counts = await documents.CountByExpenseAsync(expenses[0].VehicleId, cancellationToken);
         var today = calendar.Today;
         return
         [
@@ -30,7 +32,8 @@ public sealed class ExpenseDtoFactory(IExpenseCategoryRepository categories, Bus
                 e.Label,
                 e.Source,
                 e.RecordedAt,
-                e.Date > today)),
+                e.Date > today,
+                counts.GetValueOrDefault(e.Id))),
         ];
     }
 }
