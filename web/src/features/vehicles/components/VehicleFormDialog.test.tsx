@@ -130,6 +130,7 @@ describe("VehicleFormDialog", () => {
   });
 
   it("sorti du parc : enregistrement bloqué tant que le propriétaire est vide, sans option vide", () => {
+    const onSubmit = vi.fn();
     render(
       <VehicleFormDialog
         open
@@ -137,11 +138,12 @@ describe("VehicleFormDialog", () => {
         initialValues={{ ...emptyVehicleForm, licensePlate: "AB-123-CD" }}
         submitting={false}
         error={null}
-        onSubmit={vi.fn()}
+        onSubmit={onSubmit}
         onClose={vi.fn()}
       />,
     );
-    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByText("Choisissez la société propriétaire pour enregistrer")).toBeInTheDocument();
     fireEvent.mouseDown(screen.getByRole("combobox", { name: /Société propriétaire/ }));
     expect(screen.queryByRole("option", { name: "À renseigner" })).not.toBeInTheDocument();

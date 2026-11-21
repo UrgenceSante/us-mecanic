@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DeadlineTypesPage from "./DeadlineTypesPage";
+import { setDate } from "../../../test/dateField";
 
 const api = vi.hoisted(() => ({
   listDeadlineTypes: vi.fn(),
@@ -86,12 +87,12 @@ describe("DeadlineTypesPage : ajout à des véhicules", () => {
       await screen.findByText(/Ajouter « Agrément ARS » à des véhicules/),
     ).toBeInTheDocument();
     const submit = screen.getByRole("button", { name: "Ajouter" });
-    expect(submit).toBeDisabled();
+    fireEvent.click(submit);
+    expect(await screen.findByText("Choisissez au moins un type de véhicule")).toBeInTheDocument();
+    expect(api.assignDeadlineType).not.toHaveBeenCalled();
     fireEvent.click(await screen.findByLabelText("Ambulance"));
     fireEvent.click(screen.getByLabelText("VSL"));
-    fireEvent.change(screen.getByLabelText("Dernière réalisation"), {
-      target: { value: "2026-09-01" },
-    });
+    setDate("Dernière réalisation", "2026-09-01");
     fireEvent.click(submit);
 
     await waitFor(() =>

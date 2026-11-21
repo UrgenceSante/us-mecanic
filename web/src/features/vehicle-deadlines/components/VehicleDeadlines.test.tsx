@@ -4,6 +4,7 @@ import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VehicleDeadlines from "./VehicleDeadlines";
 import { todayLocalIso } from "../../mileage/types/date";
+import { dateInput, frenchDate, setDate } from "../../../test/dateField";
 
 const api = vi.hoisted(() => ({
   listVehicleDeadlines: vi.fn(),
@@ -85,7 +86,7 @@ describe("VehicleDeadlines", () => {
     fireEvent.mouseDown(await screen.findByLabelText(/Type d'échéance/));
     fireEvent.click(await screen.findByRole("option", { name: "Contrôle technique" }));
     expect(screen.getByLabelText("Périodicité (mois)")).toHaveValue(12);
-    fireEvent.change(screen.getByLabelText("Dernière réalisation (date)"), { target: { value: "2026-01-10" } });
+    setDate("Dernière réalisation (date)", "2026-01-10");
     fireEvent.click(screen.getByRole("button", { name: "Ajouter" }));
 
     await waitFor(() =>
@@ -108,7 +109,7 @@ describe("VehicleDeadlines", () => {
     fireEvent.mouseDown(await screen.findByLabelText(/Type d'échéance/));
     fireEvent.click(await screen.findByRole("option", { name: "Extincteur" }));
 
-    expect(screen.getByLabelText("Date d'échéance")).toBeInTheDocument();
+    expect(dateInput("Date d'échéance")).toBeInTheDocument();
     expect(screen.queryByLabelText("Dernière réalisation (date)")).not.toBeInTheDocument();
   });
 
@@ -117,7 +118,7 @@ describe("VehicleDeadlines", () => {
     renderBlock();
 
     await complete("Vidange");
-    expect(screen.getByLabelText(/Date de réalisation/)).toHaveValue(todayLocalIso());
+    expect(dateInput(/Date de réalisation/)).toHaveValue(frenchDate(todayLocalIso()));
     expect(screen.getByLabelText(/Kilométrage/)).toHaveValue(75000);
     expect(screen.getByLabelText(/Kilométrage/)).toBeRequired();
     fireEvent.change(screen.getByLabelText(/Commentaire/), { target: { value: "RAS" } });
@@ -145,7 +146,8 @@ describe("VehicleDeadlines", () => {
     expect(amount).toHaveAttribute("inputmode", "decimal");
     fireEvent.change(amount, { target: { value: "12,345" } });
     expect(screen.getByText("Le montant est limité à 2 décimales.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(api.completeVehicleDeadline).not.toHaveBeenCalled();
     fireEvent.change(amount, { target: { value: "0" } });
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
@@ -209,7 +211,7 @@ describe("VehicleDeadlines", () => {
 
     await complete("Vidange");
     expect(screen.getByLabelText(/Kilométrage/)).toHaveValue(75000);
-    fireEvent.change(screen.getByLabelText(/Date de réalisation/), { target: { value: "2026-01-10" } });
+    setDate(/Date de réalisation/, "2026-01-10");
     expect(screen.getByLabelText(/Kilométrage/)).toHaveValue(null);
   });
 

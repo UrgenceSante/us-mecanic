@@ -89,6 +89,8 @@ describe("CompaniesPage", () => {
     await screen.findByText("Ambulances Nord");
 
     fireEvent.click(screen.getByRole("button", { name: "Désactiver Ambulances Nord" }));
+    expect(api.deactivateCompany).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole("button", { name: "Désactiver" }));
 
     await waitFor(() => expect(api.deactivateCompany).toHaveBeenCalledWith("g1"));
   });

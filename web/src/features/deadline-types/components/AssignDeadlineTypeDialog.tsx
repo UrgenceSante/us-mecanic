@@ -1,17 +1,8 @@
-import {
-  Alert,
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  FormGroup,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { useState, type FormEvent } from "react";
+import { Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, Typography } from "@mui/material";
+import { useState } from "react";
+import FormDialog from "../../../shared/components/FormDialog";
+import FrenchDateField from "../../../shared/components/FrenchDateField";
+import useFormErrors from "../../../shared/hooks/useFormErrors";
 import { todayLocalIso } from "../../mileage/types/date";
 import { useVehicleTypes } from "../../vehicle-types/api/vehicleTypeQueries";
 import { deadlineTypeErrorMessage } from "../api/deadlineTypeErrors";
@@ -30,12 +21,15 @@ export default function AssignDeadlineTypeDialog({ type, onClose }: AssignDeadli
   const assign = useAssignDeadlineType(type.id);
   const [selected, setSelected] = useState<string[]>([]);
   const [lastDoneDate, setLastDoneDate] = useState("");
+  const { errors, validate, clear } = useFormErrors<"vehicleTypeIds">();
 
-  const toggle = (id: string) =>
+  const toggle = (id: string) => {
+    clear("vehicleTypeIds");
     setSelected((current) => (current.includes(id) ? current.filter((x) => x !== id) : [...current, id]));
+  };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    if (!validate({ vehicleTypeIds: selected.length === 0 && "Choisissez au moins un type de véhicule" })) return;
     assign.mutate({
       vehicleTypeIds: selected,
       lastDoneDate: lastDoneDate === "" ? null : lastDoneDate,
@@ -43,65 +37,52 @@ export default function AssignDeadlineTypeDialog({ type, onClose }: AssignDeadli
   };
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>Ajouter « {type.name} » à des véhicules</DialogTitle>
-        <DialogContent>
-          {assign.isSuccess ? (
-            <AssignDeadlineTypeReport result={assign.data} />
-          ) : (
-            <>
-              {assign.isError && (
-                <Alert severity="error" sx={{ marginBottom: 2 }}>
-                  {deadlineTypeErrorMessage(assign.error)}
-                </Alert>
-              )}
-              <Typography variant="body2" gutterBottom>
-                Une échéance avec la périodicité par défaut du type est créée pour chaque véhicule en service des types
-                choisis. Les véhicules qui ont déjà ce type en cours et ceux sortis du parc sont ignorés.
-              </Typography>
-              <FormGroup>
-                {(vehicleTypes.data ?? []).map((vehicleType) => (
-                  <FormControlLabel
-                    key={vehicleType.id}
-                    label={vehicleType.name}
-                    control={
-                      <Checkbox checked={selected.includes(vehicleType.id)} onChange={() => toggle(vehicleType.id)} />
-                    }
-                  />
-                ))}
-              </FormGroup>
-              <TextField
-                label="Dernière réalisation"
-                type="date"
-                fullWidth
-                margin="dense"
-                value={lastDoneDate}
-                helperText="Facultatif : aujourd'hui par défaut. Le km actuel du véhicule est utilisé pour un critère kilométrique."
-                slotProps={{
-                  inputLabel: { shrink: true },
-                  htmlInput: { max: todayLocalIso() },
-                }}
-                onChange={(e) => setLastDoneDate(e.target.value)}
-              />
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          {assign.isSuccess ? (
-            <Button variant="contained" onClick={onClose}>
-              Fermer
-            </Button>
-          ) : (
-            <>
-              <Button onClick={onClose}>Annuler</Button>
-              <Button type="submit" variant="contained" disabled={assign.isPending || selected.length === 0}>
-                Ajouter
-              </Button>
-            </>
-          )}
-        </DialogActions>
-      </form>
-    </Dialog>
+    <FormDialog
+      title={`Ajouter « ${type.name} » à des véhicules`}
+      submitLabel="Ajouter"
+      maxWidth="xs"
+      done={assign.isSuccess}
+      submitting={assign.isPending}
+      error={assign.isError ? deadlineTypeErrorMessage(assign.error) : null}
+      onSubmit={handleSubmit}
+      onClose={onClose}
+    >
+      {assign.isSuccess ? (
+        <AssignDeadlineTypeReport result={assign.data} />
+      ) : (
+        <>
+          <Typography variant="body2" gutterBottom>
+            Une échéance avec la périodicité par défaut du type est créée pour chaque véhicule en service des types
+            choisis. Les véhicules qui ont déjà ce type en cours et ceux sortis du parc sont ignorés.
+          </Typography>
+          <FormControl component="fieldset" error={errors.vehicleTypeIds !== undefined}>
+            <FormGroup>
+              {(vehicleTypes.data ?? []).map((vehicleType) => (
+                <FormControlLabel
+                  key={vehicleType.id}
+                  label={vehicleType.name}
+                  control={
+                    <Checkbox
+                      name="vehicleTypeIds"
+                      checked={selected.includes(vehicleType.id)}
+                      onChange={() => toggle(vehicleType.id)}
+                    />
+                  }
+                />
+              ))}
+            </FormGroup>
+            {errors.vehicleTypeIds && <FormHelperText role="alert">{errors.vehicleTypeIds}</FormHelperText>}
+          </FormControl>
+          <FrenchDateField
+            layout="form"
+            label="Dernière réalisation"
+            maxDate={todayLocalIso()}
+            value={lastDoneDate}
+            onChange={setLastDoneDate}
+            helperText="Facultatif : aujourd'hui par défaut. Le km actuel du véhicule est utilisé pour un critère kilométrique."
+          />
+        </>
+      )}
+    </FormDialog>
   );
 }

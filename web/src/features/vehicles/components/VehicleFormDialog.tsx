@@ -1,14 +1,8 @@
-import {
-  Alert,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { useState, type FormEvent } from "react";
+import { Alert, Stack, TextField } from "@mui/material";
+import { useState } from "react";
+import FormDialog from "../../../shared/components/FormDialog";
+import FrenchDateField from "../../../shared/components/FrenchDateField";
+import useFormErrors from "../../../shared/hooks/useFormErrors";
 import CompanySelect from "../../companies/components/CompanySelect";
 import type { Company } from "../../companies/types/company";
 import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
@@ -42,80 +36,84 @@ export default function VehicleFormDialog(props: VehicleFormDialogProps) {
   const ownerMissing = ownerOnly && values.ownerCompanyId === "";
   const feedback = ownerFieldFeedback(error, ownerOnly, ownerMissing);
 
+  const { validate, clear, fieldProps } = useFormErrors<keyof VehicleFormValues>();
+
   const field = (name: keyof VehicleFormValues) => ({
     name,
     value: values[name],
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      setValues((current) => ({ ...current, [name]: e.target.value })),
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      setValues((current) => ({ ...current, [name]: e.target.value }));
+      clear(name);
+    },
   });
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    onSubmit(values);
+  const handleSubmit = () => {
+    const valid = validate({
+      licensePlate: !isEdit && values.licensePlate.trim() === "" && "Indiquez l'immatriculation",
+    });
+    // Propriétaire seul : le message « Choisissez la société propriétaire » est déjà affiché sous le champ.
+    if (valid && !ownerMissing) onSubmit(values);
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>{isEdit ? "Modifier le véhicule" : "Ajouter un véhicule"}</DialogTitle>
-        <DialogContent>
-          <Stack gap={2} marginTop={1}>
-            {ownerOnly && (
-              <Alert severity="info">Véhicule sorti du parc : seul le propriétaire peut être renseigné.</Alert>
-            )}
-            {feedback.banner && <Alert severity="error">{feedback.banner}</Alert>}
-            <TextField
-              label="Immatriculation"
-              placeholder="AB-123-CD"
-              required
-              disabled={isEdit || lock}
-              autoFocus={!isEdit}
-              {...field("licensePlate")}
-            />
-            <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
-              <TextField label="Marque" fullWidth disabled={lock} {...field("brand")} />
-              <TextField label="Modèle" fullWidth disabled={lock} {...field("model")} />
-            </Stack>
-            <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
-              <TextField
-                label="Mise en circulation"
-                type="date"
-                fullWidth
-                disabled={lock}
-                slotProps={{ inputLabel: { shrink: true } }}
-                {...field("firstRegistrationDate")}
-              />
-              <TextField label="N° interne / indicatif" fullWidth disabled={lock} {...field("internalNumber")} />
-            </Stack>
-            <TextField label="VIN (n° de série)" disabled={lock} {...field("vin")} />
-            <VehicleTypeSelect
-              value={values.typeId}
-              onChange={(typeId) => setValues((current) => ({ ...current, typeId }))}
-              emptyLabel="Aucun"
-              current={currentType}
-              disabled={lock}
-            />
-            <CompanySelect
-              label="Société propriétaire"
-              value={values.ownerCompanyId}
-              onChange={(ownerCompanyId) => setValues((current) => ({ ...current, ownerCompanyId }))}
-              emptyLabel="À renseigner"
-              allowEmpty={ownerRemovable && !ownerOnly}
-              current={currentOwner}
-              required={ownerOnly}
-              error={feedback.hasError}
-              helperText={feedback.helperText}
-              autoFocus={ownerOnly}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Annuler</Button>
-          <Button type="submit" variant="contained" disabled={submitting || ownerMissing}>
-            Enregistrer
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+    <FormDialog
+      open={open}
+      title={isEdit ? "Modifier le véhicule" : "Ajouter un véhicule"}
+      submitLabel="Enregistrer"
+      submitting={submitting}
+      onSubmit={handleSubmit}
+      onClose={onClose}
+    >
+      <Stack gap={2} marginTop={1}>
+        {ownerOnly && <Alert severity="info">Véhicule sorti du parc : seul le propriétaire peut être renseigné.</Alert>}
+        {feedback.banner && (
+          <Alert severity="error" role="alert">
+            {feedback.banner}
+          </Alert>
+        )}
+        <TextField
+          label="Immatriculation"
+          placeholder="AB-123-CD"
+          required
+          disabled={isEdit || lock}
+          {...field("licensePlate")}
+          {...fieldProps("licensePlate")}
+        />
+        <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
+          <TextField label="Marque" fullWidth disabled={lock} {...field("brand")} />
+          <TextField label="Modèle" fullWidth disabled={lock} {...field("model")} />
+        </Stack>
+        <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
+          <FrenchDateField
+            layout="form"
+            label="Mise en circulation"
+            disabled={lock}
+            value={values.firstRegistrationDate}
+            onChange={(firstRegistrationDate) => setValues((current) => ({ ...current, firstRegistrationDate }))}
+          />
+          <TextField label="N° interne / indicatif" fullWidth disabled={lock} {...field("internalNumber")} />
+        </Stack>
+        <TextField label="VIN (n° de série)" disabled={lock} {...field("vin")} />
+        <VehicleTypeSelect
+          value={values.typeId}
+          onChange={(typeId) => setValues((current) => ({ ...current, typeId }))}
+          emptyLabel="Aucun"
+          current={currentType}
+          disabled={lock}
+        />
+        <CompanySelect
+          label="Société propriétaire"
+          value={values.ownerCompanyId}
+          onChange={(ownerCompanyId) => setValues((current) => ({ ...current, ownerCompanyId }))}
+          emptyLabel="À renseigner"
+          allowEmpty={ownerRemovable && !ownerOnly}
+          current={currentOwner}
+          required={ownerOnly}
+          error={feedback.hasError}
+          helperText={feedback.helperText}
+          autoFocus={ownerOnly}
+        />
+      </Stack>
+    </FormDialog>
   );
 }

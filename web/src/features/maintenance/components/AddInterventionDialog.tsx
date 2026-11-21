@@ -1,7 +1,10 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
-import { useState, type FormEvent } from "react";
+import { TextField } from "@mui/material";
+import { useState } from "react";
 import AmountField from "../../../shared/components/AmountField";
+import FormDialog from "../../../shared/components/FormDialog";
+import FrenchDateField from "../../../shared/components/FrenchDateField";
 import { parseAmount } from "../../../shared/format/parseAmount";
+import useFormErrors from "../../../shared/hooks/useFormErrors";
 import GarageSelect from "../../garages/components/GarageSelect";
 import { todayLocalIso } from "../../mileage/types/date";
 import type { VehicleDeadline } from "../../vehicle-deadlines/types/vehicleDeadline";
@@ -23,6 +26,8 @@ interface AddInterventionDialogProps {
   onClose: () => void;
 }
 
+type Field = "date" | "kilometers" | "amount" | "work" | "reason";
+
 export default function AddInterventionDialog(props: AddInterventionDialogProps) {
   const { deadlines, currentMileage, submitting, error, reasonRequired, confirmationRequired } = props;
   const [date, setDate] = useState(todayLocalIso());
@@ -33,118 +38,135 @@ export default function AddInterventionDialog(props: AddInterventionDialogProps)
   const [checked, setChecked] = useState<string[]>([]);
   const [reason, setReason] = useState("");
   const [amount, setAmount] = useState("");
+  const { errors, validate, clear, fieldProps } = useFormErrors<Field>();
 
   const trimmedReason = reason.trim();
-  const reasonMissing = reasonRequired && trimmedReason === "";
   const kilometersRequired = deadlines.some(
     (d) => checked.includes(d.id) && (d.intervalKm != null || d.dueKm != null),
   );
-  const kilometersMissing = kilometersRequired && kilometers.trim() === "";
   const parsedAmount = parseAmount(amount);
-  const invalid = work.trim() === "" || kilometersMissing || reasonMissing || parsedAmount.error !== null;
 
   const invalidateConfirmation = () => {
     if (confirmationRequired) props.onConfirmationInvalidated();
   };
 
-  const send = (confirmHighMileage: boolean) =>
+  const handleSubmit = () => {
+    const km = kilometers.trim();
+    const valid = validate({
+      date: date === "" && "Indiquez la date de l'intervention",
+      kilometers:
+        km === "" ? kilometersRequired && "Indiquez le kilométrage" : Number(km) < 0 && "Le kilométrage ne peut pas être négatif",
+      amount: parsedAmount.error,
+      work: work.trim() === "" && "Indiquez les travaux réalisés",
+      reason: reasonRequired && trimmedReason === "" && "Indiquez le motif",
+    });
+    if (!valid) return;
     props.onSubmit({
       date,
-      kilometers: kilometers.trim() === "" ? null : Number(kilometers),
+      kilometers: km === "" ? null : Number(km),
       garageId,
       work: work.trim(),
       amount: parsedAmount.value,
       deadlineIds: checked,
       reason: trimmedReason === "" ? null : trimmedReason,
-      confirmHighMileage,
+      confirmHighMileage: confirmationRequired,
     });
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!invalid) send(false);
   };
 
   const toggle = (id: string) =>
     setChecked((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]));
 
   return (
-    <Dialog open onClose={props.onClose} fullWidth maxWidth="sm">
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>Ajouter une intervention</DialogTitle>
-        <DialogContent>
-          <InterventionAlerts error={error} reasonRequired={reasonRequired} confirmationRequired={confirmationRequired} />
-          <TextField
-            label="Date de l'intervention"
-            type="date"
-            required
-            fullWidth
-            margin="dense"
-            value={date}
-            slotProps={{ inputLabel: { shrink: true }, htmlInput: { max: todayLocalIso() } }}
-            onChange={(e) => {
-              setDate(e.target.value);
-              // Le km prérempli est celui d'aujourd'hui : faux pour une intervention passée, on le vide.
-              if (e.target.value !== todayLocalIso() && kilometers === prefilledKm) setKilometers("");
-              invalidateConfirmation();
-            }}
-          />
-          <TextField
-            label="Kilométrage"
-            type="number"
-            required={kilometersRequired}
-            fullWidth
-            margin="dense"
-            value={kilometers}
-            helperText={kilometersRequired ? "Obligatoire : une échéance cochée a un critère kilométrique" : "Facultatif"}
-            slotProps={{ htmlInput: { min: 0, step: 1 } }}
-            onChange={(e) => {
-              setKilometers(e.target.value);
-              invalidateConfirmation();
-            }}
-          />
-          <div style={{ marginTop: 8, marginBottom: 4 }}>
-            <GarageSelect value={garageId} onChange={setGarageId} />
-          </div>
-          <AmountField value={amount} onChange={setAmount} />
-          <TextField
-            label="Travaux réalisés"
-            required
-            multiline
-            minRows={2}
-            fullWidth
-            margin="dense"
-            value={work}
-            slotProps={{ htmlInput: { maxLength: 2000 } }}
-            onChange={(e) => setWork(e.target.value)}
-          />
-          <DeadlineChecklist deadlines={deadlines} checked={checked} onToggle={toggle} />
-          {(reasonRequired || reason !== "") && (
-            <TextField
-              label="Motif"
-              fullWidth
-              margin="dense"
-              multiline
-              required={reasonRequired}
-              value={reason}
-              helperText={reasonRequired ? "Obligatoire : valeur incohérente avec les relevés voisins" : "Facultatif"}
-              slotProps={{ htmlInput: { maxLength: 500 } }}
-              onChange={(e) => setReason(e.target.value)}
-            />
+    <FormDialog
+      title="Ajouter une intervention"
+      submitLabel={confirmationRequired ? "Confirmer et enregistrer" : "Enregistrer"}
+      submitColor={confirmationRequired ? "warning" : "primary"}
+      submitting={submitting}
+      error={error}
+      onSubmit={handleSubmit}
+      onClose={props.onClose}
+    >
+      <InterventionAlerts error={null} reasonRequired={reasonRequired} confirmationRequired={confirmationRequired} />
+      <FrenchDateField
+        layout="form"
+        label="Date de l'intervention"
+        required
+        maxDate={todayLocalIso()}
+        value={date}
+        onChange={(value) => {
+          setDate(value);
+          clear("date");
+          // Le km prérempli est celui d'aujourd'hui : faux pour une intervention passée, on le vide.
+          if (value !== todayLocalIso() && kilometers === prefilledKm) setKilometers("");
+          invalidateConfirmation();
+        }}
+        {...fieldProps("date")}
+      />
+      <TextField
+        label="Kilométrage"
+        type="number"
+        required={kilometersRequired}
+        fullWidth
+        margin="dense"
+        value={kilometers}
+        slotProps={{ htmlInput: { min: 0, step: 1, inputMode: "numeric" } }}
+        onChange={(e) => {
+          setKilometers(e.target.value);
+          clear("kilometers");
+          invalidateConfirmation();
+        }}
+        {...fieldProps(
+          "kilometers",
+          kilometersRequired ? "Obligatoire : une échéance cochée a un critère kilométrique" : "Facultatif",
+        )}
+      />
+      <div style={{ marginTop: 8, marginBottom: 4 }}>
+        <GarageSelect value={garageId} onChange={setGarageId} />
+      </div>
+      <AmountField
+        name="amount"
+        errorText={errors.amount}
+        value={amount}
+        onChange={(v) => {
+          setAmount(v);
+          clear("amount");
+        }}
+      />
+      <TextField
+        label="Travaux réalisés"
+        required
+        multiline
+        minRows={2}
+        fullWidth
+        margin="dense"
+        value={work}
+        slotProps={{ htmlInput: { maxLength: 2000 } }}
+        onChange={(e) => {
+          setWork(e.target.value);
+          clear("work");
+        }}
+        {...fieldProps("work")}
+      />
+      <DeadlineChecklist deadlines={deadlines} checked={checked} onToggle={toggle} />
+      {(reasonRequired || reason !== "") && (
+        <TextField
+          label="Motif"
+          fullWidth
+          margin="dense"
+          multiline
+          required={reasonRequired}
+          value={reason}
+          slotProps={{ htmlInput: { maxLength: 500 } }}
+          onChange={(e) => {
+            setReason(e.target.value);
+            clear("reason");
+          }}
+          {...fieldProps(
+            "reason",
+            reasonRequired ? "Obligatoire : valeur incohérente avec les relevés voisins" : "Facultatif",
           )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={props.onClose}>Annuler</Button>
-          {confirmationRequired ? (
-            <Button variant="contained" color="warning" disabled={submitting || invalid} onClick={() => send(true)}>
-              Confirmer et enregistrer
-            </Button>
-          ) : (
-            <Button type="submit" variant="contained" disabled={submitting || invalid}>
-              Enregistrer
-            </Button>
-          )}
-        </DialogActions>
-      </form>
-    </Dialog>
+        />
+      )}
+    </FormDialog>
   );
 }

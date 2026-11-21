@@ -115,6 +115,8 @@ describe("DeadlineTypesPage", () => {
     await screen.findByText("Agrément ARS");
 
     fireEvent.click(screen.getByRole("button", { name: "Désactiver Agrément ARS" }));
+    expect(api.deactivateDeadlineType).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole("button", { name: "Désactiver" }));
 
     await waitFor(() => expect(api.deactivateDeadlineType).toHaveBeenCalledWith("t1"));
   });

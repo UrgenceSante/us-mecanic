@@ -129,7 +129,8 @@ describe("VehicleRentals", () => {
     renderWith(<VehicleRentals vehicle={baseVehicle} />);
     fireEvent.click(await screen.findByRole("button", { name: "Voir la location terminée" }));
     fireEvent.click(await screen.findByRole("button", { name: /Supprimer la location/ }));
-    expect(screen.getByText(/Supprimer la location à Société B du 01\/01\/2025 au 31\/03\/2025 \? Cette action est définitive\./)).toBeInTheDocument();
+    expect(screen.getByText(/Supprimer la location à Société B du 01\/01\/2025 au 31\/03\/2025 \?/)).toBeInTheDocument();
+    expect(screen.getByText("Cette action est définitive.")).toBeInTheDocument();
     expect(api.deleteRental).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Supprimer" }));
     await waitFor(() => expect(api.deleteRental).toHaveBeenCalledWith("v1", "r0"));

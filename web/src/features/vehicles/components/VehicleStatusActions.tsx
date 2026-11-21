@@ -1,4 +1,6 @@
 import { Button, Stack } from "@mui/material";
+import { useState } from "react";
+import ConfirmDialog from "../../../shared/components/ConfirmDialog";
 import type { VehicleStatus } from "../types/vehicle";
 
 interface VehicleStatusActionsProps {
@@ -7,15 +9,10 @@ interface VehicleStatusActionsProps {
   onChange: (status: VehicleStatus) => void;
 }
 
-/** Transitions proposées selon le statut courant. La sortie du parc est définitive. */
+/** Transitions proposées selon le statut courant. La sortie du parc est définitive et demande confirmation. */
 export default function VehicleStatusActions({ status, disabled, onChange }: VehicleStatusActionsProps) {
+  const [confirming, setConfirming] = useState(false);
   if (status === "Retired") return null;
-
-  const confirmRetire = () => {
-    if (window.confirm("Sortir ce véhicule du parc ? Cette action est définitive.")) {
-      onChange("Retired");
-    }
-  };
 
   return (
     <Stack direction="row" gap={1} flexWrap="wrap">
@@ -28,9 +25,23 @@ export default function VehicleStatusActions({ status, disabled, onChange }: Veh
           Remettre en service
         </Button>
       )}
-      <Button variant="outlined" color="error" disabled={disabled} onClick={confirmRetire}>
+      <Button variant="outlined" color="error" disabled={disabled} onClick={() => setConfirming(true)}>
         Sortir du parc
       </Button>
+      {confirming && (
+        <ConfirmDialog
+          title="Sortir le véhicule du parc"
+          confirmLabel="Sortir du parc"
+          submitting={disabled}
+          onConfirm={() => {
+            setConfirming(false);
+            onChange("Retired");
+          }}
+          onClose={() => setConfirming(false)}
+        >
+          Sortir ce véhicule du parc ?
+        </ConfirmDialog>
+      )}
     </Stack>
   );
 }

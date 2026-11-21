@@ -4,6 +4,7 @@ import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 
 import { MemoryRouter, Route, Routes } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ProblemDetailPage from "./ProblemDetailPage";
+import { setDate } from "../../../test/dateField";
 
 const api = vi.hoisted(() => ({
   getProblem: vi.fn(),
@@ -183,7 +184,7 @@ describe("ProblemDetailPage - actions", () => {
     fireEvent.click(actors.getByText("Garage"));
     await choose(/Type d'action/, "Réparer");
     await choose(/Contrainte/, "Bloquante");
-    fireEvent.change(screen.getByLabelText("Échéance"), { target: { value: "2026-05-01" } });
+    setDate("Échéance", "2026-05-01");
     fireEvent.change(screen.getByLabelText("Commentaire"), { target: { value: "Urgent" } });
     await choose(/Intervention liée/, "01/02/2026 - Vidange");
     expect(interventionsApi.listInterventions).toHaveBeenCalledWith("v1");

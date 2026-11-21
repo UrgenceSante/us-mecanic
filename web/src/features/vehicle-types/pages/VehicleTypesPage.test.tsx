@@ -76,6 +76,8 @@ describe("VehicleTypesPage", () => {
     await screen.findByText("Ambulance");
 
     fireEvent.click(screen.getByRole("button", { name: "Désactiver Ambulance" }));
+    expect(api.deactivateVehicleType).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole("button", { name: "Désactiver" }));
 
     await waitFor(() => expect(api.deactivateVehicleType).toHaveBeenCalledWith("t1"));
   });

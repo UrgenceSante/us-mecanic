@@ -1,5 +1,8 @@
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
-import { useState, type FormEvent } from "react";
+import { TextField } from "@mui/material";
+import { useState } from "react";
+import FormDialog from "../../../shared/components/FormDialog";
+import FrenchDateField from "../../../shared/components/FrenchDateField";
+import useFormErrors from "../../../shared/hooks/useFormErrors";
 import type { ProblemAction, UpdateProblemActionInput } from "../types/problem";
 import InterventionSelect from "./InterventionSelect";
 import ReferenceSelect from "./ReferenceSelect";
@@ -29,6 +32,8 @@ function initialValues(action?: ProblemAction) {
   };
 }
 
+type Field = "actorId" | "typeId" | "constraintId";
+
 /** Ajout (acteur, type, contrainte figés ensuite) ou modification (échéance, commentaire, intervention) d'une action. */
 export default function ProblemActionDialog(props: ProblemActionDialogProps) {
   const { vehicleId, action, submitting, error } = props;
@@ -39,12 +44,19 @@ export default function ProblemActionDialog(props: ProblemActionDialogProps) {
   const [dueDate, setDueDate] = useState(initial.dueDate);
   const [comment, setComment] = useState(initial.comment);
   const [interventionId, setInterventionId] = useState(initial.interventionId);
+  const { validate, clear, fieldProps } = useFormErrors<Field>();
 
-  const invalid = !action && (actorId === "" || typeId === "" || constraintId === "");
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (invalid) return;
+  const handleSubmit = () => {
+    const valid = validate(
+      action
+        ? {}
+        : {
+            actorId: actorId === "" && "Choisissez l'acteur",
+            typeId: typeId === "" && "Choisissez le type d'action",
+            constraintId: constraintId === "" && "Choisissez la contrainte",
+          },
+    );
+    if (!valid) return;
     props.onSubmit({
       actorId,
       typeId,
@@ -56,49 +68,59 @@ export default function ProblemActionDialog(props: ProblemActionDialogProps) {
   };
 
   return (
-    <Dialog open onClose={props.onClose} fullWidth maxWidth="sm">
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>{action ? "Modifier l'action" : "Ajouter une action"}</DialogTitle>
-        <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ marginBottom: 1 }}>
-              {error}
-            </Alert>
-          )}
-          {!action && (
-            <>
-              <ReferenceSelect kind="actor" label="Acteur" value={actorId} onChange={setActorId} />
-              <ReferenceSelect kind="actionType" label="Type d'action" value={typeId} onChange={setTypeId} />
-              <ReferenceSelect kind="constraint" label="Contrainte" value={constraintId} onChange={setConstraintId} />
-            </>
-          )}
-          <TextField
-            label="Échéance"
-            type="date"
-            fullWidth
-            margin="dense"
-            value={dueDate}
-            slotProps={{ inputLabel: { shrink: true } }}
-            onChange={(e) => setDueDate(e.target.value)}
+    <FormDialog
+      title={action ? "Modifier l'action" : "Ajouter une action"}
+      submitLabel="Enregistrer"
+      submitting={submitting}
+      error={error}
+      onSubmit={handleSubmit}
+      onClose={props.onClose}
+    >
+      {!action && (
+        <>
+          <ReferenceSelect
+            kind="actor"
+            label="Acteur"
+            value={actorId}
+            onChange={(v) => {
+              setActorId(v);
+              clear("actorId");
+            }}
+            {...fieldProps("actorId")}
           />
-          <TextField
-            label="Commentaire"
-            fullWidth
-            multiline
-            minRows={2}
-            margin="dense"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+          <ReferenceSelect
+            kind="actionType"
+            label="Type d'action"
+            value={typeId}
+            onChange={(v) => {
+              setTypeId(v);
+              clear("typeId");
+            }}
+            {...fieldProps("typeId")}
           />
-          <InterventionSelect vehicleId={vehicleId} value={interventionId} onChange={setInterventionId} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={props.onClose}>Annuler</Button>
-          <Button type="submit" variant="contained" disabled={invalid || submitting}>
-            Enregistrer
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+          <ReferenceSelect
+            kind="constraint"
+            label="Contrainte"
+            value={constraintId}
+            onChange={(v) => {
+              setConstraintId(v);
+              clear("constraintId");
+            }}
+            {...fieldProps("constraintId")}
+          />
+        </>
+      )}
+      <FrenchDateField layout="form" label="Échéance" value={dueDate} onChange={setDueDate} />
+      <TextField
+        label="Commentaire"
+        fullWidth
+        multiline
+        minRows={2}
+        margin="dense"
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+      />
+      <InterventionSelect vehicleId={vehicleId} value={interventionId} onChange={setInterventionId} />
+    </FormDialog>
   );
 }

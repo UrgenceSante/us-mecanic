@@ -1,5 +1,4 @@
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
-import { useState, type FormEvent } from "react";
+import NameFormDialog from "../../../shared/components/NameFormDialog";
 
 interface VehicleTypeNameDialogProps {
   /** Nom actuel en renommage ; absent en création. */
@@ -10,43 +9,12 @@ interface VehicleTypeNameDialogProps {
   onClose: () => void;
 }
 
-export default function VehicleTypeNameDialog(props: VehicleTypeNameDialogProps) {
-  const { initialName, submitting, error, onSubmit, onClose } = props;
-  const [name, setName] = useState(initialName ?? "");
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    onSubmit(name.trim());
-  };
-
+export default function VehicleTypeNameDialog({ initialName, ...rest }: VehicleTypeNameDialogProps) {
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>{initialName === undefined ? "Ajouter un type" : "Renommer le type"}</DialogTitle>
-        <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ marginBottom: 2 }}>
-              {error}
-            </Alert>
-          )}
-          <TextField
-            label="Nom"
-            placeholder="Ambulance, VSL…"
-            required
-            autoFocus
-            fullWidth
-            margin="dense"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Annuler</Button>
-          <Button type="submit" variant="contained" disabled={submitting}>
-            Enregistrer
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+    <NameFormDialog
+      title={initialName === undefined ? "Ajouter un type" : "Renommer le type"}
+      initialName={initialName}
+      {...rest}
+    />
   );
 }

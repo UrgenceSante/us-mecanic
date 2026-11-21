@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { todayLocal } from "./expenseForm";
 import { expensesTotal } from "../types/expense";
 import VehicleExpenses from "./VehicleExpenses";
+import { dateInput, frenchDate, setDate } from "../../../test/dateField";
 
 const api = vi.hoisted(() => ({ listExpenses: vi.fn(), addExpense: vi.fn(), updateExpense: vi.fn(), deleteExpense: vi.fn() }));
 const cats = vi.hoisted(() => ({ listExpenseCategories: vi.fn() }));
@@ -48,7 +49,7 @@ beforeEach(() => {
 
 async function fillValidForm() {
   fireEvent.click(await screen.findByRole("button", { name: "Ajouter une dépense" }));
-  fireEvent.change(screen.getByLabelText(/^Date/), { target: { value: "2026-06-01" } });
+  setDate(/^Date/, "2026-06-01");
   fireEvent.mouseDown(screen.getByRole("combobox", { name: /Catégorie/ }));
   expect(screen.queryByRole("option", { name: /Ancienne/ })).toBeNull();
   fireEvent.click(await screen.findByRole("option", { name: "Parking" }));
@@ -100,7 +101,7 @@ describe("VehicleExpenses", () => {
   it("préremplit la date à aujourd'hui à l'ajout", async () => {
     renderExpenses();
     fireEvent.click(await screen.findByRole("button", { name: "Ajouter une dépense" }));
-    expect(screen.getByLabelText(/^Date/)).toHaveValue(todayLocal());
+    expect(dateInput(/^Date/)).toHaveValue(frenchDate(todayLocal()));
   });
 
   it("masque modifier et supprimer pour une dépense non manuelle", async () => {
@@ -130,7 +131,9 @@ describe("VehicleExpenses", () => {
     renderExpenses();
     await fillValidForm();
     const submit = screen.getByRole("button", { name: "Ajouter" });
-    expect(submit).toBeDisabled();
+    fireEvent.click(submit);
+    expect(await screen.findByText("Indiquez le montant")).toBeInTheDocument();
+    expect(api.addExpense).not.toHaveBeenCalled();
     fireEvent.change(screen.getByLabelText(/Montant/), { target: { value: "0" } });
     fireEvent.change(screen.getByLabelText(/Libellé/), { target: { value: " Parking gare " } });
     fireEvent.click(submit);
@@ -144,7 +147,8 @@ describe("VehicleExpenses", () => {
     await fillValidForm();
     for (const bad of ["-5", "1,234"]) {
       fireEvent.change(screen.getByLabelText(/Montant/), { target: { value: bad } });
-      expect(screen.getByRole("button", { name: "Ajouter" })).toBeDisabled();
+      fireEvent.click(screen.getByRole("button", { name: "Ajouter" }));
+      expect(api.addExpense).not.toHaveBeenCalled();
     }
   });
 

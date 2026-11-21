@@ -76,6 +76,8 @@ describe("GaragesPage", () => {
     await screen.findByText("Garage Dupont");
 
     fireEvent.click(screen.getByRole("button", { name: "Désactiver Garage Dupont" }));
+    expect(api.deactivateGarage).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole("button", { name: "Désactiver" }));
 
     await waitFor(() => expect(api.deactivateGarage).toHaveBeenCalledWith("g1"));
   });

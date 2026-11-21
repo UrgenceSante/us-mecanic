@@ -59,15 +59,15 @@ describe("ExpenseCategoriesPage", () => {
     await waitFor(() => expect(api.createExpenseCategory).toHaveBeenCalledWith("Péage"));
   });
 
-  it("affiche l'erreur de nom vide renvoyée par l'API", async () => {
-    api.createExpenseCategory.mockRejectedValue(apiError(400, "expense_category.name_required"));
+  it("refuse un nom vide avec un message en français, sans appeler l'API", async () => {
     renderPage();
     await screen.findByText("Carburant");
 
     fireEvent.click(screen.getByRole("button", { name: "Ajouter" }));
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
-    expect(await screen.findByText("Le nom de la catégorie est obligatoire.")).toBeInTheDocument();
+    expect(await screen.findByText("Indiquez le nom")).toBeInTheDocument();
+    expect(api.createExpenseCategory).not.toHaveBeenCalled();
   });
 
   it("renomme une catégorie et affiche l'erreur de doublon en français", async () => {
@@ -90,7 +90,7 @@ describe("ExpenseCategoriesPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Désactiver Carburant" }));
     expect(api.deactivateExpenseCategory).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Confirmer la désactivation" }));
+    fireEvent.click(screen.getByRole("button", { name: "Désactiver" }));
 
     await waitFor(() => expect(api.deactivateExpenseCategory).toHaveBeenCalledWith("c1"));
   });

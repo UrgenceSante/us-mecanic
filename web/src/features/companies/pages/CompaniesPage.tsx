@@ -17,6 +17,7 @@ import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
+import DeactivateDialog from "../../../shared/components/DeactivateDialog";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import PageTitle from "../../../shared/components/PageTitle";
 import useBelow from "../../../shared/hooks/useBelow";
@@ -34,6 +35,7 @@ export default function CompaniesPage() {
   const { notifySuccess, notifyError } = useNotifSnack();
   const compact = useBelow("sm");
   const [editing, setEditing] = useState<Editing>(undefined);
+  const [toDeactivate, setToDeactivate] = useState<Company | undefined>(undefined);
 
   const companies = useCompanies(true);
   const create = useCreateCompany();
@@ -61,6 +63,7 @@ export default function CompaniesPage() {
     deactivate.mutate(company.id, {
       onSuccess: () => notifySuccess(`Société « ${company.name} » désactivée`),
       onError: (error) => notifyError(companyErrorMessage(error)),
+      onSettled: () => setToDeactivate(undefined),
     });
 
   return (
@@ -85,7 +88,7 @@ export default function CompaniesPage() {
             companies={companies.data ?? []}
             deactivating={deactivate.isPending}
             onRename={setEditing}
-            onDeactivate={handleDeactivate}
+            onDeactivate={setToDeactivate}
           />
         </Paper>
       ) : (
@@ -120,7 +123,7 @@ export default function CompaniesPage() {
                         <IconButton
                           aria-label={`Désactiver ${company.name}`}
                           disabled={deactivate.isPending}
-                          onClick={() => handleDeactivate(company)}
+                          onClick={() => setToDeactivate(company)}
                         >
                           <BlockIcon />
                         </IconButton>
@@ -146,6 +149,16 @@ export default function CompaniesPage() {
           error={mutation.isError ? companyErrorMessage(mutation.error) : null}
           onSubmit={handleSubmit}
           onClose={closeDialog}
+        />
+      )}
+      {toDeactivate && (
+        <DeactivateDialog
+          definite={"la société"}
+          feminine
+          name={toDeactivate.name}
+          submitting={deactivate.isPending}
+          onConfirm={() => handleDeactivate(toDeactivate)}
+          onClose={() => setToDeactivate(undefined)}
         />
       )}
     </Stack>
