@@ -15,6 +15,7 @@ public sealed class ListFleetProblems(
     IProblemRepository problems,
     IVehicleRepository vehicles,
     IProblemReferenceRepository<ProblemNature> natures,
+    VehicleCompanyScope companyScope,
     BusinessCalendar calendar)
 {
     public async Task<IReadOnlyList<FleetProblemDto>> ExecuteAsync(FleetProblemFilter filter, CancellationToken cancellationToken)
@@ -27,9 +28,16 @@ public sealed class ListFleetProblems(
             return [];
         }
 
-        var fleet = (await vehicles.ListAsync(new VehicleFilter(), cancellationToken))
+        var inFleet = (await vehicles.ListAsync(new VehicleFilter(), cancellationToken))
             .Where(v => v.Status != VehicleStatus.Retired)
-            .ToDictionary(v => v.Id);
+            .ToList();
+        if (filter.CompanyId is { } companyId)
+        {
+            var ids = await companyScope.VehicleIdsAsync(inFleet, companyId, cancellationToken);
+            inFleet = [.. inFleet.Where(v => ids.Contains(v.Id))];
+        }
+
+        var fleet = inFleet.ToDictionary(v => v.Id);
         var natureNames = (await natures.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(n => n.Id, n => n.Name);
         var today = calendar.Today;
 

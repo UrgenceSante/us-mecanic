@@ -23,7 +23,9 @@ export interface DashboardFilter {
   vehicleId: string;
   vehicleTypeId: string;
   deadlineTypeId: string;
+  /** Société propriétaire ou utilisatrice actuelle du véhicule. */
+  companyId: string;
   status: "" | "Overdue" | "DueSoon";
 }
 
-export const emptyDashboardFilter: DashboardFilter = { vehicleId: "", vehicleTypeId: "", deadlineTypeId: "", status: "" };
+export const emptyDashboardFilter: DashboardFilter = { vehicleId: "", vehicleTypeId: "", deadlineTypeId: "", companyId: "", status: "" };

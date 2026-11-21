@@ -7,6 +7,7 @@ export async function listDashboardDeadlines(filter: DashboardFilter): Promise<D
       vehicleId: filter.vehicleId || undefined,
       vehicleTypeId: filter.vehicleTypeId || undefined,
       deadlineTypeId: filter.deadlineTypeId || undefined,
+      companyId: filter.companyId || undefined,
       status: filter.status || undefined,
     },
   });
