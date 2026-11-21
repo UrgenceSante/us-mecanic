@@ -19,6 +19,7 @@ export const adminNavItems: NavItem[] = [
   { label: "Sociétés", to: "/companies" },
   { label: "Garages", to: "/garages" },
   { label: "Catégories de dépense", to: "/expense-categories" },
+  { label: "Catégories de document", to: "/document-categories" },
   { label: "Référentiels problèmes", to: "/problem-references" },
   { label: "Abonnements", to: "/notification-subscriptions" },
 ];
