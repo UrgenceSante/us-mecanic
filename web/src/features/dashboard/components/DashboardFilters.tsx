@@ -1,6 +1,7 @@
 import { MenuItem, Stack, TextField } from "@mui/material";
 import { useDeadlineTypes } from "../../deadline-types/api/deadlineTypeQueries";
 import { useVehicles } from "../../vehicles/api/vehicleQueries";
+import VehicleCompanyFilter from "../../vehicles/components/VehicleCompanyFilter";
 import VehicleTypeSelect from "../../vehicle-types/components/VehicleTypeSelect";
 import type { DashboardFilter } from "../types/dashboard";
 
@@ -57,6 +58,7 @@ export default function DashboardFilters({ value, onChange }: DashboardFiltersPr
           </MenuItem>
         ))}
       </TextField>
+      <VehicleCompanyFilter label="Société" value={value.companyId} onChange={(companyId) => set({ companyId })} />
       <TextField
         select
         size="small"

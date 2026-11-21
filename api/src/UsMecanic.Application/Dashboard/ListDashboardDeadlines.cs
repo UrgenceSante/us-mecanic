@@ -9,6 +9,7 @@ namespace UsMecanic.Application.Dashboard;
 
 /// <summary>
 /// Échéances non closes, proches ou dépassées, des véhicules du parc (immobilisés inclus, sortis du parc exclus).
+/// Le filtre société retient les véhicules dont elle est propriétaire ou utilisatrice du jour.
 /// Tri : dépassées d'abord, puis date d'échéance croissante, puis km restants croissants.
 /// Nombre de requêtes constant : tout est chargé en lot et le statut est calculé en mémoire.
 /// </summary>
@@ -19,6 +20,7 @@ public sealed class ListDashboardDeadlines(
     IDeadlineTypeRepository deadlineTypes,
     IDeadlineThresholdsRepository thresholds,
     IMileageReadingRepository readings,
+    VehicleCompanyScope companyScope,
     BusinessCalendar calendar)
 {
     public async Task<IReadOnlyList<DashboardDeadlineDto>> ExecuteAsync(DashboardDeadlineFilter filter, CancellationToken cancellationToken)
@@ -31,9 +33,16 @@ public sealed class ListDashboardDeadlines(
             return [];
         }
 
-        var fleet = (await vehicles.ListAsync(new VehicleFilter(TypeId: filter.VehicleTypeId), cancellationToken))
+        var inFleet = (await vehicles.ListAsync(new VehicleFilter(TypeId: filter.VehicleTypeId), cancellationToken))
             .Where(v => v.Status != VehicleStatus.Retired)
-            .ToDictionary(v => v.Id);
+            .ToList();
+        if (filter.CompanyId is { } companyId)
+        {
+            var ids = await companyScope.VehicleIdsAsync(inFleet, companyId, cancellationToken);
+            inFleet = [.. inFleet.Where(v => ids.Contains(v.Id))];
+        }
+
+        var fleet = inFleet.ToDictionary(v => v.Id);
         var typesById = (await deadlineTypes.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(t => t.Id);
         var vehicleTypeNames = (await vehicleTypes.ListAsync(includeInactive: true, cancellationToken)).ToDictionary(t => t.Id, t => t.Name);
         var global = await thresholds.GetAsync(cancellationToken);

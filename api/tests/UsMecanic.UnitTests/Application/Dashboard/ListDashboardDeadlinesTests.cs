@@ -1,4 +1,5 @@
 using UsMecanic.Application.Dashboard;
+using UsMecanic.Application.Vehicles;
 using UsMecanic.Domain.Deadlines;
 using UsMecanic.Domain.Vehicles;
 using UsMecanic.UnitTests.TestDoubles;
@@ -16,8 +17,9 @@ public class ListDashboardDeadlinesTests
     private readonly InMemoryMileageReadingRepository _readings = new();
     private readonly InMemoryVehicleDeadlineRepository _deadlines = new();
     private readonly FixedClock _clock = new();
+    private readonly InMemoryRentalRepository _rentals = new();
 
-    private ListDashboardDeadlines UseCase => new(_deadlines, _vehicles, _vehicleTypes, _types, _thresholds, _readings, _clock.Calendar);
+    private ListDashboardDeadlines UseCase => new(_deadlines, _vehicles, _vehicleTypes, _types, _thresholds, _readings, new VehicleCompanyScope(_rentals, _clock.Calendar), _clock.Calendar);
 
     private async Task<IEnumerable<Guid>> IdsAsync(DashboardDeadlineFilter? filter = null) =>
         (await UseCase.ExecuteAsync(filter ?? new DashboardDeadlineFilter(), CancellationToken.None)).Select(l => l.Id).ToList();
@@ -142,5 +144,46 @@ public class ListDashboardDeadlinesTests
 
         Assert.Equal(5, (await IdsAsync()).Count());
         Assert.Equal(1, _readings.CurrentByVehicleCalls);
+    }
+
+    [Fact]
+    public async Task Le_filtre_societe_retient_proprietaire_meme_loue_ou_locataire_du_jour()
+    {
+        var company = Guid.NewGuid();
+        var other = Guid.NewGuid();
+        var type = _types.Seed("Contrôle technique");
+        var owned = _vehicles.Seed("AB-111-CD", new VehicleDetails(null, null, null, null, null, null, company));
+        var rentedIn = _vehicles.Seed("AB-222-CD", new VehicleDetails(null, null, null, null, null, null, other));
+        var rentedOut = _vehicles.Seed("AB-333-CD", new VehicleDetails(null, null, null, null, null, null, company));
+        var unrelated = _vehicles.Seed("AB-444-CD", new VehicleDetails(null, null, null, null, null, null, other));
+        var futureOnly = _vehicles.Seed("AB-555-CD", new VehicleDetails(null, null, null, null, null, null, other));
+        _vehicles.Seed("AB-666-CD");
+        _rentals.Seed(rentedIn.Id, company, Today.AddDays(-5), null);
+        _rentals.Seed(rentedOut.Id, other, Today.AddDays(-5), Today.AddDays(5));
+        _rentals.Seed(futureOnly.Id, company, Today.AddDays(3), null);
+        var ownedLine = AddDeadline(owned, type, Today.AddDays(-1));
+        var rentedInLine = AddDeadline(rentedIn, type, Today.AddDays(-2));
+        var rentedOutLine = AddDeadline(rentedOut, type, Today.AddDays(-3));
+        AddDeadline(unrelated, type, Today.AddDays(-4));
+        AddDeadline(futureOnly, type, Today.AddDays(-5));
+
+        var ids = await IdsAsync(new DashboardDeadlineFilter(CompanyId: company));
+
+        Assert.Equal([rentedOutLine.Id, rentedInLine.Id, ownedLine.Id], ids);
+    }
+
+    [Fact]
+    public async Task Le_filtre_societe_se_combine_aux_autres_filtres_et_charge_les_locations_une_fois()
+    {
+        var company = Guid.NewGuid();
+        var type = _types.Seed("Vidange");
+        var overdue = AddDeadline(_vehicles.Seed("AB-111-CD", new VehicleDetails(null, null, null, null, null, null, company)), type, Today.AddDays(-1));
+        AddDeadline(_vehicles.Seed("AB-222-CD", new VehicleDetails(null, null, null, null, null, null, company)), type, Today.AddDays(5));
+
+        var ids = await IdsAsync(new DashboardDeadlineFilter(Status: DeadlineStatus.Overdue, CompanyId: company));
+
+        Assert.Equal([overdue.Id], ids);
+        Assert.Equal(1, _rentals.CoveringCalls);
+        Assert.Empty(await IdsAsync(new DashboardDeadlineFilter(CompanyId: Guid.NewGuid())));
     }
 }

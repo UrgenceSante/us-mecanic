@@ -15,6 +15,7 @@ export async function listFleetProblems(filter: FleetProblemFilter): Promise<Fle
       status: filter.status || undefined,
       vehicleId: filter.vehicleId || undefined,
       natureId: filter.natureId || undefined,
+      companyId: filter.companyId || undefined,
     },
   });
   return data;

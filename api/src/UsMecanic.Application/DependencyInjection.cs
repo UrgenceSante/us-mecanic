@@ -38,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<VehicleTypeLookup>();
         services.AddScoped<VehicleAlertsLookup>();
         services.AddScoped<VehicleOwnerLookup>();
+        services.AddScoped<VehicleCompanyScope>();
         services.AddScoped<ListRentals>();
         services.AddScoped<RentalWriteChecker>();
         services.AddScoped<RentalDtoFactory>();

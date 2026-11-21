@@ -114,4 +114,34 @@ public class DashboardEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(vehicleTypeId, line.Vehicle.TypeId);
         Assert.StartsWith("Type ", line.Vehicle.TypeName, StringComparison.Ordinal);
     }
+
+
+    private async Task RentAsync(Guid vehicleId, Guid tenantId)
+    {
+        var response = await _client.PostAsJsonAsync(
+            new Uri($"/api/vehicles/{vehicleId}/rentals", UriKind.Relative), new { tenantCompanyId = tenantId, startDate = "2020-01-01", endDate = (string?)null });
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Filtre_par_societe_proprietaire_ou_utilisatrice_actuelle()
+    {
+        var owner = await PostIdAsync("/api/companies", new { name = $"Société {Guid.NewGuid():N}" });
+        var tenant = await PostIdAsync("/api/companies", new { name = $"Société {Guid.NewGuid():N}" });
+        var own = await CreateOwnedVehicleAsync(owner);
+        var rented = await CreateOwnedVehicleAsync(owner);
+        var unrelated = await CreateOwnedVehicleAsync(null);
+        await RentAsync(rented, tenant);
+        var typeId = await CreateTypeAsync();
+        var ownLine = await AddDeadlineAsync(own, typeId, Offset(-3));
+        var rentedLine = await AddDeadlineAsync(rented, typeId, Offset(-2));
+        await AddDeadlineAsync(unrelated, typeId, Offset(-4));
+
+        Assert.Equal([ownLine, rentedLine], (await ListAsync($"companyId={owner}")).Select(l => l.Id));
+        Assert.Equal([rentedLine], (await ListAsync($"companyId={tenant}")).Select(l => l.Id));
+        Assert.Empty(await ListAsync($"companyId={Guid.NewGuid()}"));
+    }
+
+    private Task<Guid> CreateOwnedVehicleAsync(Guid? ownerId) =>
+        PostIdAsync("/api/vehicles", new { licensePlate = NewPlate(), details = new { brand = "Renault", ownerCompanyId = ownerId } });
 }

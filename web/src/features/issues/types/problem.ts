@@ -47,12 +47,15 @@ export interface FleetProblemFilter {
   status: ProblemStatus | "";
   vehicleId: string;
   natureId: string;
+  /** Société propriétaire ou utilisatrice actuelle du véhicule. */
+  companyId: string;
 }
 
 export const emptyFleetProblemFilter: FleetProblemFilter = {
   status: "",
   vehicleId: "",
   natureId: "",
+  companyId: "",
 };
 
 export interface AnalyzeProblemInput {

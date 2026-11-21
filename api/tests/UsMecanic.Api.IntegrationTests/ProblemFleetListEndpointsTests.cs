@@ -212,4 +212,33 @@ public class ProblemFleetListEndpointsTests : IClassFixture<ApiFactory>
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+
+    private async Task RentAsync(Guid vehicleId, Guid tenantId)
+    {
+        var response = await _client.PostAsJsonAsync(
+            new Uri($"/api/vehicles/{vehicleId}/rentals", UriKind.Relative), new { tenantCompanyId = tenantId, startDate = "2020-01-01", endDate = (string?)null });
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Filtre_par_societe_proprietaire_ou_utilisatrice_actuelle()
+    {
+        var owner = await PostIdAsync("/api/companies", new { name = $"Société {Guid.NewGuid():N}" });
+        var tenant = await PostIdAsync("/api/companies", new { name = $"Société {Guid.NewGuid():N}" });
+        var ownPlate = NewPlate();
+        var rentedPlate = NewPlate();
+        var unrelatedPlate = NewPlate();
+        await PostIdAsync("/api/vehicles", new { licensePlate = ownPlate, details = new { ownerCompanyId = owner } });
+        var rentedId = await PostIdAsync("/api/vehicles", new { licensePlate = rentedPlate, details = new { ownerCompanyId = owner } });
+        await PostIdAsync("/api/vehicles", new { licensePlate = unrelatedPlate, details = new { brand = "Renault" } });
+        await RentAsync(rentedId, tenant);
+        var own = await ReportAsync(ownPlate, daysAgo: 3);
+        var rented = await ReportAsync(rentedPlate, daysAgo: 2);
+        await ReportAsync(unrelatedPlate, daysAgo: 1);
+
+        Assert.Equal([own, rented], (await ListAsync($"companyId={owner}")).Select(l => l.Problem.Id));
+        Assert.Equal([rented], (await ListAsync($"companyId={tenant}")).Select(l => l.Problem.Id));
+        Assert.Empty(await ListAsync($"companyId={Guid.NewGuid()}"));
+    }
 }

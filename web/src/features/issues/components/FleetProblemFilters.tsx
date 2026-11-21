@@ -1,6 +1,7 @@
 import { MenuItem, Stack, TextField } from "@mui/material";
 import { useProblemReferences } from "../../problem-references/api/problemReferenceQueries";
 import { useVehicles } from "../../vehicles/api/vehicleQueries";
+import VehicleCompanyFilter from "../../vehicles/components/VehicleCompanyFilter";
 import { problemStatusLabels } from "../types/labels";
 import type { FleetProblemFilter } from "../types/problem";
 
@@ -48,6 +49,7 @@ export default function FleetProblemFilters({ value, onChange }: Props) {
           </MenuItem>
         ))}
       </TextField>
+      <VehicleCompanyFilter label="Société" value={value.companyId} onChange={(companyId) => set({ companyId })} />
       <TextField
         select
         size="small"
