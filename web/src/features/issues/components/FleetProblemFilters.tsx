@@ -18,7 +18,7 @@ export default function FleetProblemFilters({ value, onChange }: Props) {
   const natureOptions = natures.data ?? [];
 
   return (
-    <Stack direction="row" gap={2} flexWrap="wrap">
+    <Stack direction="row" gap={2} flexWrap="wrap" alignItems="flex-start">
       <TextField
         select
         size="small"

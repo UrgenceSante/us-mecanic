@@ -134,6 +134,20 @@ describe("DashboardProblems", () => {
     );
   });
 
+  it("propose de réinitialiser les filtres quand ils ne donnent aucun résultat", async () => {
+    renderView();
+    await screen.findByText("Freins HS");
+    api.listFleetProblems.mockResolvedValue([]);
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "Statut" }));
+    fireEvent.click(within(await screen.findByRole("listbox")).getByText("Résolu"));
+    expect(await screen.findByText("Aucun problème ne correspond aux filtres")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Réinitialiser les filtres" }));
+    await waitFor(() =>
+      expect(api.listFleetProblems).toHaveBeenLastCalledWith({ status: "", vehicleId: "", natureId: "", companyId: "" }),
+    );
+    expect(await screen.findByText("Aucun problème")).toBeInTheDocument();
+  });
+
   it("affiche un message sans problème", async () => {
     api.listFleetProblems.mockResolvedValue([]);
     renderView();

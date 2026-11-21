@@ -1,4 +1,4 @@
-import { Box, Button, MenuItem, Stack, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Box, Button, MenuItem, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import FrenchDateField from "../../../shared/components/FrenchDateField";
 import CompanySelect from "../../companies/components/CompanySelect";
 import { useVehicles } from "../../vehicles/api/vehicleQueries";
@@ -61,10 +61,12 @@ export default function CostSummaryFilters({ value, onChange }: Props) {
             includeInactive
             value={value.lesseeCompanyId}
             onChange={(lesseeCompanyId) => set({ lesseeCompanyId })}
-            helperText="Locataire : dépenses datées pendant une location ; les emprunts restent au propriétaire."
           />
         </Box>
       </Stack>
+      <Typography variant="caption" color="text.secondary">
+        Locataire : dépenses datées pendant une location ; les emprunts restent au propriétaire.
+      </Typography>
       <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
         {shortcuts.map((s) => (
           <Button key={s} size="small" variant="outlined" sx={touchOnMobile} onClick={() => set(shortcutRange(s))}>

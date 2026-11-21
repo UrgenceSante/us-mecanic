@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { VehicleImportReport } from "../types/vehicle";
 import ImportReportView from "./ImportReportView";
 
@@ -23,6 +23,8 @@ const report: VehicleImportReport = {
 };
 
 describe("ImportReportView", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   it("affiche le propriétaire appliqué dans le bilan", () => {
     render(<ImportReportView report={report} />);
     expect(screen.getByRole("columnheader", { name: "Propriétaire" })).toBeInTheDocument();
@@ -44,6 +46,5 @@ describe("ImportReportView", () => {
     expect(screen.getAllByTestId("list-card")).toHaveLength(2);
     expect(screen.getByText("Propriétaire : Ambulances Nord")).toBeInTheDocument();
     expect(screen.getByText("Société inconnue ou inactive : Nord")).toBeInTheDocument();
-    vi.unstubAllGlobals();
   });
 });

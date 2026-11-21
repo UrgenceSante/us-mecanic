@@ -65,11 +65,14 @@ describe("VehicleRentals", () => {
 
   it("désactive l'ajout sans propriétaire, avec une explication", async () => {
     api.listRentals.mockResolvedValue([]);
-    renderWith(<VehicleRentals vehicle={{ ...baseVehicle, owner: null, currentUser: { company: null, source: "NotSet" } }} onFillOwner={() => undefined} />);
+    const onFillOwner = vi.fn();
+    renderWith(<VehicleRentals vehicle={{ ...baseVehicle, owner: null, currentUser: { company: null, source: "NotSet" } }} onFillOwner={onFillOwner} />);
     expect(await screen.findByRole("button", { name: "Ajouter une location" })).toBeDisabled();
     expect(screen.getByText("Renseignez d'abord le propriétaire du véhicule.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Renseigner le propriétaire" })).toBeInTheDocument();
     expect(screen.queryByText("Propriétaire à renseigner")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Renseigner le propriétaire" }));
+    expect(onFillOwner).toHaveBeenCalledTimes(1);
   });
 
   it("ne répète pas le propriétaire et n'affiche que l'utilisateur actuel", async () => {

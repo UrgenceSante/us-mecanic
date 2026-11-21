@@ -142,10 +142,9 @@ describe("DashboardPage", () => {
   it("explique la règle du filtre Société", async () => {
     renderPage();
     await screen.findByText("Vidange");
-    expect(screen.getByRole("combobox", { name: "Société" })).toHaveAttribute(
-      "aria-description",
-      "Véhicules dont la société est propriétaire ou utilisatrice actuelle",
-    );
+    const combobox = screen.getByRole("combobox", { name: "Société" });
+    const help = screen.getByText("Véhicules dont la société est propriétaire ou utilisatrice actuelle");
+    expect(combobox.getAttribute("aria-describedby")).toBe(help.id);
   });
 
   it("marque une échéance réalisée avec le km obligatoire", async () => {

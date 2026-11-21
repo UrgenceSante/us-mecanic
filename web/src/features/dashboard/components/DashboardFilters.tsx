@@ -18,7 +18,7 @@ export default function DashboardFilters({ value, onChange }: DashboardFiltersPr
   const typeOptions = deadlineTypes.data ?? [];
 
   return (
-    <Stack direction="row" gap={2} flexWrap="wrap">
+    <Stack direction="row" gap={2} flexWrap="wrap" alignItems="flex-start">
       <TextField
         select
         size="small"
