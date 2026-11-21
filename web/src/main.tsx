@@ -21,6 +21,8 @@ createRoot(document.getElementById("root")!).render(
       <ThemeProvider theme={theme}>
         <GlobalStyles styles={globalFocusStyles} />
         <SnackbarProvider
+          maxSnack={1}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           Components={{
             default: AccessibleSnackbar,
             success: AccessibleSnackbar,

@@ -10,12 +10,13 @@ export type RentalDialog = { kind: "add" } | { kind: "edit" | "end" | "delete"; 
 
 interface RentalDialogsProps {
   vehicleId: string;
+  ownerId?: string;
   dialog: RentalDialog | null;
   onClose: () => void;
 }
 
 /** Dialogues de la section : chacun porte sa mutation, et son erreur s'affiche à côté du champ concerné. */
-export default function RentalDialogs({ vehicleId, dialog, onClose }: RentalDialogsProps) {
+export default function RentalDialogs({ vehicleId, ownerId, dialog, onClose }: RentalDialogsProps) {
   const { notifySuccess } = useNotifSnack();
   const add = useAddRental(vehicleId);
   const update = useUpdateRental(vehicleId);
@@ -59,6 +60,6 @@ export default function RentalDialogs({ vehicleId, dialog, onClose }: RentalDial
       ? update.mutate({ rentalId: editing.id, input }, done("Location modifiée"))
       : add.mutate(input, done("Location enregistrée"));
   return (
-    <RentalFormDialog rental={editing} submitting={mutation.isPending} error={mutation.error} onSubmit={submit} onClose={onClose} />
+    <RentalFormDialog rental={editing} ownerId={ownerId} submitting={mutation.isPending} error={mutation.error} onSubmit={submit} onClose={onClose} />
   );
 }

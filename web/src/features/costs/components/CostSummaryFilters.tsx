@@ -61,7 +61,7 @@ export default function CostSummaryFilters({ value, onChange }: Props) {
             includeInactive
             value={value.lesseeCompanyId}
             onChange={(lesseeCompanyId) => set({ lesseeCompanyId })}
-            helperText="Ne compte que les dépenses faites pendant une location à cette société. Les emprunts restent attribués au propriétaire, et le coût au km n'est pas calculé."
+            helperText="Locataire : dépenses datées pendant une location ; les emprunts restent au propriétaire."
           />
         </Box>
       </Stack>

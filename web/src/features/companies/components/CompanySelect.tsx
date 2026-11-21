@@ -20,14 +20,16 @@ interface CompanySelectProps {
   /** Propose aussi les sociétés désactivées, suffixées « (désactivée) » (filtres de consultation). */
   includeInactive?: boolean;
   size?: "small" | "medium";
+  /** Société à ne pas proposer (ex. le propriétaire pour un locataire). */
+  excludeId?: string;
 }
 
 /** Sélecteur de société : sociétés actives uniquement, plus la société actuelle si elle est inactive. */
 export default function CompanySelect(props: CompanySelectProps) {
-  const { label, value, onChange, emptyLabel, allowEmpty = true, current, required, error, helperText, autoFocus, includeInactive = false, size } = props;
+  const { label, value, onChange, emptyLabel, allowEmpty = true, current, required, error, helperText, autoFocus, includeInactive = false, size, excludeId } = props;
   const companies = useCompanies(includeInactive);
 
-  const options = companies.data ?? [];
+  const options = (companies.data ?? []).filter((c) => c.id !== excludeId);
   const orphan = current && !current.isActive ? current : null;
   // Tant que la liste charge, la valeur sélectionnée doit rester valide pour MUI.
   const known = value === "" || options.some((c) => c.id === value) || orphan?.id === value;

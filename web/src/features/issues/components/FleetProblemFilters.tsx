@@ -49,7 +49,12 @@ export default function FleetProblemFilters({ value, onChange }: Props) {
           </MenuItem>
         ))}
       </TextField>
-      <VehicleCompanyFilter label="Société" value={value.companyId} onChange={(companyId) => set({ companyId })} />
+      <VehicleCompanyFilter
+        label="Société"
+        minWidth={180}
+        hint="Véhicules dont la société est propriétaire ou utilisatrice actuelle"
+        value={value.companyId} onChange={(companyId) => set({ companyId })}
+      />
       <TextField
         select
         size="small"

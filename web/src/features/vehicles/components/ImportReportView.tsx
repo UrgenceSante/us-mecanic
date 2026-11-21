@@ -14,7 +14,10 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Typography,
 } from "@mui/material";
+import useBelow from "../../../shared/hooks/useBelow";
+import ListCard from "../../../shared/components/ListCard";
 import type { ImportOutcome, VehicleImportReport } from "../types/vehicle";
 
 const outcomeLabels: Record<ImportOutcome, string> = {
@@ -32,6 +35,7 @@ const outcomeChips: Record<ImportOutcome, { tone: StatusTone; icon: ReactElement
 };
 
 export default function ImportReportView({ report }: { report: VehicleImportReport }) {
+  const mobile = useBelow("sm");
   const lines = [...report.lines].sort(
     (a, b) => Number(b.outcome === "Error") - Number(a.outcome === "Error") || a.line - b.line,
   );
@@ -43,6 +47,22 @@ export default function ImportReportView({ report }: { report: VehicleImportRepo
         {report.created} créé(s), {report.updated} mis à jour, {report.unchanged} inchangé(s),{" "}
         {report.errors} en erreur{report.dryRun && report.errors > 0 ? " (ces lignes seront ignorées)" : ""}.
       </Alert>
+      {mobile ? (
+        <Stack gap={1} role="list" aria-label="Lignes de l'import">
+          {lines.map((line) => (
+            <ListCard key={line.line}>
+              <Stack gap={0.5}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
+                  <Typography fontWeight="bold">{`Ligne ${line.line} · ${line.licensePlate ?? "-"}`}</Typography>
+                  <StatusChip {...outcomeChips[line.outcome]} category="Résultat" label={outcomeLabels[line.outcome]} />
+                </Stack>
+                {line.owner && <Typography variant="body2">{`Propriétaire : ${line.owner}`}</Typography>}
+                {line.message && <Typography variant="body2" color="text.secondary">{line.message}</Typography>}
+              </Stack>
+            </ListCard>
+          ))}
+        </Stack>
+      ) : (
       <TableContainer component={Paper} sx={{ maxHeight: 420 }}>
         <Table size="small" stickyHeader>
           <TableHead>
@@ -69,6 +89,7 @@ export default function ImportReportView({ report }: { report: VehicleImportRepo
           </TableBody>
         </Table>
       </TableContainer>
+      )}
     </Stack>
   );
 }
