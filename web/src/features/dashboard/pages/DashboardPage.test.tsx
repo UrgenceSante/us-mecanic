@@ -8,11 +8,13 @@ const api = vi.hoisted(() => ({ listDashboardDeadlines: vi.fn() }));
 const vehiclesApi = vi.hoisted(() => ({ listVehicles: vi.fn() }));
 const typesApi = vi.hoisted(() => ({ listDeadlineTypes: vi.fn() }));
 const vehicleTypesApi = vi.hoisted(() => ({ listVehicleTypes: vi.fn() }));
+const companiesApi = vi.hoisted(() => ({ listCompanies: vi.fn() }));
 const deadlinesApi = vi.hoisted(() => ({ completeVehicleDeadline: vi.fn() }));
 vi.mock("../api/dashboardApi", () => api);
 vi.mock("../../vehicles/api/vehiclesApi", () => vehiclesApi);
 vi.mock("../../deadline-types/api/deadlineTypesApi", () => typesApi);
 vi.mock("../../vehicle-types/api/vehicleTypesApi", () => vehicleTypesApi);
+vi.mock("../../companies/api/companiesApi", () => companiesApi);
 vi.mock("../../vehicle-deadlines/api/vehicleDeadlinesApi", () => deadlinesApi);
 vi.mock("../../issues/components/DashboardProblems", () => ({ default: () => <div>Liste des problèmes</div> }));
 vi.mock("../../../hooks/useNotifSnack", () => ({
@@ -58,6 +60,10 @@ describe("DashboardPage", () => {
     vehiclesApi.listVehicles.mockResolvedValue([{ id: "v1", licensePlate: "AB-123-CD" }]);
     typesApi.listDeadlineTypes.mockResolvedValue([{ id: "t1", name: "Vidange", isActive: true }]);
     vehicleTypesApi.listVehicleTypes.mockResolvedValue([]);
+    companiesApi.listCompanies.mockResolvedValue([
+      { id: "c1", name: "Ambulances Nord", isActive: true },
+      { id: "c2", name: "Ancienne société", isActive: false },
+    ]);
   });
 
   it("affiche les échéances, leur statut et un lien vers la fiche véhicule", async () => {
@@ -107,9 +113,24 @@ describe("DashboardPage", () => {
         vehicleId: "v1",
         vehicleTypeId: "",
         deadlineTypeId: "",
+        companyId: "",
         status: "Overdue",
       }),
     );
+  });
+
+  it("filtre par société, y compris désactivée, et garde le message neutre sans résultat", async () => {
+    renderPage();
+    await screen.findByText("Vidange");
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "Société" }));
+    const options = within(await screen.findByRole("listbox"));
+    expect(options.queryByText("À renseigner")).not.toBeInTheDocument();
+    api.listDashboardDeadlines.mockResolvedValue([]);
+    fireEvent.click(options.getByText("Ancienne société (désactivée)"));
+    await waitFor(() =>
+      expect(api.listDashboardDeadlines).toHaveBeenLastCalledWith(expect.objectContaining({ companyId: "c2" })),
+    );
+    expect(await screen.findByText("Aucune échéance ne correspond aux filtres")).toBeInTheDocument();
   });
 
   it("marque une échéance réalisée avec le km obligatoire", async () => {

@@ -1,4 +1,5 @@
 using UsMecanic.Application.Problems;
+using UsMecanic.Application.Vehicles;
 using UsMecanic.Domain.Problems;
 using UsMecanic.Domain.Vehicles;
 using UsMecanic.UnitTests.TestDoubles;
@@ -23,12 +24,13 @@ public class ListFleetProblemsTests
 
     private readonly InMemoryVehicleRepository _vehicles = new();
     private readonly InMemoryProblemRepository _problems = new();
+    private readonly InMemoryRentalRepository _rentals = new();
     private readonly InMemoryProblemReferenceRepository<ProblemNature> _natures = new();
     private readonly Vehicle _vehicle;
 
     public ListFleetProblemsTests() => _vehicle = _vehicles.Seed("AB-123-CD");
 
-    private ListFleetProblems UseCase => new(_problems, _vehicles, _natures, new FixedClock().Calendar);
+    private ListFleetProblems UseCase => new(_problems, _vehicles, _natures, new VehicleCompanyScope(_rentals, new FixedClock().Calendar), new FixedClock().Calendar);
 
     private Problem Add(
         Vehicle vehicle,
@@ -167,5 +169,28 @@ public class ListFleetProblemsTests
     public async Task Sans_probleme_la_liste_est_vide()
     {
         Assert.Empty(await ListAsync());
+    }
+
+    [Fact]
+    public async Task Le_filtre_societe_retient_proprietaire_ou_locataire_du_jour()
+    {
+        var company = Guid.NewGuid();
+        var other = Guid.NewGuid();
+        var owned = _vehicles.Seed("AB-111-CD", new VehicleDetails(null, null, null, null, null, null, company));
+        var rentedIn = _vehicles.Seed("AB-222-CD", new VehicleDetails(null, null, null, null, null, null, other));
+        var rentedOut = _vehicles.Seed("AB-333-CD", new VehicleDetails(null, null, null, null, null, null, company));
+        var unrelated = _vehicles.Seed("AB-444-CD", new VehicleDetails(null, null, null, null, null, null, other));
+        _rentals.Seed(rentedIn.Id, company, Today.AddDays(-5), null);
+        _rentals.Seed(rentedOut.Id, other, Today.AddDays(-5), null);
+        var ownedProblem = Add(owned, daysAgo: 3);
+        var rentedInProblem = Add(rentedIn, daysAgo: 2);
+        var rentedOutProblem = Add(rentedOut, daysAgo: 1);
+        Add(unrelated, daysAgo: 1);
+        Add(_vehicle, daysAgo: 1);
+
+        var lines = await ListAsync(new FleetProblemFilter(CompanyId: company));
+
+        Assert.Equal([ownedProblem.Id, rentedInProblem.Id, rentedOutProblem.Id], lines.Select(l => l.Problem.Id));
+        Assert.Empty(await ListAsync(new FleetProblemFilter(CompanyId: Guid.NewGuid())));
     }
 }

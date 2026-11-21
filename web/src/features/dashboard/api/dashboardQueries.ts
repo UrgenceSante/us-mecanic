@@ -5,7 +5,7 @@ import { listDashboardDeadlines } from "./dashboardApi";
 export const dashboardKeys = {
   all: ["dashboard"] as const,
   deadlines: (f: DashboardFilter) =>
-    ["dashboard", "deadlines", f.vehicleId, f.vehicleTypeId, f.deadlineTypeId, f.status] as const,
+    ["dashboard", "deadlines", f.vehicleId, f.vehicleTypeId, f.deadlineTypeId, f.companyId, f.status] as const,
 };
 
 export function useDashboardDeadlines(filter: DashboardFilter) {

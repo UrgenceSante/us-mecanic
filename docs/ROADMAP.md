@@ -102,7 +102,7 @@ locations datées entre sociétés. Aucune migration ne modifie de données exis
 - [x] Parc : colonnes et filtres Propriétaire (dont « À renseigner ») et Utilisateur actuel (API et front)
 - [x] Import de véhicules : colonne `Propriétaire` facultative, modèle CSV et README
 - [x] Synthèse des coûts : filtres Société propriétaire et Société locataire (API et front)
-- [ ] Tableau de bord : filtre Société (propriétaire ou utilisateur actuel)
+- [x] Tableau de bord : filtre Société (propriétaire ou utilisateur actuel)
 - [ ] Passe `ux` de la phase (ordinateur, iPad, téléphone) et corrections prioritaires
 - [x] (Could) Sociétés fictives et locations dans le script de démonstration
 

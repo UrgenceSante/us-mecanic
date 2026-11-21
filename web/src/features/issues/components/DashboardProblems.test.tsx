@@ -6,9 +6,11 @@ import DashboardProblems from "./DashboardProblems";
 
 const api = vi.hoisted(() => ({ listFleetProblems: vi.fn() }));
 const vehiclesApi = vi.hoisted(() => ({ listVehicles: vi.fn() }));
+const companiesApi = vi.hoisted(() => ({ listCompanies: vi.fn() }));
 const referencesApi = vi.hoisted(() => ({ listProblemReferences: vi.fn() }));
 vi.mock("../api/problemsApi", () => api);
 vi.mock("../../vehicles/api/vehiclesApi", () => vehiclesApi);
+vi.mock("../../companies/api/companiesApi", () => companiesApi);
 vi.mock("../../problem-references/api/problemReferencesApi", () => referencesApi);
 
 const problem = (id: string, description: string, status: string) => ({
@@ -106,6 +108,7 @@ describe("DashboardProblems", () => {
       status: "",
       vehicleId: "",
       natureId: "",
+      companyId: "",
     });
     fireEvent.mouseDown(screen.getByRole("combobox", { name: "Statut" }));
     fireEvent.click(within(await screen.findByRole("listbox")).getByText("Résolu"));
@@ -114,6 +117,7 @@ describe("DashboardProblems", () => {
         status: "Resolved",
         vehicleId: "",
         natureId: "",
+        companyId: "",
       }),
     );
     fireEvent.mouseDown(screen.getByRole("combobox", { name: "Véhicule" }));
@@ -125,6 +129,7 @@ describe("DashboardProblems", () => {
         status: "Resolved",
         vehicleId: "v1",
         natureId: "n1",
+        companyId: "",
       }),
     );
   });
