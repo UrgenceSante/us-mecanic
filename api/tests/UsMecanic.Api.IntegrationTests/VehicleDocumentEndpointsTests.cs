@@ -261,6 +261,52 @@ public class VehicleDocumentEndpointsTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task Sert_le_contenu_avec_les_en_tetes_de_defense()
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var created = await UploadAsync(vehicleId, await CreateCategoryAsync(), Pdf, "a.pdf");
+
+        var read = await _client.GetAsync(Url(vehicleId, $"/{created.Id}/content"));
+
+        Assert.Equal("no-store, private", read.Headers.CacheControl?.ToString());
+        Assert.Equal("default-src 'none'; style-src 'unsafe-inline'", read.Headers.GetValues("Content-Security-Policy").Single());
+        Assert.Equal("nosniff", read.Headers.GetValues("X-Content-Type-Options").Single());
+    }
+
+    [Theory]
+    [InlineData("a\"b.pdf", "\"b.pdf")] // le \ d'échappement du multipart est pris pour un séparateur de chemin
+    [InlineData("\"x\".pdf", "\".pdf")]
+    [InlineData("ligne\u0007\t.pdf", "ligne.pdf")] // caractères de contrôle retirés
+    [InlineData("ligne\r\n.pdf", null)] // CRLF casse l'enveloppe multipart : 400 du framework, jamais 500
+    public async Task Aller_retour_avec_des_noms_difficiles_sans_jamais_500(string rawName, string? expected)
+    {
+        var vehicleId = await CreateVehicleAsync();
+        var categoryId = await CreateCategoryAsync();
+        using var form = new MultipartFormDataContent();
+        var file = new ByteArrayContent(Pdf);
+        file.Headers.TryAddWithoutValidation("Content-Disposition", $"form-data; name=\"file\"; filename=\"{rawName.Replace("\"", "\\\"", StringComparison.Ordinal)}\"");
+        form.Add(file);
+        form.Add(new StringContent(categoryId.ToString()), "categoryId");
+
+        var upload = await _client.PostAsync(Url(vehicleId), form);
+        if (expected is null)
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, upload.StatusCode);
+            return;
+        }
+
+        Assert.Equal(HttpStatusCode.Created, upload.StatusCode);
+        var created = (await upload.Content.ReadFromJsonAsync<DocumentDto>(Json))!;
+        Assert.Equal(expected, created.FileName);
+
+        var read = await _client.GetAsync(Url(vehicleId, $"/{created.Id}/content?download=true"));
+
+        Assert.Equal(HttpStatusCode.OK, read.StatusCode);
+        var disposition = read.Content.Headers.ContentDisposition;
+        Assert.Equal(expected, disposition?.FileNameStar ?? disposition?.FileName?.Trim('"'));
+    }
+
+    [Fact]
     public async Task Repond_401_sans_authentification()
     {
         using var anonymous = _factory.CreateClient();

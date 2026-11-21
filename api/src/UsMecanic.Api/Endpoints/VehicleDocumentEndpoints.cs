@@ -64,7 +64,9 @@ internal static class VehicleDocumentEndpoints
         using var buffer = new MemoryStream((int)file.Length);
         await stream.CopyToAsync(buffer, ct);
 
-        var result = await useCase.ExecuteAsync(vehicleId, categoryId, label, file.FileName, buffer.ToArray(), ct);
+        // GetBuffer évite une copie : on ne lit que les octets réellement écrits.
+        var content = new ReadOnlyMemory<byte>(buffer.GetBuffer(), 0, (int)buffer.Length);
+        var result = await useCase.ExecuteAsync(vehicleId, categoryId, label, file.FileName, content, ct);
         return result.IsSuccess
             ? TypedResults.Created($"/api/vehicles/{vehicleId}/documents/{result.Value.Id}/content", result.Value)
             : result.Error!.ToProblem();
@@ -84,6 +86,8 @@ internal static class VehicleDocumentEndpoints
         disposition.SetHttpFileName(result.Value.FileName);
         http.Response.Headers.ContentDisposition = disposition.ToString();
         http.Response.Headers.XContentTypeOptions = "nosniff";
+        http.Response.Headers.CacheControl = "private, no-store"; // données personnelles : pas de cache partagé
+        http.Response.Headers.ContentSecurityPolicy = "default-src 'none'; style-src 'unsafe-inline'"; // sans sandbox (PDF dans Chrome)
         return TypedResults.File(result.Value.Content, result.Value.ContentType);
     }
 

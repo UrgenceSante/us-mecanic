@@ -114,7 +114,7 @@ Pièces jointes du véhicule (carte grise, attestation d'assurance…) et factur
 - [x] Catégories de document administrables : API, valeurs initiales, écran « Administration »
 - [x] Stockage des documents : port `IDocumentStorage`, adaptateur PostgreSQL (métadonnées et contenu séparés),
       contrôles du fichier (PDF / JPEG / PNG par signature, 10 Mo)
-- [x] Documents du véhicule (API) : ajout, liste avec les factures, ouverture / téléchargement, suppression
+- [ ] Documents du véhicule (API) : ajout, liste avec les factures, ouverture / téléchargement, suppression
 - [ ] Section « Documents » de la fiche véhicule : ajout (fichier ou photo), filtre, ouverture, téléchargement,
       suppression
 - [ ] Factures des interventions et des dépenses (API) : ajout, liste, suppression en cascade
