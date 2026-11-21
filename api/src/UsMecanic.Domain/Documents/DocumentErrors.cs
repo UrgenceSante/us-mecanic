@@ -20,6 +20,9 @@ public static class DocumentErrors
     public static readonly DomainError LabelTooLong =
         new("document.label_too_long", $"Le libellé est limité à {Document.MaxLabelLength} caractères.");
 
+    public static readonly DomainError FileRequired =
+        new("document.file_required", "Le fichier est obligatoire.");
+
     public static readonly DomainError FileEmpty =
         new("document.file_empty", "Le fichier est vide.");
 
