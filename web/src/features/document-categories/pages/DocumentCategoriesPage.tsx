@@ -16,6 +16,7 @@ import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
+import DeactivateDialog from "../../../shared/components/DeactivateDialog";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import ActiveStatusChip from "../../../shared/components/ActiveStatusChip";
 import PageTitle from "../../../shared/components/PageTitle";
@@ -39,6 +40,7 @@ export default function DocumentCategoriesPage() {
   const { notifySuccess, notifyError } = useNotifSnack();
   const compact = useBelow("sm");
   const [editing, setEditing] = useState<Editing>(undefined);
+  const [toDeactivate, setToDeactivate] = useState<DocumentCategory | undefined>(undefined);
 
   const categories = useDocumentCategories(true);
   const create = useCreateDocumentCategory();
@@ -66,6 +68,7 @@ export default function DocumentCategoriesPage() {
     deactivate.mutate(category.id, {
       onSuccess: () => notifySuccess(`Catégorie « ${category.name} » désactivée`),
       onError: (error) => notifyError(documentCategoryErrorMessage(error)),
+      onSettled: () => setToDeactivate(undefined),
     });
 
   return (
@@ -90,7 +93,7 @@ export default function DocumentCategoriesPage() {
             categories={categories.data ?? []}
             deactivating={deactivate.isPending}
             onRename={setEditing}
-            onDeactivate={handleDeactivate}
+            onDeactivate={setToDeactivate}
           />
         </Paper>
       ) : (
@@ -121,7 +124,7 @@ export default function DocumentCategoriesPage() {
                         <IconButton
                           aria-label={`Désactiver ${category.name}`}
                           disabled={deactivate.isPending}
-                          onClick={() => handleDeactivate(category)}
+                          onClick={() => setToDeactivate(category)}
                         >
                           <BlockIcon />
                         </IconButton>
@@ -148,6 +151,16 @@ export default function DocumentCategoriesPage() {
           onSubmit={handleSubmit}
           onEdit={mutation.reset}
           onClose={closeDialog}
+        />
+      )}
+      {toDeactivate && (
+        <DeactivateDialog
+          definite={"la catégorie"}
+          feminine
+          name={toDeactivate.name}
+          submitting={deactivate.isPending}
+          onConfirm={() => handleDeactivate(toDeactivate)}
+          onClose={() => setToDeactivate(undefined)}
         />
       )}
     </Stack>

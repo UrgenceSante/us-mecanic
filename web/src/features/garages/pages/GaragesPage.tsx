@@ -17,6 +17,7 @@ import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
+import DeactivateDialog from "../../../shared/components/DeactivateDialog";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { useCreateGarage, useDeactivateGarage, useGarages, useRenameGarage } from "../api/garageQueries";
@@ -30,6 +31,7 @@ type Editing = Garage | null | undefined;
 export default function GaragesPage() {
   const { notifySuccess, notifyError } = useNotifSnack();
   const [editing, setEditing] = useState<Editing>(undefined);
+  const [toDeactivate, setToDeactivate] = useState<Garage | undefined>(undefined);
 
   const garages = useGarages(true);
   const create = useCreateGarage();
@@ -57,6 +59,7 @@ export default function GaragesPage() {
     deactivate.mutate(garage.id, {
       onSuccess: () => notifySuccess(`Garage « ${garage.name} » désactivé`),
       onError: (error) => notifyError(garageErrorMessage(error)),
+      onSettled: () => setToDeactivate(undefined),
     });
 
   return (
@@ -101,7 +104,7 @@ export default function GaragesPage() {
                         <IconButton
                           aria-label={`Désactiver ${garage.name}`}
                           disabled={deactivate.isPending}
-                          onClick={() => handleDeactivate(garage)}
+                          onClick={() => setToDeactivate(garage)}
                         >
                           <BlockIcon />
                         </IconButton>
@@ -127,6 +130,15 @@ export default function GaragesPage() {
           error={mutation.isError ? garageErrorMessage(mutation.error) : null}
           onSubmit={handleSubmit}
           onClose={closeDialog}
+        />
+      )}
+      {toDeactivate && (
+        <DeactivateDialog
+          definite={"le garage"}
+          name={toDeactivate.name}
+          submitting={deactivate.isPending}
+          onConfirm={() => handleDeactivate(toDeactivate)}
+          onClose={() => setToDeactivate(undefined)}
         />
       )}
     </Stack>

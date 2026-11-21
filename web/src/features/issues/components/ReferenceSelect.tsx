@@ -7,10 +7,13 @@ interface ReferenceSelectProps {
   label: string;
   value: string;
   onChange: (id: string) => void;
+  name?: string;
+  error?: boolean;
+  helperText?: string;
 }
 
 /** Liste déroulante d'un référentiel de problèmes : uniquement les valeurs actives. */
-export default function ReferenceSelect({ kind, label, value, onChange }: ReferenceSelectProps) {
+export default function ReferenceSelect({ kind, label, value, onChange, name, error, helperText }: ReferenceSelectProps) {
   const references = useProblemReferences(kind, false);
   return (
     <TextField
@@ -19,6 +22,9 @@ export default function ReferenceSelect({ kind, label, value, onChange }: Refere
       fullWidth
       margin="dense"
       label={label}
+      name={name}
+      error={error}
+      helperText={helperText}
       value={references.data?.some((r) => r.id === value) ? value : ""}
       onChange={(e) => onChange(e.target.value)}
     >

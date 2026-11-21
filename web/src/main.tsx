@@ -11,6 +11,7 @@ import { GlobalStyles, ThemeProvider } from "@mui/material";
 import { queryClient } from "./api/queryClient.ts";
 import { SnackbarProvider } from "notistack";
 import { globalFocusStyles, theme } from "./shared/theme.ts";
+import FrenchLocalizationProvider from "./shared/dates/FrenchLocalizationProvider.tsx";
 import AccessibleSnackbar from "./shared/components/AccessibleSnackbar.tsx";
 import CustomKeycloakProvider from "./Keycloak/CustomKeycloakProvider.tsx";
 
@@ -20,19 +21,21 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <GlobalStyles styles={globalFocusStyles} />
-        <SnackbarProvider
-          maxSnack={1}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          Components={{
-            default: AccessibleSnackbar,
-            success: AccessibleSnackbar,
-            info: AccessibleSnackbar,
-            warning: AccessibleSnackbar,
-            error: AccessibleSnackbar,
-          }}
-        >
-          <App />
-        </SnackbarProvider>
+        <FrenchLocalizationProvider>
+          <SnackbarProvider
+            maxSnack={1}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            Components={{
+              default: AccessibleSnackbar,
+              success: AccessibleSnackbar,
+              info: AccessibleSnackbar,
+              warning: AccessibleSnackbar,
+              error: AccessibleSnackbar,
+            }}
+          >
+            <App />
+          </SnackbarProvider>
+        </FrenchLocalizationProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </CustomKeycloakProvider>

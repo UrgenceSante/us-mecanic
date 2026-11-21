@@ -106,6 +106,8 @@ describe("DocumentCategoriesPage", () => {
     await screen.findByText("Carte grise");
 
     fireEvent.click(screen.getByRole("button", { name: "Désactiver Carte grise" }));
+    expect(api.deactivateDocumentCategory).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole("button", { name: "Désactiver" }));
 
     await waitFor(() => expect(api.deactivateDocumentCategory).toHaveBeenCalledWith("c1"));
   });

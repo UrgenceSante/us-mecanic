@@ -17,6 +17,7 @@ import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
+import DeactivateDialog from "../../../shared/components/DeactivateDialog";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import {
@@ -35,6 +36,7 @@ type Editing = VehicleType | null | undefined;
 export default function VehicleTypesPage() {
   const { notifySuccess, notifyError } = useNotifSnack();
   const [editing, setEditing] = useState<Editing>(undefined);
+  const [toDeactivate, setToDeactivate] = useState<VehicleType | undefined>(undefined);
 
   const types = useVehicleTypes(true);
   const create = useCreateVehicleType();
@@ -62,6 +64,7 @@ export default function VehicleTypesPage() {
     deactivate.mutate(type.id, {
       onSuccess: () => notifySuccess(`Type « ${type.name} » désactivé`),
       onError: (error) => notifyError(vehicleTypeErrorMessage(error)),
+      onSettled: () => setToDeactivate(undefined),
     });
 
   return (
@@ -106,7 +109,7 @@ export default function VehicleTypesPage() {
                         <IconButton
                           aria-label={`Désactiver ${type.name}`}
                           disabled={deactivate.isPending}
-                          onClick={() => handleDeactivate(type)}
+                          onClick={() => setToDeactivate(type)}
                         >
                           <BlockIcon />
                         </IconButton>
@@ -132,6 +135,15 @@ export default function VehicleTypesPage() {
           error={mutation.isError ? vehicleTypeErrorMessage(mutation.error) : null}
           onSubmit={handleSubmit}
           onClose={closeDialog}
+        />
+      )}
+      {toDeactivate && (
+        <DeactivateDialog
+          definite={"le type"}
+          name={toDeactivate.name}
+          submitting={deactivate.isPending}
+          onConfirm={() => handleDeactivate(toDeactivate)}
+          onClose={() => setToDeactivate(undefined)}
         />
       )}
     </Stack>

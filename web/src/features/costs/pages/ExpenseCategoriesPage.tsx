@@ -26,7 +26,7 @@ import {
   useRenameExpenseCategory,
 } from "../api/expenseCategoryQueries";
 import { expenseCategoryErrorMessage } from "../api/expenseCategoryErrors";
-import DeactivateCategoryDialog from "../components/DeactivateCategoryDialog";
+import DeactivateDialog from "../../../shared/components/DeactivateDialog";
 import ExpenseCategoryNameDialog from "../components/ExpenseCategoryNameDialog";
 import type { ExpenseCategory } from "../types/expenseCategory";
 
@@ -140,7 +140,9 @@ export default function ExpenseCategoriesPage() {
         />
       )}
       {deactivating && (
-        <DeactivateCategoryDialog
+        <DeactivateDialog
+          definite="la catégorie"
+          feminine
           name={deactivating.name}
           submitting={deactivate.isPending}
           onConfirm={handleDeactivate}

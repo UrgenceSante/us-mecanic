@@ -4,6 +4,7 @@ import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loanEndMonth } from "../types/loan";
 import VehicleLoans from "./VehicleLoans";
+import { setDate } from "../../../test/dateField";
 
 const api = vi.hoisted(() => ({ listLoans: vi.fn(), addLoan: vi.fn(), updateLoan: vi.fn(), deleteLoan: vi.fn() }));
 vi.mock("../api/loansApi", () => api);
@@ -97,11 +98,13 @@ describe("VehicleLoans", () => {
     renderLoans();
     fireEvent.click(await screen.findByRole("button", { name: "Ajouter un emprunt" }));
     const submit = screen.getByRole("button", { name: "Ajouter" });
-    expect(submit).toBeDisabled();
+    fireEvent.click(submit);
+    expect(await screen.findByText("Indiquez l'organisme prêteur")).toBeInTheDocument();
+    expect(api.addLoan).not.toHaveBeenCalled();
     fireEvent.change(screen.getByLabelText(/Organisme prêteur/), { target: { value: " Banque " } });
     fireEvent.change(screen.getByLabelText(/Montant emprunté/), { target: { value: "12 000,5" } });
     fireEvent.change(screen.getByLabelText(/Mensualité/), { target: { value: "300" } });
-    fireEvent.change(screen.getByLabelText(/Date de début/), { target: { value: "2026-12-01" } });
+    setDate(/Date de début/, "2026-12-01");
     fireEvent.change(screen.getByLabelText(/Durée/), { target: { value: "24" } });
     fireEvent.click(submit);
     await waitFor(() =>
@@ -118,7 +121,7 @@ describe("VehicleLoans", () => {
     fireEvent.change(screen.getByLabelText(/Organisme prêteur/), { target: { value: "B" } });
     fireEvent.change(screen.getByLabelText(/Montant emprunté/), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText(/Mensualité/), { target: { value: "1" } });
-    fireEvent.change(screen.getByLabelText(/Date de début/), { target: { value: "2026-12-01" } });
+    setDate(/Date de début/, "2026-12-01");
     fireEvent.change(screen.getByLabelText(/Durée/), { target: { value: "2" } });
     fireEvent.click(screen.getByRole("button", { name: "Ajouter" }));
     expect(await screen.findByText(/sorti du parc/)).toBeInTheDocument();

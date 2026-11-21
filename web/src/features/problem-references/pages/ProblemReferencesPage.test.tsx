@@ -86,6 +86,8 @@ describe("ProblemReferencesPage", () => {
     await screen.findByText("Panne");
 
     fireEvent.click(screen.getByRole("button", { name: "Désactiver Panne" }));
+    expect(api.deactivateProblemReference).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole("button", { name: "Désactiver" }));
 
     await waitFor(() => expect(api.deactivateProblemReference).toHaveBeenCalledWith("api/problem-natures", "n1"));
   });

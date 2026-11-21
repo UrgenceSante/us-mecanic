@@ -18,6 +18,7 @@ import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { useState } from "react";
+import DeactivateDialog from "../../../shared/components/DeactivateDialog";
 import useBelow from "../../../shared/hooks/useBelow";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
@@ -42,6 +43,7 @@ export default function DeadlineTypesPage() {
   const { notifySuccess, notifyError } = useNotifSnack();
   const compact = useBelow("sm");
   const [editing, setEditing] = useState<Editing>(undefined);
+  const [toDeactivate, setToDeactivate] = useState<DeadlineType | undefined>(undefined);
 
   const types = useDeadlineTypes(true);
   const create = useCreateDeadlineType();
@@ -79,6 +81,7 @@ export default function DeadlineTypesPage() {
     deactivate.mutate(type.id, {
       onSuccess: () => notifySuccess(`Type « ${type.name} » désactivé`),
       onError: (error) => notifyError(deadlineTypeErrorMessage(error)),
+      onSettled: () => setToDeactivate(undefined),
     });
 
   return (
@@ -103,7 +106,7 @@ export default function DeadlineTypesPage() {
             deactivating={deactivate.isPending}
             onEdit={setEditing}
             onAssign={setAssigning}
-            onDeactivate={handleDeactivate}
+            onDeactivate={setToDeactivate}
           />
         </Paper>
       ) : (
@@ -148,7 +151,7 @@ export default function DeadlineTypesPage() {
                         <IconButton
                           aria-label={`Désactiver ${type.name}`}
                           disabled={deactivate.isPending}
-                          onClick={() => handleDeactivate(type)}
+                          onClick={() => setToDeactivate(type)}
                         >
                           <BlockIcon />
                         </IconButton>
@@ -178,6 +181,15 @@ export default function DeadlineTypesPage() {
           error={mutation.isError ? deadlineTypeErrorMessage(mutation.error) : null}
           onSubmit={handleSubmit}
           onClose={closeDialog}
+        />
+      )}
+      {toDeactivate && (
+        <DeactivateDialog
+          definite={"le type d'échéance"}
+          name={toDeactivate.name}
+          submitting={deactivate.isPending}
+          onConfirm={() => handleDeactivate(toDeactivate)}
+          onClose={() => setToDeactivate(undefined)}
         />
       )}
     </Stack>

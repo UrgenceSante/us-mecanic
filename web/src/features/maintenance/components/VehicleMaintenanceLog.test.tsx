@@ -4,6 +4,7 @@ import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VehicleMaintenanceLog from "./VehicleMaintenanceLog";
 import { todayLocalIso } from "../../mileage/types/date";
+import { dateInput, frenchDate } from "../../../test/dateField";
 
 const api = vi.hoisted(() => ({ listInterventions: vi.fn(), addIntervention: vi.fn(), deleteIntervention: vi.fn(), changeInterventionAmount: vi.fn() }));
 const deadlinesApi = vi.hoisted(() => ({ listVehicleDeadlines: vi.fn() }));
@@ -79,7 +80,7 @@ describe("VehicleMaintenanceLog", () => {
     api.addIntervention.mockResolvedValue(interventions[0]);
     renderLog();
     await openDialog();
-    expect(screen.getByLabelText(/Date de l'intervention/)).toHaveValue(todayLocalIso());
+    expect(dateInput(/Date de l'intervention/)).toHaveValue(frenchDate(todayLocalIso()));
     expect(screen.getByLabelText(/Kilométrage/)).toHaveValue(75000);
     expect(screen.queryByLabelText("Close")).toBeNull();
 
@@ -103,7 +104,8 @@ describe("VehicleMaintenanceLog", () => {
     expect(amount).toHaveAttribute("inputmode", "decimal");
     fireEvent.change(amount, { target: { value: "-3" } });
     expect(screen.getByText("Le montant ne peut pas être négatif.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Enregistrer/ })).toBeDisabled();
+    save();
+    expect(api.addIntervention).not.toHaveBeenCalled();
     fireEvent.change(amount, { target: { value: "89,9" } });
     save();
     await waitFor(() => expect(api.addIntervention).toHaveBeenCalled());
@@ -113,14 +115,16 @@ describe("VehicleMaintenanceLog", () => {
   it("exige les travaux et le km si une échéance cochée a un critère km", async () => {
     renderLog();
     await openDialog();
-    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+    save();
+    expect(await screen.findByText("Indiquez les travaux réalisés")).toBeInTheDocument();
     fillWork();
-    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeEnabled();
 
     fireEvent.change(screen.getByLabelText(/Kilométrage/), { target: { value: "" } });
     fireEvent.click(screen.getByLabelText("Vidange"));
-    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
     expect(screen.getByText(/critère kilométrique/)).toBeInTheDocument();
+    save();
+    expect(await screen.findByText("Indiquez le kilométrage")).toBeInTheDocument();
+    expect(api.addIntervention).not.toHaveBeenCalled();
   });
 
   it("demande un motif puis une confirmation, remise à zéro si le km change", async () => {

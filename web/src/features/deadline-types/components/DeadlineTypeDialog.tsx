@@ -1,5 +1,7 @@
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
-import { useState, type FormEvent } from "react";
+import { Stack, TextField } from "@mui/material";
+import { useState } from "react";
+import FormDialog from "../../../shared/components/FormDialog";
+import useFormErrors from "../../../shared/hooks/useFormErrors";
 import type { DeadlineType, DeadlineTypeInput } from "../types/deadlineType";
 
 interface DeadlineTypeDialogProps {
@@ -21,8 +23,10 @@ export default function DeadlineTypeDialog({ type, submitting, error, onSubmit, 
   const [soonDays, setSoonDays] = useState(toText(type?.dueSoonDays));
   const [soonKm, setSoonKm] = useState(toText(type?.dueSoonKm));
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const { validate, clear, fieldProps } = useFormErrors<"name">();
+
+  const handleSubmit = () => {
+    if (!validate({ name: name.trim() === "" && "Indiquez le nom" })) return;
     onSubmit({
       name: name.trim(),
       defaultIntervalMonths: toNumber(months),
@@ -40,47 +44,41 @@ export default function DeadlineTypeDialog({ type, submitting, error, onSubmit, 
       margin="dense"
       value={value}
       helperText={helper}
-      slotProps={{ htmlInput: { min: 1 } }}
+      slotProps={{ htmlInput: { min: 1, inputMode: "numeric" } }}
       onChange={(e) => set(e.target.value)}
     />
   );
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm">
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>{type ? "Modifier le type d'échéance" : "Ajouter un type d'échéance"}</DialogTitle>
-        <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ marginBottom: 2 }}>
-              {error}
-            </Alert>
-          )}
-          <TextField
-            label="Nom"
-            placeholder="Agrément ARS, extincteur…"
-            required
-            autoFocus
-            fullWidth
-            margin="dense"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
-            {numberField("Périodicité (mois)", months, setMonths, "Vide : pas de périodicité en mois")}
-            {numberField("Périodicité (km)", km, setKm, "Vide : pas de périodicité en km")}
-          </Stack>
-          <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
-            {numberField("Seuil « proche » (jours)", soonDays, setSoonDays, "Vide : seuil global")}
-            {numberField("Seuil « proche » (km)", soonKm, setSoonKm, "Vide : seuil global")}
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Annuler</Button>
-          <Button type="submit" variant="contained" disabled={submitting}>
-            Enregistrer
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+    <FormDialog
+      title={type ? "Modifier le type d'échéance" : "Ajouter un type d'échéance"}
+      submitLabel="Enregistrer"
+      submitting={submitting}
+      error={error}
+      onSubmit={handleSubmit}
+      onClose={onClose}
+    >
+      <TextField
+        label="Nom"
+        placeholder="Agrément ARS, extincteur…"
+        required
+        fullWidth
+        margin="dense"
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value);
+          clear("name");
+        }}
+        {...fieldProps("name")}
+      />
+      <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
+        {numberField("Périodicité (mois)", months, setMonths, "Vide : pas de périodicité en mois")}
+        {numberField("Périodicité (km)", km, setKm, "Vide : pas de périodicité en km")}
+      </Stack>
+      <Stack direction={{ xs: "column", sm: "row" }} gap={2}>
+        {numberField("Seuil « proche » (jours)", soonDays, setSoonDays, "Vide : seuil global")}
+        {numberField("Seuil « proche » (km)", soonKm, setSoonKm, "Vide : seuil global")}
+      </Stack>
+    </FormDialog>
   );
 }

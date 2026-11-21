@@ -9,6 +9,9 @@ interface AmountFieldProps {
   hint?: string;
   required?: boolean;
   autoFocus?: boolean;
+  name?: string;
+  /** Erreur de validation du formulaire (prioritaire sur l'erreur de format). */
+  errorText?: string;
 }
 
 /** Champ « Montant (€) » facultatif : clavier décimal sur mobile, virgule française acceptée. */
@@ -19,11 +22,15 @@ export default function AmountField({
   hint = "Facultatif",
   required = false,
   autoFocus = false,
+  name,
+  errorText,
 }: AmountFieldProps) {
-  const { error } = parseAmount(value);
+  const { error: formatError } = parseAmount(value);
+  const error = errorText ?? formatError;
   return (
     <TextField
       label={label}
+      name={name}
       required={required}
       autoFocus={autoFocus}
       fullWidth

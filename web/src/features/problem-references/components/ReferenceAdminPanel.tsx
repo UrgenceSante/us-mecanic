@@ -16,6 +16,7 @@ import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
+import DeactivateDialog from "../../../shared/components/DeactivateDialog";
 import ErrorHandler from "../../../components/Utils/Error/ErrorHandler";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import {
@@ -35,6 +36,7 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
   const { kind } = config;
   const { notifySuccess, notifyError } = useNotifSnack();
   const [editing, setEditing] = useState<Editing>(undefined);
+  const [toDeactivate, setToDeactivate] = useState<ProblemReference | undefined>(undefined);
 
   const items = useProblemReferences(kind, true);
   const create = useCreateProblemReference(kind);
@@ -62,6 +64,7 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
     deactivate.mutate(item.id, {
       onSuccess: () => notifySuccess(`« ${item.name} » désactivé${config.feminine ? "e" : ""}`),
       onError: (error) => notifyError(problemReferenceErrorMessage(error, config)),
+      onSettled: () => setToDeactivate(undefined),
     });
 
   return (
@@ -103,7 +106,7 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
                         <IconButton
                           aria-label={`Désactiver ${item.name}`}
                           disabled={deactivate.isPending}
-                          onClick={() => handleDeactivate(item)}
+                          onClick={() => setToDeactivate(item)}
                         >
                           <BlockIcon />
                         </IconButton>
@@ -132,6 +135,16 @@ export default function ReferenceAdminPanel({ config }: { config: ProblemReferen
           error={mutation.isError ? problemReferenceErrorMessage(mutation.error, config) : null}
           onSubmit={handleSubmit}
           onClose={closeDialog}
+        />
+      )}
+      {toDeactivate && (
+        <DeactivateDialog
+          definite={config.definite}
+          feminine={config.feminine}
+          name={toDeactivate.name}
+          submitting={deactivate.isPending}
+          onConfirm={() => handleDeactivate(toDeactivate)}
+          onClose={() => setToDeactivate(undefined)}
         />
       )}
     </Stack>

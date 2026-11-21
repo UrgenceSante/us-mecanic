@@ -7,6 +7,7 @@ import {
 } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VehicleMileage from "./VehicleMileage";
+import { dateInput, frenchDate } from "../../../test/dateField";
 
 const api = vi.hoisted(() => ({
   listMileageReadings: vi.fn(),
@@ -80,7 +81,7 @@ describe("VehicleMileage : correction des relevés", () => {
     );
     const km = await screen.findByLabelText(/Kilométrage/);
     expect(km).toHaveValue(9000);
-    expect(screen.getByLabelText(/Date du relevé/)).toHaveValue("2026-01-05");
+    expect(dateInput(/Date du relevé/)).toHaveValue(frenchDate("2026-01-05"));
     expect(screen.getByLabelText(/Motif/)).toHaveValue("Compteur changé");
 
     fireEvent.change(km, { target: { value: "9500" } });

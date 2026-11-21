@@ -8,6 +8,7 @@ import {
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VehicleMileage from "./VehicleMileage";
 import { todayLocalIso } from "../types/date";
+import { dateInput, frenchDate } from "../../../test/dateField";
 
 const api = vi.hoisted(() => ({
   listMileageReadings: vi.fn(),
@@ -105,9 +106,7 @@ describe("VehicleMileage", () => {
     renderBlock();
 
     fireEvent.change(await openForm(), { target: { value: "12500" } });
-    expect(screen.getByLabelText(/Date du relevé/)).toHaveValue(
-      todayLocalIso(),
-    );
+    expect(dateInput(/Date du relevé/)).toHaveValue(frenchDate(todayLocalIso()));
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
     await waitFor(() =>
