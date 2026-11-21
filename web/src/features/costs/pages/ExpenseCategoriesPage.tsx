@@ -99,7 +99,7 @@ export default function ExpenseCategoriesPage() {
                 <TableRow key={category.id}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>
-                    <ActiveStatusChip isActive={category.isActive} />
+                    <ActiveStatusChip isActive={category.isActive} feminine />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Renommer">

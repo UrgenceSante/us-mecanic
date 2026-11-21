@@ -42,7 +42,7 @@ describe("ExpenseCategoriesPage", () => {
     expect(screen.getByLabelText("Chargement")).toBeInTheDocument();
     expect(await screen.findByText("Carburant")).toBeInTheDocument();
     expect(api.listExpenseCategories).toHaveBeenCalledWith(true);
-    expect(screen.getByText("Désactivé")).toBeInTheDocument();
+    expect(screen.getByText("Désactivée")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Désactiver Carburant" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Désactiver Ancienne" })).not.toBeInTheDocument();
   });
