@@ -111,6 +111,7 @@ public static class DependencyInjection
         services.AddScoped<DeleteMileageReading>();
         services.AddScoped<ListLoans>();
         services.AddScoped<CostLineReader>();
+        services.AddScoped<CostCompanyScope>();
         services.AddScoped<GetCostSummary>();
         services.AddScoped<AddLoan>();
         services.AddScoped<UpdateLoan>();

@@ -16,6 +16,9 @@ public interface IRentalRepository
     /// </summary>
     Task<IReadOnlyList<Rental>> ListCoveringAsync(DateOnly day, IReadOnlyCollection<Guid>? vehicleIds, CancellationToken cancellationToken);
 
+    /// <summary>Locations qui partagent au moins un jour avec la période, pour tout le parc (une seule requête).</summary>
+    Task<IReadOnlyList<Rental>> ListOverlappingAsync(DateOnly firstDay, DateOnly lastDay, CancellationToken cancellationToken);
+
     /// <summary>La société loue ce véhicule en ce moment ou à partir d'une date future (location non terminée au jour donné).</summary>
     Task<bool> HasCurrentOrUpcomingAsync(Guid vehicleId, Guid tenantCompanyId, DateOnly today, CancellationToken cancellationToken);
 
