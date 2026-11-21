@@ -97,8 +97,6 @@ export default function VehicleDetailPage() {
         </Stack>
       </Paper>
 
-      <VehicleRentals vehicle={data} />
-
       <VehicleMileage
         vehicleId={data.id}
         status={data.status}
@@ -107,6 +105,8 @@ export default function VehicleDetailPage() {
       />
 
       <VehicleDeadlines vehicleId={data.id} status={data.status} currentMileage={data.currentMileage} />
+
+      <VehicleRentals vehicle={data} onFillOwner={() => setEditing(true)} />
 
       <VehicleMaintenanceLog vehicleId={data.id} status={data.status} currentMileage={data.currentMileage} />
 

@@ -11,10 +11,14 @@ interface VehicleCompanyFilterProps {
   onChange: (value: string) => void;
   /** Propose « À renseigner » (filtre propriétaire uniquement). */
   allowMissing?: boolean;
+  /** Explication de la règle, en texte d'aide permanent sous le champ. */
+  hint?: string;
+  /** Largeur minimale alignée sur les autres filtres de la page (sinon : mise en page du parc). */
+  minWidth?: number;
 }
 
 /** Filtre du parc par société : toutes les sociétés (même désactivées, elles peuvent encore posséder des véhicules). */
-export default function VehicleCompanyFilter({ label, value, onChange, allowMissing = false }: VehicleCompanyFilterProps) {
+export default function VehicleCompanyFilter({ label, value, onChange, allowMissing = false, hint, minWidth }: VehicleCompanyFilterProps) {
   const companies = useCompanies(true).data ?? [];
   const known = value === "" || value === OWNER_MISSING || companies.some((c) => c.id === value);
   return (
@@ -24,7 +28,8 @@ export default function VehicleCompanyFilter({ label, value, onChange, allowMiss
       size="small"
       value={known ? value : ""}
       onChange={(e) => onChange(e.target.value)}
-      sx={{ minWidth: 170, flex: { xs: "1 1 40%", md: "0 0 auto" } }}
+      helperText={hint}
+      sx={minWidth ? { width: { xs: "100%", sm: minWidth } } : { minWidth: 170, flex: { xs: "1 1 40%", md: "0 0 auto" } }}
     >
       <MenuItem value="">Tous</MenuItem>
       {allowMissing && <MenuItem value={OWNER_MISSING}>À renseigner</MenuItem>}

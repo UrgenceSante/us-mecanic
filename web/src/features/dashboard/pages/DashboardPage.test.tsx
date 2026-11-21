@@ -131,6 +131,20 @@ describe("DashboardPage", () => {
       expect(api.listDashboardDeadlines).toHaveBeenLastCalledWith(expect.objectContaining({ companyId: "c2" })),
     );
     expect(await screen.findByText("Aucune échéance ne correspond aux filtres")).toBeInTheDocument();
+    api.listDashboardDeadlines.mockResolvedValue([]);
+    fireEvent.click(screen.getByRole("button", { name: "Réinitialiser les filtres" }));
+    await waitFor(() =>
+      expect(api.listDashboardDeadlines).toHaveBeenLastCalledWith(expect.objectContaining({ companyId: "" })),
+    );
+    expect(screen.getByRole("combobox", { name: "Société" })).not.toHaveTextContent("Ancienne");
+  });
+
+  it("explique la règle du filtre Société", async () => {
+    renderPage();
+    await screen.findByText("Vidange");
+    const combobox = screen.getByRole("combobox", { name: "Société" });
+    const help = screen.getByText("Véhicules dont la société est propriétaire ou utilisatrice actuelle");
+    expect(combobox.getAttribute("aria-describedby")).toBe(help.id);
   });
 
   it("marque une échéance réalisée avec le km obligatoire", async () => {

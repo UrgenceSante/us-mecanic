@@ -103,7 +103,7 @@ locations datées entre sociétés. Aucune migration ne modifie de données exis
 - [x] Import de véhicules : colonne `Propriétaire` facultative, modèle CSV et README
 - [x] Synthèse des coûts : filtres Société propriétaire et Société locataire (API et front)
 - [x] Tableau de bord : filtre Société (propriétaire ou utilisateur actuel)
-- [ ] Passe `ux` de la phase (ordinateur, iPad, téléphone) et corrections prioritaires
+- [x] Passe `ux` de la phase (ordinateur, iPad, téléphone) et corrections prioritaires
 - [x] (Could) Sociétés fictives et locations dans le script de démonstration
 
 ## Phase 6 — Documents

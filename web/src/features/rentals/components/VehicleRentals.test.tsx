@@ -48,10 +48,12 @@ describe("VehicleRentals", () => {
     renderWith(<VehicleRentals vehicle={baseVehicle} />);
     expect(await screen.findByRole("heading", { name: "Propriétaire et locations" })).toBeInTheDocument();
     const rows = (await screen.findAllByRole("row")).slice(1);
-    expect(rows).toHaveLength(3);
+    expect(rows).toHaveLength(2);
     expect(within(rows[0]).getByRole("img", { name: "État : Prévue" })).toBeInTheDocument();
     expect(within(rows[1]).getByRole("img", { name: "État : En cours" })).toBeInTheDocument();
-    expect(within(rows[2]).getByRole("img", { name: "État : Terminée" })).toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: "État : Terminée" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Voir la location terminée" }));
+    expect(screen.getByRole("img", { name: "État : Terminée" })).toBeInTheDocument();
     expect(screen.getByText("Société B (locataire)")).toBeInTheDocument();
   });
 
@@ -63,9 +65,32 @@ describe("VehicleRentals", () => {
 
   it("désactive l'ajout sans propriétaire, avec une explication", async () => {
     api.listRentals.mockResolvedValue([]);
-    renderWith(<VehicleRentals vehicle={{ ...baseVehicle, owner: null, currentUser: { company: null, source: "NotSet" } }} />);
+    const onFillOwner = vi.fn();
+    renderWith(<VehicleRentals vehicle={{ ...baseVehicle, owner: null, currentUser: { company: null, source: "NotSet" } }} onFillOwner={onFillOwner} />);
     expect(await screen.findByRole("button", { name: "Ajouter une location" })).toBeDisabled();
     expect(screen.getByText("Renseignez d'abord le propriétaire du véhicule.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Renseigner le propriétaire" })).toBeInTheDocument();
+    expect(screen.queryByText("Propriétaire à renseigner")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Renseigner le propriétaire" }));
+    expect(onFillOwner).toHaveBeenCalledTimes(1);
+  });
+
+  it("ne répète pas le propriétaire et n'affiche que l'utilisateur actuel", async () => {
+    api.listRentals.mockResolvedValue([]);
+    renderWith(<VehicleRentals vehicle={baseVehicle} />);
+    expect(await screen.findByText("Utilisateur actuel")).toBeInTheDocument();
+    expect(screen.queryByText("Société A")).toBeNull();
+  });
+
+  it("exclut le propriétaire des locataires proposés", async () => {
+    const { listCompanies } = await import("../../companies/api/companiesApi");
+    vi.mocked(listCompanies).mockResolvedValue([owner, tenant]);
+    api.listRentals.mockResolvedValue([]);
+    renderWith(<VehicleRentals vehicle={baseVehicle} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Ajouter une location" }));
+    fireEvent.mouseDown(await screen.findByRole("combobox", { name: /Société locataire/ }));
+    expect(await screen.findByRole("option", { name: "Société B" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Société A" })).toBeNull();
   });
 
   it("désactive l'ajout sur un véhicule sorti du parc mais garde les autres actions", async () => {
@@ -81,7 +106,7 @@ describe("VehicleRentals", () => {
     api.endRental.mockResolvedValue(ongoing);
     renderWith(<VehicleRentals vehicle={baseVehicle} />);
     fireEvent.click(await screen.findByRole("button", { name: /Terminer la location/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Terminer" }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Terminer" }));
     await waitFor(() => expect(api.endRental).toHaveBeenCalledTimes(1));
     const [vehicleId, rentalId, endDate] = api.endRental.mock.calls[0];
     expect([vehicleId, rentalId]).toEqual(["v1", "r1"]);
@@ -91,7 +116,7 @@ describe("VehicleRentals", () => {
   it("affiche l'erreur de chevauchement à côté de la date de début", async () => {
     api.listRentals.mockResolvedValue([]);
     api.updateRental.mockRejectedValue(problem("rental.overlap", "Chevauche la location à B du 01/02/2026 au 31/03/2026"));
-    api.listRentals.mockResolvedValue([ended]);
+    api.listRentals.mockResolvedValue([planned]);
     renderWith(<VehicleRentals vehicle={baseVehicle} />);
     fireEvent.click(await screen.findByRole("button", { name: /Modifier la location/ }));
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
@@ -102,6 +127,7 @@ describe("VehicleRentals", () => {
     api.listRentals.mockResolvedValue([ended]);
     api.deleteRental.mockResolvedValue(undefined);
     renderWith(<VehicleRentals vehicle={baseVehicle} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Voir la location terminée" }));
     fireEvent.click(await screen.findByRole("button", { name: /Supprimer la location/ }));
     expect(screen.getByText(/Supprimer la location à Société B du 01\/01\/2025 au 31\/03\/2025 \? Cette action est définitive\./)).toBeInTheDocument();
     expect(api.deleteRental).not.toHaveBeenCalled();

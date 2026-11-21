@@ -8,13 +8,15 @@ import type { Rental, RentalInput } from "../types/rental";
 interface RentalFormDialogProps {
   /** Location à modifier ; absente pour un ajout. */
   rental?: Rental;
+  /** Propriétaire du véhicule, exclu des locataires proposés. */
+  ownerId?: string;
   submitting: boolean;
   error: unknown;
   onSubmit: (input: RentalInput) => void;
   onClose: () => void;
 }
 
-export default function RentalFormDialog({ rental, submitting, error, onSubmit, onClose }: RentalFormDialogProps) {
+export default function RentalFormDialog({ rental, ownerId, submitting, error, onSubmit, onClose }: RentalFormDialogProps) {
   const [tenantId, setTenantId] = useState(rental?.tenant.id ?? "");
   const [startDate, setStartDate] = useState(rental?.startDate ?? "");
   const [endDate, setEndDate] = useState(rental?.endDate ?? "");
@@ -44,6 +46,7 @@ export default function RentalFormDialog({ rental, submitting, error, onSubmit, 
               onChange={setTenantId}
               emptyLabel="Choisir une société"
               allowEmpty={false}
+              excludeId={ownerId}
               current={rental?.tenant}
               {...fieldProps("tenant")}
               autoFocus

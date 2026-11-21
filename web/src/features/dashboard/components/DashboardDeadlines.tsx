@@ -1,4 +1,4 @@
-import { Alert, Stack, Typography } from "@mui/material";
+import { Alert, Button, Stack, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
 import useNotifSnack from "../../../hooks/useNotifSnack";
 import { completionFlow } from "../../vehicle-deadlines/api/completionFlow";
@@ -61,7 +61,10 @@ export default function DashboardDeadlines() {
       {deadlines.isError && <Alert severity="error">{deadlineErrorMessage(deadlines.error)}</Alert>}
       {deadlines.data && deadlines.data.length === 0 && (
         isFiltered ? (
-          <Typography>Aucune échéance ne correspond aux filtres</Typography>
+          <Stack alignItems="flex-start" gap={1}>
+            <Typography>Aucune échéance ne correspond aux filtres</Typography>
+            <Button onClick={() => setFilter(emptyDashboardFilter)}>Réinitialiser les filtres</Button>
+          </Stack>
         ) : (
           <Alert severity="success">Rien d'urgent : toutes les échéances sont à jour</Alert>
         )

@@ -114,7 +114,7 @@ describe("CostSummaryPage", () => {
       }),
     );
     renderPage();
-    expect(await screen.findByText(/Ne compte que les dépenses faites pendant une location/)).toBeInTheDocument();
+    expect(await screen.findByText(/dépenses datées pendant une location/)).toBeInTheDocument();
 
     fireEvent.mouseDown(screen.getByLabelText("Société propriétaire"));
     fireEvent.click(await screen.findByRole("option", { name: "Société A" }));

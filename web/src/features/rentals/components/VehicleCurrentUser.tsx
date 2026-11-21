@@ -1,4 +1,3 @@
-import { Stack, Typography } from "@mui/material";
 import PropertyDisplay from "../../../components/Utils/PropertyDisplay";
 import type { Company } from "../../companies/types/company";
 import type { VehicleUser, VehicleUserSource } from "../../vehicles/types/vehicle";
@@ -11,19 +10,12 @@ const sourceLabels: Record<VehicleUserSource, string> = {
 
 const withState = (company: Company) => `${company.name}${company.isActive ? "" : " (désactivée)"}`;
 
-/** Propriétaire et utilisateur actuel (règle R4). */
-export default function VehicleCurrentUser({ owner, currentUser }: { owner: Company | null; currentUser: VehicleUser }) {
+/** Utilisateur actuel (règle R4) ; le propriétaire est affiché dans l'en-tête de la fiche. */
+export default function VehicleCurrentUser({ currentUser }: { currentUser: VehicleUser }) {
   return (
-    <Stack gap={0.5}>
-      {owner ? (
-        <PropertyDisplay title="Propriétaire" content={withState(owner)} />
-      ) : (
-        <Typography color="warning.main">Propriétaire à renseigner</Typography>
-      )}
-      <PropertyDisplay
-        title="Utilisateur actuel"
-        content={currentUser.company ? `${withState(currentUser.company)}${sourceLabels[currentUser.source]}` : "Non renseigné"}
-      />
-    </Stack>
+    <PropertyDisplay
+      title="Utilisateur actuel"
+      content={currentUser.company ? `${withState(currentUser.company)}${sourceLabels[currentUser.source]}` : "Non renseigné"}
+    />
   );
 }

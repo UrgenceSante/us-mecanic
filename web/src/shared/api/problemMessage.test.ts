@@ -20,6 +20,12 @@ describe("problemMessage", () => {
     );
   });
 
+  it("préfère le détail au titre (ex. un 409 « Conflit »)", () => {
+    expect(problemMessage(axiosError({ title: "Conflit", detail: "Cette société est déjà utilisée." }))).toBe(
+      "Cette société est déjà utilisée.",
+    );
+  });
+
   it("signale une API injoignable quand il n'y a pas de réponse", () => {
     expect(problemMessage(axiosError())).toBe("API injoignable.");
   });

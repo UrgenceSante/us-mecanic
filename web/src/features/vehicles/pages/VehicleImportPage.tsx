@@ -56,7 +56,7 @@ export default function VehicleImportPage() {
             </li>
           </ul>
         </Typography>
-        <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
+        <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap" marginTop={2}>
           <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => fileInput.current?.click()}>
             Choisir un fichier
             <input

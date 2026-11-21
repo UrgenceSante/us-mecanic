@@ -18,7 +18,7 @@ export default function DashboardFilters({ value, onChange }: DashboardFiltersPr
   const typeOptions = deadlineTypes.data ?? [];
 
   return (
-    <Stack direction="row" gap={2} flexWrap="wrap">
+    <Stack direction="row" gap={2} flexWrap="wrap" alignItems="flex-start">
       <TextField
         select
         size="small"
@@ -58,7 +58,12 @@ export default function DashboardFilters({ value, onChange }: DashboardFiltersPr
           </MenuItem>
         ))}
       </TextField>
-      <VehicleCompanyFilter label="Société" value={value.companyId} onChange={(companyId) => set({ companyId })} />
+      <VehicleCompanyFilter
+        label="Société"
+        minWidth={180}
+        hint="Véhicules dont la société est propriétaire ou utilisatrice actuelle"
+        value={value.companyId} onChange={(companyId) => set({ companyId })}
+      />
       <TextField
         select
         size="small"
