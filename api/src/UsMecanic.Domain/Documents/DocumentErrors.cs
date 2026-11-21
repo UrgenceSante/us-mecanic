@@ -17,6 +17,9 @@ public static class DocumentErrors
     public static readonly DomainError AttachmentAmbiguous =
         new("document.attachment_ambiguous", "Une facture est rattachée à une intervention ou à une dépense, pas aux deux.");
 
+    public static readonly DomainError ExpenseNotAttachable =
+        DomainError.Conflict("document.expense_not_attachable", "Seule une dépense ponctuelle saisie à la main peut recevoir une facture.");
+
     public static readonly DomainError LabelTooLong =
         new("document.label_too_long", $"Le libellé est limité à {Document.MaxLabelLength} caractères.");
 

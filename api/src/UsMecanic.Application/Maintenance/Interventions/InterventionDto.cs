@@ -1,6 +1,6 @@
 namespace UsMecanic.Application.Maintenance.Interventions;
 
-/// <summary>Intervention du carnet d'entretien, avec son garage et les échéances qu'elle a réalisées.</summary>
+/// <summary>Intervention du carnet d'entretien, avec son garage et les échéances qu'elle a réalisées et le nombre de factures jointes.</summary>
 public sealed record InterventionDto(
     Guid Id,
     Guid VehicleId,
@@ -10,7 +10,8 @@ public sealed record InterventionDto(
     string Work,
     DateTimeOffset RecordedAt,
     decimal? Amount,
-    IReadOnlyList<InterventionDeadlineDto> Deadlines);
+    IReadOnlyList<InterventionDeadlineDto> Deadlines,
+    int DocumentCount);
 
 public sealed record InterventionGarageDto(Guid Id, string Name);
 

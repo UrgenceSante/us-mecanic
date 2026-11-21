@@ -24,6 +24,34 @@ internal sealed class InMemoryDocuments : IDocumentRepository, IDocumentStorage
     public Task<IReadOnlyList<Document>> ListByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Document>>([.. Saved.Where(d => d.VehicleId == vehicleId).OrderByDescending(d => d.AddedAt)]);
 
+    public Task<IReadOnlyList<Document>> ListByInterventionAsync(Guid vehicleId, Guid interventionId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Document>>(
+            [.. Saved.Where(d => d.VehicleId == vehicleId && d.InterventionId == interventionId).OrderByDescending(d => d.AddedAt)]);
+
+    public Task<IReadOnlyList<Document>> ListByExpenseAsync(Guid vehicleId, Guid expenseId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Document>>(
+            [.. Saved.Where(d => d.VehicleId == vehicleId && d.ExpenseId == expenseId).OrderByDescending(d => d.AddedAt)]);
+
+    public int CountCalls { get; private set; }
+
+    public Task<IReadOnlyDictionary<Guid, int>> CountByInterventionAsync(Guid vehicleId, CancellationToken cancellationToken)
+    {
+        CountCalls++;
+        return Task.FromResult<IReadOnlyDictionary<Guid, int>>(Saved
+            .Where(d => d.VehicleId == vehicleId && d.InterventionId is not null)
+            .GroupBy(d => d.InterventionId!.Value)
+            .ToDictionary(g => g.Key, g => g.Count()));
+    }
+
+    public Task<IReadOnlyDictionary<Guid, int>> CountByExpenseAsync(Guid vehicleId, CancellationToken cancellationToken)
+    {
+        CountCalls++;
+        return Task.FromResult<IReadOnlyDictionary<Guid, int>>(Saved
+            .Where(d => d.VehicleId == vehicleId && d.ExpenseId is not null)
+            .GroupBy(d => d.ExpenseId!.Value)
+            .ToDictionary(g => g.Key, g => g.Count()));
+    }
+
     public void Add(Document document) => _pending.Add(document);
 
     public void Remove(Document document) => _removed.Add(document);
@@ -72,6 +100,15 @@ internal sealed class InMemoryDocuments : IDocumentRepository, IDocumentStorage
     {
         var file = new DocumentFile("facture.pdf", DocumentContentType.Pdf, 8);
         var document = Document.CreateInvoice(vehicleId, interventionId, null, null, file, addedAt).Value;
+        Saved.Add(document);
+        _contents[document.Id] = [.. "%PDF-1.7"u8];
+        return document;
+    }
+
+    public Document SeedExpenseInvoice(Guid vehicleId, Guid expenseId, DateTimeOffset addedAt)
+    {
+        var file = new DocumentFile("facture.pdf", DocumentContentType.Pdf, 8);
+        var document = Document.CreateInvoice(vehicleId, null, expenseId, null, file, addedAt).Value;
         Saved.Add(document);
         _contents[document.Id] = [.. "%PDF-1.7"u8];
         return document;

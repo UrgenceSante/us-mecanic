@@ -23,6 +23,7 @@ public class InterventionUseCasesTests
     private readonly InMemoryGarageRepository _garages = new();
     private readonly InMemoryInterventionRepository _interventions = new();
     private readonly FixedClock _clock = new();
+    private readonly InMemoryDocuments _documents = new();
     private readonly Vehicle _vehicle;
     private readonly DeadlineType _inspection;
     private readonly DeadlineType _maintenance;
@@ -43,7 +44,7 @@ public class InterventionUseCasesTests
 
     private DeleteIntervention Delete => new(new MileageVehicleGuard(_vehicles), _interventions);
 
-    private InterventionDtoFactory DtoFactory => new(_garages, _deadlines, _types);
+    private InterventionDtoFactory DtoFactory => new(_garages, _deadlines, _types, _documents);
 
     private async Task<VehicleDeadlineDto> AddDeadlineAsync(Guid vehicleId, VehicleDeadlineInput input)
     {

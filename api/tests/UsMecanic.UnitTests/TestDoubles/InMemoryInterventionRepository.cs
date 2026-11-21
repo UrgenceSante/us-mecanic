@@ -15,6 +15,15 @@ internal sealed class InMemoryInterventionRepository : IInterventionRepository
 
     public int ListCalls { get; private set; }
 
+    /// <summary>Ajoute directement une intervention enregistrée, à la date donnée.</summary>
+    public Intervention SeedFor(Guid vehicleId, DateOnly date)
+    {
+        var now = new DateTimeOffset(date.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        var intervention = Intervention.Create(vehicleId, date, null, null, "Révision", [], date, now).Value;
+        Saved.Add(intervention);
+        return intervention;
+    }
+
     public Task<IReadOnlyList<Intervention>> ListByVehicleAsync(Guid vehicleId, CancellationToken cancellationToken)
     {
         ListCalls++;
