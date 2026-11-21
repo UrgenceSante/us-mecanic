@@ -6,6 +6,7 @@ using UsMecanic.Application.Costs.ExpenseCategories;
 using UsMecanic.Application.Costs.Expenses;
 using UsMecanic.Application.Costs.Loans;
 using UsMecanic.Application.Deadlines;
+using UsMecanic.Application.Documents;
 using UsMecanic.Application.Documents.Categories;
 using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Application.Maintenance.Interventions;
@@ -55,6 +56,8 @@ public static class DependencyInjection
         services.AddScoped<IGarageRepository, GarageRepository>();
         services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
         services.AddScoped<IDocumentCategoryRepository, DocumentCategoryRepository>();
+        services.AddScoped<IDocumentRepository, DocumentRepository>();
+        services.AddScoped<IDocumentStorage, PostgresDocumentStorage>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IRentalRepository, RentalRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();

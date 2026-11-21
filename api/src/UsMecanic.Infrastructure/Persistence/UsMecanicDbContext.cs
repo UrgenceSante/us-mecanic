@@ -8,6 +8,7 @@ using UsMecanic.Domain.Mileage;
 using UsMecanic.Domain.Problems;
 using UsMecanic.Domain.Rentals;
 using UsMecanic.Domain.Vehicles;
+using UsMecanic.Infrastructure.Documents;
 
 namespace UsMecanic.Infrastructure.Persistence;
 
@@ -24,6 +25,10 @@ public sealed class UsMecanicDbContext(DbContextOptions<UsMecanicDbContext> opti
     public DbSet<Expense> Expenses => Set<Expense>();
 
     public DbSet<DocumentCategory> DocumentCategories => Set<DocumentCategory>();
+
+    public DbSet<Document> Documents => Set<Document>();
+
+    internal DbSet<DocumentContentRecord> DocumentContents => Set<DocumentContentRecord>();
 
     public DbSet<Company> Companies => Set<Company>();
 
