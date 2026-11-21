@@ -6,6 +6,7 @@ using UsMecanic.Application.Costs.Loans;
 using UsMecanic.Application.Costs.Summary;
 using UsMecanic.Application.Dashboard;
 using UsMecanic.Application.Deadlines;
+using UsMecanic.Application.Documents;
 using UsMecanic.Application.Documents.Categories;
 using UsMecanic.Application.Maintenance.Garages;
 using UsMecanic.Application.Maintenance.Interventions;
@@ -65,6 +66,10 @@ public static class DependencyInjection
         services.AddScoped<CreateDocumentCategory>();
         services.AddScoped<RenameDocumentCategory>();
         services.AddScoped<DeactivateDocumentCategory>();
+        services.AddScoped<AddVehicleDocument>();
+        services.AddScoped<ListVehicleDocuments>();
+        services.AddScoped<GetVehicleDocumentContent>();
+        services.AddScoped<DeleteVehicleDocument>();
         services.AddScoped<ListCompanies>();
         services.AddScoped<CreateCompany>();
         services.AddScoped<RenameCompany>();
