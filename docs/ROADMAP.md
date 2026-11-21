@@ -111,7 +111,7 @@ locations datées entre sociétés. Aucune migration ne modifie de données exis
 Spec : `docs/specs/phase-6-documents.md` (stockage : `docs/decisions/0002-stockage-des-documents.md`).
 Pièces jointes du véhicule (carte grise, attestation d'assurance…) et factures des interventions et dépenses.
 
-- [ ] Catégories de document administrables : API, valeurs initiales, écran « Administration »
+- [x] Catégories de document administrables : API, valeurs initiales, écran « Administration »
 - [x] Stockage des documents : port `IDocumentStorage`, adaptateur PostgreSQL (métadonnées et contenu séparés),
       contrôles du fichier (PDF / JPEG / PNG par signature, 10 Mo)
 - [ ] Documents du véhicule (API) : ajout, liste avec les factures, ouverture / téléchargement, suppression
